@@ -1,6 +1,8 @@
 package me.bristermitten.pdm.dependency;
 
+import me.bristermitten.pdm.repository.JarRepository;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -14,11 +16,20 @@ public class Dependency
     @NotNull
     private final String version;
 
+    @Nullable
+    private final JarRepository sourceRepository;
+
     public Dependency(@NotNull String groupId, @NotNull String artifactId, @NotNull String version)
+    {
+        this(groupId, artifactId, version, null);
+    }
+
+    public Dependency(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @Nullable JarRepository sourceRepository)
     {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
+        this.sourceRepository = sourceRepository;
     }
 
     public @NotNull String getGroupId()
@@ -36,6 +47,10 @@ public class Dependency
         return version;
     }
 
+    public JarRepository getSourceRepository()
+    {
+        return sourceRepository;
+    }
 
     @Override
     public String toString()

@@ -79,4 +79,30 @@ public class MavenRepository implements JarRepository
                 dependency.getVersion(),
                 MessageFormat.format("{0}-{1}.pom", dependency.getArtifactId(), dependency.getVersion()));
     }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (!(o instanceof MavenRepository)) return false;
+        MavenRepository that = (MavenRepository) o;
+        return Objects.equals(baseURL, that.baseURL);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(baseURL);
+    }
+
+    @Override
+    public String toString()
+    {
+        return "MavenRepository{" +
+                "baseURL='" + baseURL + '\'' +
+                ", httpManager=" + httpManager +
+                ", manager=" + manager +
+                ", containing=" + containing +
+                '}';
+    }
 }

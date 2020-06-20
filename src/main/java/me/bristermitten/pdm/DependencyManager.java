@@ -4,6 +4,7 @@ import me.bristermitten.pdm.dependency.Dependency;
 import me.bristermitten.pdm.http.HTTPManager;
 import me.bristermitten.pdm.repository.JarRepository;
 import me.bristermitten.pdm.repository.MavenCentralRepository;
+import me.bristermitten.pdm.repository.RepositoryManager;
 import me.bristermitten.pdm.util.FileUtil;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +13,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,7 +28,7 @@ public class DependencyManager
     @NotNull
     private final Plugin managing;
 
-    private final Map<String, JarRepository> repositories = new HashMap<>();
+    private final RepositoryManager repositoryManager;
 
     private final HTTPManager manager;
 
@@ -39,14 +41,26 @@ public class DependencyManager
         this.managing = managing;
         this.manager = new HTTPManager(managing.getLogger());
         this.loader = new DependencyLoader(managing);
-        loadRepositories();
         pdmDirectory = new File(managing.getDataFolder().getParentFile(), PDM_DIRECTORY_NAME);
+
+        repositoryManager = new RepositoryManager();
+        loadRepositories();
+    }
+
+    public RepositoryManager getRepositoryManager()
+    {
+        return repositoryManager;
+    }
+
+    public HTTPManager getManager()
+    {
+        return manager;
     }
 
     private void loadRepositories()
     {
-        repositories.put(
-                "maven-central", new MavenCentralRepository(manager, this)
+        repositoryManager.addRepository(
+                MavenCentralRepository.MAVEN_CENTRAL_ALIAS, new MavenCentralRepository(manager, this)
         );
     }
 
@@ -63,17 +77,33 @@ public class DependencyManager
         {
             return inProgress;
         }
+
         FileUtil.createDirectoryIfNotPresent(pdmDirectory);
 
         File file = new File(pdmDirectory, dependency.getArtifactId() + "-" + dependency.getVersion() + ".jar");
 
         CompletableFuture<File> fileFuture = new CompletableFuture<>();
         downloadsInProgress.put(dependency, fileFuture);
-        for (JarRepository repo : repositories.values())
+        Collection<JarRepository> toCheck;
+        if (dependency.getSourceRepository() != null)
+        {
+            toCheck = Collections.singleton(dependency.getSourceRepository());
+        } else
+        {
+            toCheck = repositoryManager.getRepositories();
+        }
+        for (JarRepository repo : toCheck)
         {
             repo.contains(dependency).thenAccept(contains -> {
+                System.out.println(contains);
                 if (contains == null || !contains)
                 {
+                    if (dependency.getSourceRepository() != null)
+                    {
+                        managing.getLogger().log(Level.INFO,
+                                "Repository {} did not contain dependency {} despite it being the configured repo!",
+                                new Object[]{repo, dependency});
+                    }
                     return;
                 }
 
@@ -112,6 +142,7 @@ public class DependencyManager
                 managing.getLogger().log(Level.SEVERE, "Could not copy file for {0} {1}", new Object[]{dependency, e});
             }
             future.complete(null);
+            downloadsInProgress.remove(dependency);
         });
         return future;
     }

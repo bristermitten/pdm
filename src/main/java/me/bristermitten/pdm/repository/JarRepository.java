@@ -9,6 +9,8 @@ public interface JarRepository
 {
 
     CompletableFuture<byte[]> downloadDependency(Dependency dependency);
+
     CompletableFuture<Set<Dependency>> getTransitiveDependencies(Dependency dependency);
+
     CompletableFuture<Boolean> contains(Dependency dependency);
 }
