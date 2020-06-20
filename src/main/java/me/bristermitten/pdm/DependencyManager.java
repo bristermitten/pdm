@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 public class DependencyManager
@@ -85,7 +86,7 @@ public class DependencyManager
                             }
                             transitiveDependencies.forEach(transitive -> downloadAndLoad(transitive).join());
                         })
-                        .thenAccept(v -> downloadToFile(repo, dependency, file))
+                        .thenApply(v -> downloadToFile(repo, dependency, file))
                         .thenAccept(v2 -> fileFuture.complete(file));
             });
         }
