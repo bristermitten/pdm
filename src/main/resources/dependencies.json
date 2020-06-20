@@ -1,0 +1,13 @@
+{
+  "repositories": {
+    "jitpack": "https://jitpack.io"
+  },
+  "dependencies": [
+    {
+      "groupId": "com.github.knightzmc",
+      "artifactId": "fluency",
+      "version": "1.0",
+      "repository": "jitpack"
+    }
+  ]
+}
