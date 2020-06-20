@@ -31,6 +31,7 @@ public class DependencyManager
 
     private final DependencyLoader loader;
     private final File pdmDirectory;
+    private final Map<Dependency, CompletableFuture<File>> downloadsInProgress = new ConcurrentHashMap<>();
 
     public DependencyManager(@NotNull final Plugin managing)
     {
@@ -56,11 +57,17 @@ public class DependencyManager
 
     private CompletableFuture<File> download(Dependency dependency)
     {
+        CompletableFuture<File> inProgress = downloadsInProgress.get(dependency);
+        if (inProgress != null)
+        {
+            return inProgress;
+        }
         FileUtil.createDirectoryIfNotPresent(pdmDirectory);
 
         File file = new File(pdmDirectory, dependency.getArtifactId() + "-" + dependency.getVersion() + ".jar");
 
         CompletableFuture<File> fileFuture = new CompletableFuture<>();
+        downloadsInProgress.put(dependency, fileFuture);
         for (JarRepository repo : repositories.values())
         {
             repo.contains(dependency).thenAccept(contains -> {
