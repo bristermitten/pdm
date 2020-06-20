@@ -1,0 +1,7 @@
+
+c	java:S899-"BDo something with the "boolean" value returned by "createNewFile".(Ğ’Íùÿÿÿÿ8ëÍ¦ò¬.
+E
+java:S11481"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8åæ¦ò¬.
+E
+java:S1148;"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8í¼±ò¬.
+U	java:S106="9Replace this use of System.out or System.err by a logger.( £‰8í¼±ò¬.

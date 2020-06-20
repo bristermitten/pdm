@@ -1,0 +1,3 @@
+name: Test
+main: me.bristermitten.pdm.Test
+version: "1.0"
