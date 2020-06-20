@@ -15,7 +15,7 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 public class DependencyManager
 {
@@ -68,9 +68,8 @@ public class DependencyManager
                 {
                     return;
                 }
-                    /*
-                    Load all transitive dependencies.
-                     */
+
+                //Load all transitive dependencies before loading the actual jar
                 repo.getTransitiveDependencies(dependency)
                         .thenAccept(transitiveDependencies -> {
                             if (transitiveDependencies.isEmpty())
@@ -79,8 +78,8 @@ public class DependencyManager
                             }
                             transitiveDependencies.forEach(transitive -> downloadAndLoad(transitive).join());
                         })
-                        .thenAccept(v -> downloadToFile(repo, dependency, file)
-                                .thenAccept(v2 -> fileFuture.complete(file)));
+                        .thenAccept(v -> downloadToFile(repo, dependency, file))
+                        .thenAccept(v2 -> fileFuture.complete(file));
             });
         }
         return fileFuture;
@@ -102,7 +101,7 @@ public class DependencyManager
             }
             catch (IOException e)
             {
-                e.printStackTrace();
+                managing.getLogger().log(Level.SEVERE, "Could not copy file for {0} {1}", new Object[]{dependency, e});
             }
             future.complete(null);
         });
