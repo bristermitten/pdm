@@ -8,7 +8,22 @@ import java.net.URLClassLoader;
 public class ClassLoaderReflection
 {
 
-    private static volatile Method addUrlMethod;
+    private static final Method addUrlMethod;
+
+    static
+    {
+        Method addURL;
+        try
+        {
+            addURL = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+            addURL.setAccessible(true);
+        }
+        catch (NoSuchMethodException e)
+        {
+            addURL = null;
+        }
+        addUrlMethod = addURL;
+    }
 
     private ClassLoaderReflection()
     {
@@ -17,7 +32,6 @@ public class ClassLoaderReflection
 
     public static void addURL(URLClassLoader classLoader, URL url)
     {
-        Method addUrlMethod = getAddUrlMethod();
         try
         {
             addUrlMethod.invoke(classLoader, url);
@@ -26,30 +40,5 @@ public class ClassLoaderReflection
         {
             throw new IllegalArgumentException(e);
         }
-    }
-
-    private static Method getAddUrlMethod()
-    {
-        if (addUrlMethod == null)
-        {
-            synchronized (ClassLoaderReflection.class)
-            {
-                if (addUrlMethod == null)
-                {
-                    Class<URLClassLoader> urlClassLoaderClass = URLClassLoader.class;
-                    try
-                    {
-                        Method addURL = urlClassLoaderClass.getDeclaredMethod("addURL", URL.class);
-                        addURL.setAccessible(true);
-                        addUrlMethod = addURL;
-                    }
-                    catch (NoSuchMethodException e)
-                    {
-                        throw new IllegalStateException(e);
-                    }
-                }
-            }
-        }
-        return addUrlMethod;
     }
 }
