@@ -8,12 +8,6 @@
       "artifactId": "fluency",
       "version": "1.0",
       "repository": "jitpack"
-    },
-    {
-      "groupId": "org.jetbrains.kotlin",
-      "artifactId": "kotlin-stdlib-jdk8",
-      "version": "1.3.72",
-      "repository": "maven-central"
     }
   ]
 }
