@@ -11,6 +11,8 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static java.lang.Boolean.TRUE;
+
 public class MavenRepository implements JarRepository
 {
 
@@ -35,11 +37,9 @@ public class MavenRepository implements JarRepository
             //Simple caching
         }
         String jarUrl = prepareMavenRepoJarURL(dependency);
-        return httpManager.downloadRawContentFromURL(jarUrl)
-                .exceptionally(e -> null)
-                .thenApply(Objects::nonNull)
-                .whenComplete((b, t) -> {
-                    if (b != null && b)
+        return httpManager.getURLStatus(jarUrl)
+                .whenComplete((contains, e) -> {
+                    if (TRUE.equals(contains))
                     {
                         containing.add(dependency);
                     }

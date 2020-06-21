@@ -1,5 +1,7 @@
 package me.bristermitten.pdm.dependency;
 
+import com.google.gson.annotations.SerializedName;
+import me.bristermitten.pdm.repository.JarRepository;
 import me.bristermitten.pdm.repository.RepositoryManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,19 +18,21 @@ public class DependencyDAO
     private final String version;
 
     @NotNull
-    private final String sourceRepository;
+    @SerializedName("repository")
+    private final String repository;
 
     public DependencyDAO(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @NotNull String sourceRepository)
     {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
-        this.sourceRepository = sourceRepository;
+        this.repository = sourceRepository;
     }
 
     public Dependency toDependency(RepositoryManager repositoryManager)
     {
-        return new Dependency(groupId, artifactId, version, repositoryManager.getByName(sourceRepository));
+        JarRepository byName = repositoryManager.getByName(repository);
+        return new Dependency(groupId, artifactId, version, byName);
     }
 
     @Override
@@ -38,7 +42,7 @@ public class DependencyDAO
                 "groupId='" + groupId + '\'' +
                 ", artifactId='" + artifactId + '\'' +
                 ", version='" + version + '\'' +
-                ", sourceRepository='" + sourceRepository + '\'' +
+                ", sourceRepository='" + repository + '\'' +
                 '}';
     }
 
@@ -51,13 +55,13 @@ public class DependencyDAO
         return getGroupId().equals(that.getGroupId()) &&
                 getArtifactId().equals(that.getArtifactId()) &&
                 getVersion().equals(that.getVersion()) &&
-                getSourceRepository().equals(that.getSourceRepository());
+                getRepository().equals(that.getRepository());
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(getGroupId(), getArtifactId(), getVersion(), getSourceRepository());
+        return Objects.hash(getGroupId(), getArtifactId(), getVersion(), getRepository());
     }
 
     public String getGroupId()
@@ -75,8 +79,8 @@ public class DependencyDAO
         return version;
     }
 
-    public String getSourceRepository()
+    public String getRepository()
     {
-        return sourceRepository;
+        return repository;
     }
 }

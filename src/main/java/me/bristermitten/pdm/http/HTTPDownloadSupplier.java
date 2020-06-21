@@ -39,7 +39,6 @@ public class HTTPDownloadSupplier implements Supplier<byte[]>
     public byte[] get()
     {
         URL url = getURL(downloadingFrom);
-        System.out.println("url = " + url);
         if (url == null)
         {
             return null;
@@ -55,12 +54,7 @@ public class HTTPDownloadSupplier implements Supplier<byte[]>
                     outputStream.write(next);
                 }
             }
-            byte[] bytes = outputStream.toByteArray();
-            if (!this.downloadingFrom.contains("kotlin"))
-            {
-                System.out.println(new String(bytes));
-            }
-            return bytes;
+            return outputStream.toByteArray();
         }
         catch (IOException e)
         {

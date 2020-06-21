@@ -1,7 +1,5 @@
 package me.bristermitten.pdm.dependency;
 
-import me.bristermitten.pdm.dependency.DependencyDAO;
-
 import java.util.Map;
 import java.util.Set;
 

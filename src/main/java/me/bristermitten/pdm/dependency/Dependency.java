@@ -9,13 +9,13 @@ import java.util.Objects;
 public class Dependency
 {
 
+    private static final String JAR_NAME_FORMAT = "%s-%s.jar";
     @NotNull
     private final String groupId;
     @NotNull
     private final String artifactId;
     @NotNull
     private final String version;
-
     @Nullable
     private final JarRepository sourceRepository;
 
@@ -47,7 +47,7 @@ public class Dependency
         return version;
     }
 
-    public JarRepository getSourceRepository()
+    public @Nullable JarRepository getSourceRepository()
     {
         return sourceRepository;
     }
@@ -55,12 +55,17 @@ public class Dependency
     @Override
     public String toString()
     {
-        return groupId + ":" + artifactId + ":" + version;
-        //        return "Dependency{" +
-        //                "groupId='" + groupId + '\'' +
-        //                ", artifactId='" + artifactId + '\'' +
-        //                ", version='" + version + '\'' +
-        //                '}';
+        String s = groupId + ":" + artifactId + ":" + version;
+        if (sourceRepository != null)
+        {
+            s += "@" + sourceRepository;
+        }
+        return s;
+    }
+
+    public String getJarName()
+    {
+        return String.format(JAR_NAME_FORMAT, artifactId, version);
     }
 
     @Override
@@ -71,13 +76,13 @@ public class Dependency
         Dependency that = (Dependency) o;
         return getGroupId().equals(that.getGroupId()) &&
                 getArtifactId().equals(that.getArtifactId()) &&
-                getVersion().equals(that.getVersion());
+                getVersion().equals(that.getVersion()) &&
+                Objects.equals(getSourceRepository(), that.getSourceRepository());
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(getGroupId(), getArtifactId(), getVersion());
+        return Objects.hash(getGroupId(), getArtifactId(), getVersion(), getSourceRepository());
     }
-
 }

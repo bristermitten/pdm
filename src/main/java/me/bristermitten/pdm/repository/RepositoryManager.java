@@ -13,13 +13,17 @@ public class RepositoryManager
     private final Map<String, JarRepository> repositories = new HashMap<>();
 
     @Nullable
-    public JarRepository getByName(String name)
+    public synchronized JarRepository getByName(String name)
     {
         return repositories.get(name);
     }
 
     public synchronized void addRepository(String alias, JarRepository repository)
     {
+        if (getByName(alias) != null)
+        {
+            throw new IllegalArgumentException("Will not redefine repository with alias " + alias);
+        }
         repositories.put(alias, repository);
     }
 

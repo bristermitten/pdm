@@ -3,7 +3,7 @@ package me.bristermitten.pdm.repository;
 import me.bristermitten.pdm.DependencyManager;
 import me.bristermitten.pdm.http.HTTPManager;
 
-public class MavenCentralRepository extends MavenRepository
+public final class MavenCentralRepository extends MavenRepository
 {
 
     public static final String MAVEN_CENTRAL_ALIAS = "maven-central";

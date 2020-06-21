@@ -5,6 +5,7 @@ import me.bristermitten.pdm.http.HTTPManager;
 import me.bristermitten.pdm.repository.JarRepository;
 import me.bristermitten.pdm.repository.MavenCentralRepository;
 import me.bristermitten.pdm.repository.RepositoryManager;
+import me.bristermitten.pdm.repository.SpigotRepository;
 import me.bristermitten.pdm.util.FileUtil;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -16,8 +17,10 @@ import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
 public class DependencyManager
@@ -62,6 +65,9 @@ public class DependencyManager
         repositoryManager.addRepository(
                 MavenCentralRepository.MAVEN_CENTRAL_ALIAS, new MavenCentralRepository(manager, this)
         );
+        repositoryManager.addRepository(
+                SpigotRepository.SPIGOT_ALIAS, new SpigotRepository(manager, this)
+        );
     }
 
     public CompletableFuture<Void> downloadAndLoad(Dependency dependency)
@@ -80,10 +86,11 @@ public class DependencyManager
 
         FileUtil.createDirectoryIfNotPresent(pdmDirectory);
 
-        File file = new File(pdmDirectory, dependency.getArtifactId() + "-" + dependency.getVersion() + ".jar");
+        File file = new File(pdmDirectory, dependency.getJarName());
 
         CompletableFuture<File> fileFuture = new CompletableFuture<>();
         downloadsInProgress.put(dependency, fileFuture);
+
         Collection<JarRepository> toCheck;
         if (dependency.getSourceRepository() != null)
         {
@@ -92,21 +99,28 @@ public class DependencyManager
         {
             toCheck = repositoryManager.getRepositories();
         }
+        Set<JarRepository> checked = ConcurrentHashMap.newKeySet();
+        AtomicBoolean anyRepoContains = new AtomicBoolean();
         for (JarRepository repo : toCheck)
         {
+            if (anyRepoContains.get()) continue;
             repo.contains(dependency).thenAccept(contains -> {
-                System.out.println(contains);
+                if (anyRepoContains.get()) return;
+                checked.add(repo);
                 if (contains == null || !contains)
                 {
                     if (dependency.getSourceRepository() != null)
                     {
-                        managing.getLogger().log(Level.INFO,
-                                "Repository {} did not contain dependency {} despite it being the configured repo!",
-                                new Object[]{repo, dependency});
+                        managing.getLogger().info(() -> "Repository " + repo + " did not contain dependency " + dependency + " despite it being the configured repo!");
+                    }
+                    if (checked.size() == toCheck.size() && !anyRepoContains.get())
+                    {
+                        managing.getLogger().warning(() -> "No repository found for " + dependency + ", it cannot be downloaded. Other plugins may not function properly.");
+                        fileFuture.complete(null);
                     }
                     return;
                 }
-
+                anyRepoContains.set(true);
                 //Load all transitive dependencies before loading the actual jar
                 repo.getTransitiveDependencies(dependency)
                         .thenAccept(transitiveDependencies -> {
@@ -139,7 +153,7 @@ public class DependencyManager
             }
             catch (IOException e)
             {
-                managing.getLogger().log(Level.SEVERE, "Could not copy file for {0} {1}", new Object[]{dependency, e});
+                managing.getLogger().log(Level.SEVERE, () -> "Could not copy file for " + dependency + ", threw " + e);
             }
             future.complete(null);
             downloadsInProgress.remove(dependency);
