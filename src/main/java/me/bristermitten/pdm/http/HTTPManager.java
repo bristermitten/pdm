@@ -20,6 +20,6 @@ public class HTTPManager
 
     public CompletableFuture<Boolean> getURLStatus(String url)
     {
-        return CompletableFuture.supplyAsync(new HTTPStatusSupplier(url, logger));
+        return CompletableFuture.supplyAsync(() -> new HTTPStatusSupplier(url, logger).getAsBoolean());
     }
 }
