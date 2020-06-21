@@ -20,6 +20,7 @@ import java.util.logging.Level;
 
 public final class PluginDependencyManager
 {
+
     @NotNull
     private final Plugin managing;
     @NotNull
@@ -82,7 +83,6 @@ public final class PluginDependencyManager
                 managing.getLogger().fine(() -> "Made new repository named " + alias);
             });
         }
-
 
         jsonDependencies.getDependencies().forEach(dao -> {
             final Dependency dependency = dao.toDependency(manager.getRepositoryManager());
