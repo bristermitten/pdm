@@ -23,6 +23,8 @@ repositories {
 }
 
 dependencies {
+    compileOnly rootProject
+    compileOnly project(':')
     compileOnly 'org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT'
 }
 

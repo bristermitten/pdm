@@ -1,0 +1,4 @@
+name: PdmExample
+version: @version@
+main: me.bristermitten.pdmexample.PDMExample
+api-version: 1.15.2
