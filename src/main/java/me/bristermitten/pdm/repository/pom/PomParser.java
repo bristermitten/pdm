@@ -7,6 +7,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -35,6 +36,9 @@ public class PomParser
         try
         {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            dbFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            dbFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             ByteArrayInputStream is = new ByteArrayInputStream(pomContent);
 
@@ -69,7 +73,7 @@ public class PomParser
         }
         catch (ParserConfigurationException | SAXException | IOException e)
         {
-            e.printStackTrace();
+            throw new IllegalArgumentException(e);
         }
         return dependencySet;
     }
