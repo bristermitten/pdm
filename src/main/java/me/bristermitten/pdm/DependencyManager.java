@@ -14,13 +14,9 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
 public class DependencyManager
@@ -48,6 +44,8 @@ public class DependencyManager
 
         repositoryManager = new RepositoryManager();
         loadRepositories();
+
+        FileUtil.createDirectoryIfNotPresent(pdmDirectory);
     }
 
     public RepositoryManager getRepositoryManager()
@@ -84,66 +82,57 @@ public class DependencyManager
             return inProgress;
         }
 
-        FileUtil.createDirectoryIfNotPresent(pdmDirectory);
-
         File file = new File(pdmDirectory, dependency.getJarName());
 
-        CompletableFuture<File> fileFuture = new CompletableFuture<>();
-        downloadsInProgress.put(dependency, fileFuture);
-
-        Collection<JarRepository> toCheck;
-        if (dependency.getSourceRepository() != null)
-        {
-            toCheck = Collections.singleton(dependency.getSourceRepository());
-        } else
-        {
-            toCheck = repositoryManager.getRepositories();
-        }
+        Collection<JarRepository> reposToCheck = getRepositoriesToCheckFor(dependency);
         Set<JarRepository> checked = ConcurrentHashMap.newKeySet();
-        AtomicBoolean anyRepoContains = new AtomicBoolean();
-        for (JarRepository repo : toCheck)
-        {
-            if (anyRepoContains.get()) continue;
-            repo.contains(dependency).thenAccept(contains -> {
-                if (anyRepoContains.get()) return;
-                checked.add(repo);
+
+        CompletableFuture<File> downloadingFuture = CompletableFuture.supplyAsync(() -> {
+            for (JarRepository repo : reposToCheck)
+            {
+                Boolean contains = repo.contains(dependency).join();
                 if (contains == null || !contains)
                 {
                     if (dependency.getSourceRepository() != null)
                     {
                         managing.getLogger().info(() -> "Repository " + repo + " did not contain dependency " + dependency + " despite it being the configured repo!");
                     }
-                    if (checked.size() == toCheck.size() && !anyRepoContains.get())
+                    if (checked.size() == reposToCheck.size())
                     {
                         managing.getLogger().warning(() -> "No repository found for " + dependency + ", it cannot be downloaded. Other plugins may not function properly.");
-                        fileFuture.complete(null);
+                        return file;
                     }
-                    return;
+                    continue;
                 }
-                anyRepoContains.set(true);
+
                 //Load all transitive dependencies before loading the actual jar
                 repo.getTransitiveDependencies(dependency)
-                        .thenAccept(transitiveDependencies -> {
-                            if (transitiveDependencies.isEmpty())
-                            {
-                                return;
-                            }
-                            transitiveDependencies.forEach(transitive -> downloadAndLoad(transitive).join());
-                        })
-                        .thenApply(v -> downloadToFile(repo, dependency, file))
-                        .thenAccept(v2 -> fileFuture.complete(file));
-            });
-        }
-        return fileFuture;
+                        .thenAccept(transitiveDependencies -> transitiveDependencies.forEach(transitive -> downloadAndLoad(transitive).join()))
+                        .thenRun(() -> downloadToFile(repo, dependency, file)).join();
+                return file;
+            }
+            throw new NoSuchElementException(dependency.toString());
+        });
+        downloadsInProgress.put(dependency, downloadingFuture);
+        return downloadingFuture;
     }
 
-    private synchronized CompletableFuture<Void> downloadToFile(JarRepository repo, Dependency dependency, File file)
+    private Collection<JarRepository> getRepositoriesToCheckFor(Dependency dependency)
     {
-        CompletableFuture<Void> future = new CompletableFuture<>();
+        if (dependency.getSourceRepository() != null)
+        {
+            return Collections.singleton(dependency.getSourceRepository());
+        } else
+        {
+            return repositoryManager.getRepositories();
+        }
+    }
+
+    private synchronized void downloadToFile(JarRepository repo, Dependency dependency, File file)
+    {
         if (file.exists())
         {
-            future.complete(null);
-            return future;
+            return;
         }
 
         repo.downloadDependency(dependency).thenAccept(bytes -> {
@@ -155,9 +144,7 @@ public class DependencyManager
             {
                 managing.getLogger().log(Level.SEVERE, () -> "Could not copy file for " + dependency + ", threw " + e);
             }
-            future.complete(null);
             downloadsInProgress.remove(dependency);
         });
-        return future;
     }
 }

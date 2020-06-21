@@ -102,7 +102,6 @@ public class MavenRepository implements JarRepository
                 "baseURL='" + baseURL + '\'' +
                 ", httpManager=" + httpManager +
                 ", manager=" + manager +
-                ", containing=" + containing +
                 '}';
     }
 }

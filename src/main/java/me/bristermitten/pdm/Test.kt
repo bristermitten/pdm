@@ -7,8 +7,8 @@ class Test : JavaPlugin()
     override fun onEnable()
     {
         val dependencyManager = PluginDependencyManager(this)
-        val loadAllDependencies = dependencyManager.loadAllDependencies()
-        loadAllDependencies.thenAccept {
+        val dependencies = dependencyManager.loadAllDependencies()
+        dependencies.thenAccept {
             repeat(10) {
                 println("Kotlin works!")
             }
