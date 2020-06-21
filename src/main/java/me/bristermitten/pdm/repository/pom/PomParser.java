@@ -24,6 +24,11 @@ public class PomParser
             "provided"
     ));
 
+    private PomParser()
+    {
+
+    }
+
     public static Set<Dependency> extractDependenciesFromPom(byte[] pomContent)
     {
         Set<Dependency> dependencySet = new HashSet<>();
