@@ -58,7 +58,7 @@ public class HTTPDownloadSupplier implements Supplier<byte[]>
             byte[] bytes = outputStream.toByteArray();
             if (!this.downloadingFrom.contains("kotlin"))
             {
-                System.out.println(new java.lang.String(bytes));
+                System.out.println(new String(bytes));
             }
             return bytes;
         }

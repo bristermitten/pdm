@@ -17,4 +17,9 @@ public class HTTPManager
     {
         return CompletableFuture.supplyAsync(new HTTPDownloadSupplier(url, logger));
     }
+
+    public CompletableFuture<Boolean> getURLStatus(String url)
+    {
+        return CompletableFuture.supplyAsync(new HTTPStatusSupplier(url, logger));
+    }
 }
