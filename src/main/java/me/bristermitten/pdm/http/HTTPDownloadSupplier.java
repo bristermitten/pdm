@@ -41,7 +41,7 @@ public class HTTPDownloadSupplier implements Supplier<byte[]>
         URL url = getURL(downloadingFrom);
         if (url == null)
         {
-            return null;
+            return new byte[0];
         }
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream())
@@ -59,7 +59,7 @@ public class HTTPDownloadSupplier implements Supplier<byte[]>
         catch (IOException e)
         {
             logger.log(Level.SEVERE, e, () -> "Could not download content from URL" + downloadingFrom);
-            return null;
+            return new byte[0];
         }
     }
 }

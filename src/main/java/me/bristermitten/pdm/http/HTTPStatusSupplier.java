@@ -5,11 +5,11 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.function.Supplier;
+import java.util.function.BooleanSupplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class HTTPStatusSupplier implements Supplier<Boolean>
+public class HTTPStatusSupplier implements BooleanSupplier
 {
 
     private final String downloadingFrom;
@@ -35,7 +35,7 @@ public class HTTPStatusSupplier implements Supplier<Boolean>
     }
 
     @Override
-    public Boolean get()
+    public boolean getAsBoolean()
     {
         URL url = getURL(downloadingFrom);
         if (url == null)
