@@ -4,18 +4,16 @@ import me.bristermitten.pdm.DependencyManager;
 import me.bristermitten.pdm.dependency.Dependency;
 import me.bristermitten.pdm.http.HTTPManager;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
 public final class SpigotRepository extends MavenRepository
 {
 
-    public static final String SPIGOT_ALIAS = "spigot";
+    public static final String SPIGOT_ALIAS = "spigot-repo";
     private static final Set<String> SPIGOT_DEPENDENCY_GROUPS = Collections.unmodifiableSet(
             new HashSet<>(
                     Arrays.asList(
@@ -38,6 +36,8 @@ public final class SpigotRepository extends MavenRepository
                     )
             )
     );
+
+    @NotNull
     private final Logger logger = Logger.getLogger("SpigotRepository");
 
     public SpigotRepository(HTTPManager httpManager, DependencyManager manager)
@@ -70,5 +70,22 @@ public final class SpigotRepository extends MavenRepository
     private boolean isSpigotDependency(Dependency dependency)
     {
         return SPIGOT_DEPENDENCY_GROUPS.contains(dependency.getGroupId().toLowerCase()) && SPIGOT_DEPENDENCY_ARTIFACTS.contains(dependency.getArtifactId().toLowerCase());
+    }
+
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (!(o instanceof SpigotRepository)) return false;
+        if (!super.equals(o)) return false;
+        SpigotRepository that = (SpigotRepository) o;
+        return logger.equals(that.logger);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(super.hashCode(), logger);
     }
 }
