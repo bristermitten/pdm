@@ -7,6 +7,7 @@ import me.bristermitten.pdm.repository.JarRepository;
 import me.bristermitten.pdm.repository.MavenRepository;
 import me.bristermitten.pdm.util.Constants;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,15 +18,17 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
-public class PluginDependencyManager
+public final class PluginDependencyManager
 {
-
+    @NotNull
     private final Plugin managing;
+    @NotNull
     private final DependencyManager manager;
 
+    @NotNull
     private final Set<Dependency> requiredDependencies = new HashSet<>();
 
-    public PluginDependencyManager(Plugin managing)
+    public PluginDependencyManager(@NotNull final Plugin managing)
     {
         this.managing = managing;
         manager = new DependencyManager(managing);
@@ -33,19 +36,19 @@ public class PluginDependencyManager
         loadDependenciesFromFile();
     }
 
-    public void addRequiredDependency(Dependency dependency)
+    public void addRequiredDependency(@NotNull final Dependency dependency)
     {
         requiredDependencies.add(dependency);
     }
 
     private void loadDependenciesFromFile()
     {
-        InputStream dependenciesResource = managing.getResource("dependencies.json");
+        final InputStream dependenciesResource = managing.getResource("dependencies.json");
         if (dependenciesResource == null)
         {
             return;
         }
-        String json;
+        final String json;
         try
         {
             //noinspection UnstableApiUsage
@@ -57,23 +60,23 @@ public class PluginDependencyManager
             return;
         }
 
-        JSONDependencies jsonDependencies = Constants.GSON.fromJson(json, JSONDependencies.class);
+        final JSONDependencies jsonDependencies = Constants.GSON.fromJson(json, JSONDependencies.class);
         if (jsonDependencies == null)
         {
             managing.getLogger().warning("jsonDependencies was null - Invalid JSON?");
             return;
         }
-        Map<String, String> repositories = jsonDependencies.getRepositories();
+        final Map<String, String> repositories = jsonDependencies.getRepositories();
         if (repositories != null)
         {
             repositories.forEach((alias, repo) -> {
-                JarRepository existing = manager.getRepositoryManager().getByName(alias);
+                final JarRepository existing = manager.getRepositoryManager().getByName(alias);
                 if (existing != null)
                 {
                     managing.getLogger().fine(() -> "Will not redefine repository " + alias);
                     return;
                 }
-                MavenRepository mavenRepository = new MavenRepository(repo, manager.getManager(), manager);
+                final MavenRepository mavenRepository = new MavenRepository(repo, manager.getManager(), manager);
                 manager.getRepositoryManager().addRepository(alias, mavenRepository);
 
                 managing.getLogger().fine(() -> "Made new repository named " + alias);
@@ -82,11 +85,12 @@ public class PluginDependencyManager
 
 
         jsonDependencies.getDependencies().forEach(dao -> {
-            Dependency dependency = dao.toDependency(manager.getRepositoryManager());
+            final Dependency dependency = dao.toDependency(manager.getRepositoryManager());
             addRequiredDependency(dependency);
         });
     }
 
+    @NotNull
     public CompletableFuture<Void> loadAllDependencies()
     {
         return CompletableFuture.allOf(requiredDependencies.stream()
