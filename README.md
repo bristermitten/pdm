@@ -32,9 +32,9 @@ For example:
 PluginDependencyManager dependencyManager = new PluginDependencyManager(this);
 dependencyManager.addRequiredDependency(
         new Dependency(
-            "org.jetbrains.kotlin",
-            "kotlin-stdlib.jdk8",
-            "1.3.72"
+            "org.jetbrains.kotlin", //groupId
+            "kotlin-stdlib.jdk8", //artifactId
+            "1.3.72" //version
         )
 );
 ```
@@ -74,6 +74,14 @@ This will return a `CompletableFuture<Void>` which is completed when all librari
 **That's it!** All dependencies should be downloaded and loaded into the classpath,
 including transitive dependencies. Any that failed will be logged gracefully.
 
+## Repositories
+PDM has 2 default repositories:
+* Maven Central
+* Spigot - this provides the spigot classes based on the current server version.
+
+Custom repositories can be added with `RepositoryManager#addRepository`. 
+An instance of `RepositoryManager` is exposed through 
+`PluginDependencyManager#getManager#getRepositoryManager`.
 
 
 ## Todo
