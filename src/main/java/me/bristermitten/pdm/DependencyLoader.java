@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URLClassLoader;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 
 public class DependencyLoader
 {
@@ -38,7 +39,7 @@ public class DependencyLoader
         }
         catch (MalformedURLException e)
         {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, e, () -> "Could not load dependency from file " + file);
         }
     }
 }
