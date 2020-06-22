@@ -1,6 +1,7 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.3.72'
     id 'java-gradle-plugin'
+    id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '6.0.0'
     id 'com.gradle.plugin-publish' version '0.12.0'
 }
@@ -17,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    implementation project(':main')
+    implementation project(':pdm')
     compileOnly gradleApi()
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     implementation 'com.google.code.gson:gson:2.8.6'
@@ -46,6 +47,8 @@ gradlePlugin {
         }
     }
 }
+
+
 
 artifacts {
     add("archives", shadowJar)

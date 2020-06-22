@@ -15,6 +15,6 @@ repositories {
 }
 
 dependencies {
-    implementation project(':main')
+    implementation project(':pdm')
     compileOnly 'org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT'
 }

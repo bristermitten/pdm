@@ -1,5 +1,5 @@
 rootProject.name = 'pdm'
 include 'example'
 include 'pdm-gradle'
-include 'main'
+include 'pdm'
 
