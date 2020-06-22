@@ -70,6 +70,7 @@ public class DependencyManager
 
     public CompletableFuture<Void> downloadAndLoad(Dependency dependency)
     {
+
         CompletableFuture<File> downloaded = download(dependency);
         return downloaded.thenAccept(loader::loadDependency);
     }
@@ -105,6 +106,7 @@ public class DependencyManager
                     continue;
                 }
 
+                managing.getLogger().info(() -> "Loading Transitive Dependencies for " + dependency + "...");
                 //Load all transitive dependencies before loading the actual jar
                 repo.getTransitiveDependencies(dependency)
                         .thenAccept(transitiveDependencies -> transitiveDependencies.forEach(transitive -> downloadAndLoad(transitive).join()))
@@ -134,7 +136,7 @@ public class DependencyManager
         {
             return;
         }
-
+        managing.getLogger().info(() -> "Downloading Dependency " + dependency + "...");
         repo.downloadDependency(dependency)
                 .exceptionally(throwable -> {
                     managing.getLogger().log(Level.SEVERE, throwable, () -> "Exception thrown while downloading " + dependency);
@@ -156,6 +158,7 @@ public class DependencyManager
                     finally
                     {
                         downloadsInProgress.remove(dependency);
+                        managing.getLogger().info(() -> "Downloaded Dependency " + dependency + "!");
                     }
                 });
     }
