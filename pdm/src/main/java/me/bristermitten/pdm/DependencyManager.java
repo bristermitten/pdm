@@ -22,7 +22,7 @@ import java.util.logging.Level;
 public class DependencyManager
 {
 
-    private static final String PDM_DIRECTORY_NAME = "PluginLibraries";
+    public static final String PDM_DIRECTORY_NAME = "PluginLibraries";
 
     @NotNull
     private final Plugin managing;
@@ -32,19 +32,31 @@ public class DependencyManager
     private final HTTPManager manager;
 
     private final DependencyLoader loader;
-    private final File pdmDirectory;
     private final Map<Dependency, CompletableFuture<File>> downloadsInProgress = new ConcurrentHashMap<>();
+    private File pdmDirectory;
+    private String outputDirectoryName;
 
     public DependencyManager(@NotNull final Plugin managing)
+    {
+        this(managing, PDM_DIRECTORY_NAME);
+    }
+
+    public DependencyManager(@NotNull final Plugin managing, String outputDirectoryName)
     {
         this.managing = managing;
         this.manager = new HTTPManager(managing.getLogger());
         this.loader = new DependencyLoader(managing);
-        pdmDirectory = new File(managing.getDataFolder().getParentFile(), PDM_DIRECTORY_NAME);
 
         repositoryManager = new RepositoryManager();
         loadRepositories();
 
+        setOutputDirectoryName(outputDirectoryName);
+    }
+
+    public void setOutputDirectoryName(@NotNull final String outputDirectoryName)
+    {
+        this.outputDirectoryName = outputDirectoryName;
+        this.pdmDirectory = new File(managing.getDataFolder().getParentFile(), outputDirectoryName);
         FileUtil.createDirectoryIfNotPresent(pdmDirectory);
     }
 

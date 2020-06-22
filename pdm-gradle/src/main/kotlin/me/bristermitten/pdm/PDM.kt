@@ -74,9 +74,13 @@ class PDM : Plugin<Project>
             }
 
             val json = gson.toJson(
-                    DependenciesConfiguration(repositories.filterKeys {
-                        it !in REMAPPED_REPOS.values
-                    }, dependencies.toSet())
+                    DependenciesConfiguration(
+                            repositories.filterKeys {
+                                it !in REMAPPED_REPOS.values
+                            },
+                            dependencies.toSet(),
+                            extension.outputDirectory
+                    )
             )
             val outputDir = File("${project.buildDir}/resources/main/")
 

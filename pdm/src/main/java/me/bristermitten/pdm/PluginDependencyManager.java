@@ -88,6 +88,10 @@ public final class PluginDependencyManager
             final Dependency dependency = dao.toDependency(manager.getRepositoryManager());
             addRequiredDependency(dependency);
         });
+
+        if(jsonDependencies.getDependenciesDirectory()!=null) {
+            manager.setOutputDirectoryName(jsonDependencies.getDependenciesDirectory());
+        }
     }
 
     @NotNull

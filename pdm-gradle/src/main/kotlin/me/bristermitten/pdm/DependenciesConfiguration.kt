@@ -2,7 +2,8 @@ package me.bristermitten.pdm
 
 data class DependenciesConfiguration(
         private val repositories: Map<String, String>,
-        private val dependencies: Set<PDMDependency>
+        private val dependencies: Set<PDMDependency>,
+        private val dependenciesDirectory: String
 )
 
 data class PDMDependency(
