@@ -52,8 +52,18 @@ public abstract class Artifact
                 '}';
     }
 
-    protected final String createBaseURL(final String repoURL) {
-        return repoURL + "/" + this.toArtifactURL() + "/";
+    protected final String createBaseURL(final String repoURL)
+    {
+        return addSlashIfNecessary(repoURL) + this.toArtifactURL() + "/";
+    }
+
+    private String addSlashIfNecessary(final String concatTo)
+    {
+        if (concatTo.endsWith("/"))
+        {
+            return concatTo;
+        }
+        return concatTo + "/";
     }
 
     public final String toArtifactURL()

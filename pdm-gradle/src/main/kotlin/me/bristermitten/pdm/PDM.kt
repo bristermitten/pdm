@@ -11,11 +11,13 @@ import java.io.File
 
 class PDM : Plugin<Project>
 {
+    companion object
+    {
+        private val IGNORED_REPOS = setOf("MavenLocal")
+        private val REMAPPED_REPOS = mapOf("MavenRepo" to "maven-central")
+    }
+
     private val gson = GsonBuilder().setPrettyPrinting().create()
-    private val existingRepoNames = setOf(
-            "MavenRepo",
-            "MavenLocal"
-    )
 
     override fun apply(project: Project)
     {
@@ -41,11 +43,11 @@ class PDM : Plugin<Project>
 
             val mavenRepositories = project.repositories
                     .filterIsInstance<MavenArtifactRepository>().filter {
-                        it.name !in existingRepoNames
+                        it.name !in IGNORED_REPOS
                     }
 
             val repositories = mavenRepositories.map {
-                it.name to it.url.toString()
+                (REMAPPED_REPOS[it.name] ?: it.name) to it.url.toString()
             }.toMap()
 
             val dependencies = pdmConfiguration.allDependencies.mapNotNull { dependency ->
@@ -71,7 +73,9 @@ class PDM : Plugin<Project>
             }
 
             val json = gson.toJson(
-                    DependenciesConfiguration(repositories, dependencies.toSet())
+                    DependenciesConfiguration(repositories.filterKeys {
+                        it !in REMAPPED_REPOS.values
+                    }, dependencies.toSet())
             )
             val outputDir = File("${project.buildDir}/resources/main/")
 

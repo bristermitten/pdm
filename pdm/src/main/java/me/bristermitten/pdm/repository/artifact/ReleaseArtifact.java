@@ -26,7 +26,6 @@ public class ReleaseArtifact extends Artifact
     public byte[] downloadPom(@NotNull final String baseRepoURL)
     {
         final String url = createBaseURL(baseRepoURL) + getArtifactId() + "-" + getVersion() + ".pom";
-
         return URLUtil.getBytes(url);
     }
 }
