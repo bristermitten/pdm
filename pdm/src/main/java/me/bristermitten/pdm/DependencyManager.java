@@ -132,6 +132,7 @@ public class DependencyManager
 
     private synchronized void downloadToFile(JarRepository repo, Dependency dependency, File file)
     {
+        FileUtil.createDirectoryIfNotPresent(pdmDirectory);
         if (file.exists())
         {
             return;

@@ -111,9 +111,6 @@ public class MavenRepository implements JarRepository
     public String toString()
     {
         return "MavenRepository{" +
-                "baseURL='" + baseURL + '\'' +
-                ", httpManager=" + httpManager +
-                ", manager=" + manager +
-                '}';
+                "baseURL='" + baseURL + "'}";
     }
 }
