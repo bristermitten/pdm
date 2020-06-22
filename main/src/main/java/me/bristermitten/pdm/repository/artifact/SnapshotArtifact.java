@@ -16,7 +16,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URLConnection;
 
 @SuppressWarnings("UnstableApiUsage")

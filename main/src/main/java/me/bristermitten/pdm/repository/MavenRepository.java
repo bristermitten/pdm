@@ -8,7 +8,10 @@ import me.bristermitten.pdm.repository.artifact.ReleaseArtifact;
 import me.bristermitten.pdm.repository.artifact.SnapshotArtifact;
 import me.bristermitten.pdm.repository.pom.PomParser;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;

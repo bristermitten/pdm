@@ -1,23 +1,8 @@
-plugins {
-    id 'java'
-    id 'maven'
-}
-
 group 'me.bristermitten'
 version '1.0-SNAPSHOT'
+subprojects {
+    apply plugin: 'java'
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
-
-repositories {
-    mavenCentral()
-    maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-    maven { url 'https://oss.sonatype.org/content/repositories/central' }
-    maven { url 'https://jitpack.io' }
-}
-
-dependencies {
-    compileOnly 'org.jetbrains:annotations:19.0.0'
-    compileOnly 'org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT'
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
 }
