@@ -45,6 +45,7 @@ public class HTTPStatusSupplier implements BooleanSupplier
         try
         {
             HttpURLConnection input = (HttpURLConnection) url.openConnection();
+            input.setRequestProperty("User-Agent", "Java-PPM");
             input.connect();
             int responseCode = input.getResponseCode();
             return responseCode == 200;

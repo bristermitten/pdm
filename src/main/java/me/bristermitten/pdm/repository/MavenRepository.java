@@ -3,15 +3,16 @@ package me.bristermitten.pdm.repository;
 import me.bristermitten.pdm.DependencyManager;
 import me.bristermitten.pdm.dependency.Dependency;
 import me.bristermitten.pdm.http.HTTPManager;
+import me.bristermitten.pdm.repository.artifact.Artifact;
+import me.bristermitten.pdm.repository.artifact.ReleaseArtifact;
+import me.bristermitten.pdm.repository.artifact.SnapshotArtifact;
 import me.bristermitten.pdm.repository.pom.PomParser;
 
-import java.text.MessageFormat;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static java.lang.Boolean.TRUE;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MavenRepository implements JarRepository
 {
@@ -19,7 +20,8 @@ public class MavenRepository implements JarRepository
     private final String baseURL;
     private final HTTPManager httpManager;
     private final DependencyManager manager;
-    private final Set<Dependency> containing = ConcurrentHashMap.newKeySet();
+    private final Map<Dependency, byte[]> downloaded = new ConcurrentHashMap<>();
+    private final Logger logger = Logger.getLogger("MavenRepository");
 
     public MavenRepository(String baseURL, HTTPManager httpManager, DependencyManager manager)
     {
@@ -31,54 +33,61 @@ public class MavenRepository implements JarRepository
     @Override
     public CompletableFuture<Boolean> contains(Dependency dependency)
     {
-        if (containing.contains(dependency))
-        {
-            return CompletableFuture.completedFuture(true);
-            //Simple caching
-        }
-        String jarUrl = prepareMavenRepoJarURL(dependency);
-        return httpManager.getURLStatus(jarUrl)
-                .whenComplete((contains, e) -> {
-                    if (TRUE.equals(contains))
-                    {
-                        containing.add(dependency);
-                    }
-                });
+        return downloadDependency(dependency)
+                .thenApply(Objects::nonNull);
     }
 
     @Override
-    public CompletableFuture<byte[]> downloadDependency(Dependency dependency)
+    public synchronized CompletableFuture<byte[]> downloadDependency(Dependency dependency)
     {
-        return httpManager.downloadRawContentFromURL(prepareMavenRepoJarURL(dependency));
+        byte[] existing = downloaded.get(dependency);
+        if (existing != null)
+        {
+            return CompletableFuture.completedFuture(existing);
+            //Simple caching
+        }
+        Artifact artifact = dependency.getVersion().endsWith("-SNAPSHOT") ?
+                new SnapshotArtifact(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion()) :
+                new ReleaseArtifact(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion());
+
+        return CompletableFuture.supplyAsync(() -> artifact.download(baseURL))
+                .handle((bytes, throwable) -> {
+                    if (bytes != null && throwable == null && downloaded.get(dependency) == null)
+                    {
+                        downloaded.put(dependency, bytes);
+                        return bytes;
+                    } else if (throwable != null)
+                    {
+                        throwable.printStackTrace();
+                    }
+                    return null;
+                });
     }
 
     @Override
     public CompletableFuture<Set<Dependency>> getTransitiveDependencies(Dependency dependency)
     {
-        String pomURL = prepareMavenRepoPomURL(dependency);
-        return httpManager.downloadRawContentFromURL(pomURL)
-                .thenApply(PomParser::extractDependenciesFromPom);
+
+        Artifact artifact = dependency.getVersion().endsWith("-SNAPSHOT") ?
+                new SnapshotArtifact(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion()) :
+                new ReleaseArtifact(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion());
+
+        return CompletableFuture.supplyAsync(() -> artifact.downloadPom(baseURL))
+                .thenApply(PomParser::extractDependenciesFromPom)
+                .handle((pomContent, throwable) -> {
+                    if (throwable != null)
+                    {
+                        logger.log(Level.SEVERE, throwable, () -> "Could not download " + dependency + " from " + baseURL);
+                        return Collections.emptySet();
+                    }
+                    if (pomContent != null)
+                    {
+                        return pomContent;
+                    }
+                    return Collections.emptySet();
+                });
     }
 
-    private String prepareMavenRepoJarURL(Dependency dependency)
-    {
-        return MessageFormat.format("{0}/{1}/{2}/{3}/{4}",
-                baseURL,
-                dependency.getGroupId().replace('.', '/'),
-                dependency.getArtifactId(),
-                dependency.getVersion(),
-                MessageFormat.format("{0}-{1}.jar", dependency.getArtifactId(), dependency.getVersion()));
-    }
-
-    private String prepareMavenRepoPomURL(Dependency dependency)
-    {
-        return MessageFormat.format("{0}/{1}/{2}/{3}/{4}",
-                baseURL,
-                dependency.getGroupId().replace('.', '/'),
-                dependency.getArtifactId(),
-                dependency.getVersion(),
-                MessageFormat.format("{0}-{1}.pom", dependency.getArtifactId(), dependency.getVersion()));
-    }
 
     @Override
     public boolean equals(Object o)

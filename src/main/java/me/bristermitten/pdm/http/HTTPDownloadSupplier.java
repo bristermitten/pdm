@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,7 +47,9 @@ public class HTTPDownloadSupplier implements Supplier<byte[]>
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream())
         {
-            try (InputStream input = url.openStream())
+            URLConnection con = url.openConnection();
+            con.setRequestProperty("User-Agent", "Java-PPM");
+            try (InputStream input = con.getInputStream())
             {
                 int next;
                 while ((next = input.read()) != -1)

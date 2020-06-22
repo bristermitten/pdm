@@ -1,6 +1,7 @@
 package me.bristermitten.pdm.repository.pom;
 
 import me.bristermitten.pdm.dependency.Dependency;
+import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -14,6 +15,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,8 +32,12 @@ public class PomParser
 
     }
 
-    public static Set<Dependency> extractDependenciesFromPom(byte[] pomContent)
+    public static Set<Dependency> extractDependenciesFromPom(@Nullable byte[] pomContent)
     {
+        if (pomContent == null)
+        {
+            return Collections.emptySet();
+        }
         Set<Dependency> dependencySet = new HashSet<>();
         try
         {

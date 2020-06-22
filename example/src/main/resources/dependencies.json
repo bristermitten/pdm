@@ -1,10 +1,10 @@
 {
   "repositories": {
-    "jitpack": "https://jitpack.io"
+    "jitpack": "https://repo.bristermitten.me/repository/maven-public/"
   },
   "dependencies": [
     {
-      "groupId": "com.github.knightzmc",
+      "groupId": "me.bristermitten",
       "artifactId": "fluency",
       "version": "1.0",
       "repository": "jitpack"

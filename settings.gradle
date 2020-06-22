@@ -1,2 +1,5 @@
-rootProject.name = 'plugin-dependency-manager'
+rootProject.name = 'pdm'
 include 'example'
+include 'pdm-gradle'
+include 'maven-repository-browser'
+

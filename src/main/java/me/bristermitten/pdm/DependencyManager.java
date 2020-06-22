@@ -135,16 +135,28 @@ public class DependencyManager
             return;
         }
 
-        repo.downloadDependency(dependency).thenAccept(bytes -> {
-            try
-            {
-                Files.copy(new ByteArrayInputStream(bytes), file.toPath());
-            }
-            catch (IOException e)
-            {
-                managing.getLogger().log(Level.SEVERE, () -> "Could not copy file for " + dependency + ", threw " + e);
-            }
-            downloadsInProgress.remove(dependency);
-        });
+        repo.downloadDependency(dependency)
+                .exceptionally(throwable -> {
+                    managing.getLogger().log(Level.SEVERE, throwable, () -> "Exception thrown while downloading " + dependency);
+                    return null;
+                })
+                .thenAccept(bytes -> {
+                    if (bytes == null)
+                    {
+                        return;
+                    }
+                    try
+                    {
+                        Files.copy(new ByteArrayInputStream(bytes), file.toPath());
+                    }
+                    catch (IOException e)
+                    {
+                        managing.getLogger().log(Level.SEVERE, e, () -> "Could not copy file for " + dependency + ", threw ");
+                    }
+                    finally
+                    {
+                        downloadsInProgress.remove(dependency);
+                    }
+                });
     }
 }
