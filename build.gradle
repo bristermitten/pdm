@@ -1,11 +1,11 @@
 plugins {
     id 'java'
     id 'maven'
-    id 'org.jetbrains.kotlin.jvm' version '1.3.72'
 }
 
 group 'me.bristermitten'
 version '1.0-SNAPSHOT'
+
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
@@ -20,15 +20,4 @@ repositories {
 dependencies {
     compileOnly 'org.jetbrains:annotations:19.0.0'
     compileOnly 'org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT'
-}
-
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
-compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
 }
