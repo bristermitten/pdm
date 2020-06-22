@@ -1,6 +1,7 @@
 package me.bristermitten.pdm
 
 import com.google.gson.GsonBuilder
+import me.bristermitten.pdm.repository.MavenCentralRepository
 import me.bristermitten.pdm.repository.artifact.ReleaseArtifact
 import me.bristermitten.pdm.repository.artifact.SnapshotArtifact
 import org.gradle.api.Plugin
@@ -14,7 +15,7 @@ class PDM : Plugin<Project>
     companion object
     {
         private val IGNORED_REPOS = setOf("MavenLocal")
-        private val REMAPPED_REPOS = mapOf("MavenRepo" to "maven-central")
+        private val REMAPPED_REPOS = mapOf("MavenRepo" to MavenCentralRepository.MAVEN_CENTRAL_ALIAS)
     }
 
     private val gson = GsonBuilder().setPrettyPrinting().create()
