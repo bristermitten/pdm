@@ -19,6 +19,7 @@ class PDM : Plugin<Project>
 
     override fun apply(project: Project)
     {
+        val extension = project.extensions.create("pdm", PDMExtension::class.java)
         val configurations = project.configurations
         val pdmConfiguration = configurations.create("pdm")
         val implementation = configurations.findByName("compileClasspath")
@@ -28,13 +29,12 @@ class PDM : Plugin<Project>
 
         val pdmInternal = project.configurations.create("pdminternal")
 
-        val pdmDependency = project.dependencies.add(pdmInternal.name, "me.bristermitten:pdm:1.0-SNAPSHOT")
+        val pdmDependency = project.dependencies.add(pdmInternal.name, "me.bristermitten:pdm:${extension.version}")
         implementation?.dependencies?.add(pdmDependency)
         pdmInternal.dependencies.add(pdmDependency)
 
 
         project.task("pdm").doLast {
-
             val task = (project.tasks.getByName("jar") ?: project.task("jar"))
             (task as Jar).from(*pdmInternal.map { project.zipTree(it) }.toTypedArray())
 
@@ -71,7 +71,7 @@ class PDM : Plugin<Project>
             }
 
             val json = gson.toJson(
-                    PDMConfig(repositories, dependencies.toSet())
+                    DependenciesConfiguration(repositories, dependencies.toSet())
             )
             val outputDir = File("${project.buildDir}/resources/main/")
 

@@ -1,6 +1,6 @@
 package me.bristermitten.pdm
 
-data class PDMConfig(
+data class DependenciesConfiguration(
         private val repositories: Map<String, String>,
         private val dependencies: Set<PDMDependency>
 )
