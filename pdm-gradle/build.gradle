@@ -1,16 +1,14 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
-
 plugins {
-    id 'org.jetbrains.kotlin.jvm'
-    id 'maven'
-    id 'maven-publish'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.72'
     id 'java-gradle-plugin'
     id 'com.github.johnrengelman.shadow' version '6.0.0'
+    id 'com.gradle.plugin-publish' version '0.12.0'
 }
 
 
 group 'me.bristermitten'
-version '1.0-SNAPSHOT'
+version '1.0.1-SNAPSHOT'
+
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
@@ -19,36 +17,11 @@ repositories {
 }
 
 dependencies {
+    implementation project(':main')
     compileOnly gradleApi()
-    implementation rootProject
-    implementation project(':')
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.google.guava:guava:21.0'
-}
-
-compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
-}
-compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.8"
-}
-
-gradlePlugin {
-    plugins {
-        pdm {
-            id = 'me.bristermitten.pdm'
-            implementationClass = 'me.bristermitten.pdm.PDM'
-        }
-    }
-}
-
-publishing {
-    publications {
-        shadow(MavenPublication) { publication ->
-            project.shadow.component(publication)
-        }
-    }
 }
 
 shadowJar {
@@ -56,4 +29,24 @@ shadowJar {
     classifier = ''
 }
 
-build.dependsOn shadowJar
+
+pluginBundle {
+    website = 'https://github.com/knightzmc/pdm'
+    vcsUrl = 'https://github.com/knightzmc/pdm'
+    tags = ['spigot', 'shading', 'runtime', 'bukkit', 'plugin']
+}
+
+gradlePlugin {
+    plugins {
+        pdm {
+            id = 'me.bristermitten.pdm'
+            displayName = 'Plugin Dependency Manager'
+            description = 'Sets up PDM to automatically download any dependencies for Spigot plugins'
+            implementationClass = 'me.bristermitten.pdm.PDM'
+        }
+    }
+}
+
+artifacts {
+    add("archives", shadowJar)
+}
