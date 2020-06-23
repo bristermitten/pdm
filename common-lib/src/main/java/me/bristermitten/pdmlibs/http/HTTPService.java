@@ -1,7 +1,7 @@
-package me.bristermitten.pdm.http;
+package me.bristermitten.pdmlibs.http;
 
-import me.bristermitten.pdm.repository.artifact.Artifact;
-import me.bristermitten.pdm.util.URLUtil;
+import me.bristermitten.pdmlibs.artifact.Artifact;
+import me.bristermitten.pdmlibs.util.URLUtil;
 import org.jetbrains.annotations.NotNull;
 
 public class HTTPService
@@ -23,6 +23,12 @@ public class HTTPService
     }
 
     @NotNull
+    public boolean ping(@NotNull final String url)
+    {
+        return URLUtil.prepareConnection(url, userAgent) != null;
+    }
+
+    @NotNull
     public byte[] download(@NotNull final String url, @NotNull final Artifact artifact)
     {
         String jarURL = artifact.getJarURL(url, this);
@@ -32,6 +38,7 @@ public class HTTPService
         }
         return downloadFrom(jarURL);
     }
+
     @NotNull
     public byte[] downloadPom(@NotNull final String url, @NotNull final Artifact artifact)
     {

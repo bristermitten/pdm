@@ -1,12 +1,11 @@
 package me.bristermitten.pdm;
 
-import me.bristermitten.pdm.dependency.Dependency;
 import me.bristermitten.pdm.dependency.JSONDependencies;
-import me.bristermitten.pdm.http.HTTPService;
-import me.bristermitten.pdm.repository.JarRepository;
-import me.bristermitten.pdm.repository.MavenRepository;
 import me.bristermitten.pdm.util.Constants;
-import me.bristermitten.pdm.util.Streams;
+import me.bristermitten.pdmlibs.artifact.Artifact;
+import me.bristermitten.pdmlibs.http.HTTPService;
+import me.bristermitten.pdmlibs.repository.Repository;
+import me.bristermitten.pdmlibs.util.Streams;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +28,7 @@ public final class PluginDependencyManager
     private final DependencyManager manager;
 
     @NotNull
-    private final Set<Dependency> requiredDependencies = new HashSet<>();
+    private final Set<Artifact> requiredDependencies = new HashSet<>();
 
     @NotNull
     private final Logger logger;
@@ -68,7 +67,7 @@ public final class PluginDependencyManager
         }
     }
 
-    public void addRequiredDependency(@NotNull final Dependency dependency)
+    public void addRequiredDependency(@NotNull final Artifact dependency)
     {
         requiredDependencies.add(dependency);
     }
@@ -92,21 +91,21 @@ public final class PluginDependencyManager
         if (repositories != null)
         {
             repositories.forEach((alias, repo) -> {
-                final JarRepository existing = manager.getRepositoryManager().getByName(alias);
+                final Repository existing = manager.getRepositoryManager().getByAlias(alias);
                 if (existing != null)
                 {
                     logger.fine(() -> "Will not redefine repository " + alias);
                     return;
                 }
-                final MavenRepository mavenRepository = new MavenRepository(repo, httpService);
-                manager.getRepositoryManager().addRepository(alias, mavenRepository);
+                final Repository repository = manager.getRepositoryFactory().create(repo);
+                manager.getRepositoryManager().addRepository(alias, repository);
 
                 logger.fine(() -> "Made new repository named " + alias);
             });
         }
 
-        jsonDependencies.getDependencies().forEach(dao -> {
-            final Dependency dependency = dao.toDependency(manager.getRepositoryManager());
+        jsonDependencies.getDependencies().forEach(dto -> {
+            final Artifact dependency = manager.getArtifactFactory().toArtifact(dto);
             addRequiredDependency(dependency);
         });
 

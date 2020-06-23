@@ -1,4 +1,4 @@
-package me.bristermitten.pdm.repository;
+package me.bristermitten.pdmlibs.repository;
 
 public final class MavenCentral
 {

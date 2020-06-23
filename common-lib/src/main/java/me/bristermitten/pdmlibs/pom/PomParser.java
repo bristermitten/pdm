@@ -1,7 +1,8 @@
-package me.bristermitten.pdm.repository.pom;
+package me.bristermitten.pdmlibs.pom;
 
-import me.bristermitten.pdm.dependency.Dependency;
-import org.jetbrains.annotations.Nullable;
+import me.bristermitten.pdmlibs.artifact.Artifact;
+import me.bristermitten.pdmlibs.artifact.ArtifactFactory;
+import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -15,7 +16,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,18 +27,17 @@ public class PomParser
             "provided"
     ));
 
-    private PomParser()
+    private final ArtifactFactory artifactFactory;
+
+    public PomParser(ArtifactFactory artifactFactory)
     {
 
+        this.artifactFactory = artifactFactory;
     }
 
-    public static Set<Dependency> extractDependenciesFromPom(@Nullable byte[] pomContent)
+    public Set<Artifact> extractDependenciesFromPom(@NotNull final String pomContent)
     {
-        if (pomContent == null)
-        {
-            return Collections.emptySet();
-        }
-        Set<Dependency> dependencySet = new HashSet<>();
+        Set<Artifact> dependencySet = new HashSet<>();
         try
         {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -46,7 +45,7 @@ public class PomParser
             dbFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            ByteArrayInputStream is = new ByteArrayInputStream(pomContent);
+            ByteArrayInputStream is = new ByteArrayInputStream(pomContent.getBytes());
 
             Document doc = dBuilder.parse(is);
             doc.getDocumentElement().normalize();
@@ -69,7 +68,7 @@ public class PomParser
 
                 if (nNode.getNodeType() == Node.ELEMENT_NODE)
                 {
-                    Dependency parsed = getDependencyFromXML((Element) nNode);
+                    Artifact parsed = getDependencyFromXML((Element) nNode);
                     if (parsed != null)
                     {
                         dependencySet.add(parsed);
@@ -84,7 +83,7 @@ public class PomParser
         return dependencySet;
     }
 
-    private static Dependency getDependencyFromXML(Element dependencyElement)
+    private Artifact getDependencyFromXML(Element dependencyElement)
     {
         String groupId = dependencyElement.getElementsByTagName("groupId").item(0).getTextContent();
         String artifactId = dependencyElement.getElementsByTagName("artifactId").item(0).getTextContent();
@@ -94,7 +93,6 @@ public class PomParser
         {
             return null;
         }
-
-        return new Dependency(groupId, artifactId, version);
+        return artifactFactory.toArtifact(groupId, artifactId, version, null, null);
     }
 }

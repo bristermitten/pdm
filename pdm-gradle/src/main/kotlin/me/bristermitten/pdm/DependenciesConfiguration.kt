@@ -10,5 +10,6 @@ data class PDMDependency(
         val groupId: String,
         val artifactId: String,
         val version: String,
-        val repository: String?
+        val repository: String?,
+        val transitive: Set<PDMDependency>?
 )

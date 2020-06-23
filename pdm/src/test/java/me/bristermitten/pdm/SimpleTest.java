@@ -1,6 +1,6 @@
 package me.bristermitten.pdm;
 
-import me.bristermitten.pdm.repository.MavenCentral;
+import me.bristermitten.pdmlibs.repository.MavenCentral;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;

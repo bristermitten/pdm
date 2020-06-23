@@ -1,4 +1,4 @@
-package me.bristermitten.pdm.util;
+package me.bristermitten.pdmlibs.util;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

@@ -1,6 +1,6 @@
-package me.bristermitten.pdm.repository.artifact;
+package me.bristermitten.pdmlibs.artifact;
 
-import me.bristermitten.pdm.http.HTTPService;
+import me.bristermitten.pdmlibs.http.HTTPService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Document;
@@ -15,6 +15,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Set;
 
 public class SnapshotArtifact extends Artifact
 {
@@ -30,7 +31,12 @@ public class SnapshotArtifact extends Artifact
 
     public SnapshotArtifact(@NotNull String groupId, @NotNull String artifactId, @NotNull String version)
     {
-        super(groupId, artifactId, version);
+        super(groupId, artifactId, version, null, null);
+    }
+
+    public SnapshotArtifact(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @Nullable String repoBaseURL, @Nullable Set<Artifact> transitive)
+    {
+        super(groupId, artifactId, version, transitive, repoBaseURL);
     }
 
     @Override

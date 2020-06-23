@@ -1,6 +1,7 @@
 package me.bristermitten.pdm
 
-import me.bristermitten.pdm.repository.MavenCentral
+import me.bristermitten.pdmlibs.repository.MavenCentral
+
 
 open class PDMExtension
 {
@@ -31,6 +32,7 @@ open class PDMExtension
     /**
      * If the plugin should search the configured Maven Repositories to find which is used for a dependency at build time.
      * Disabling this can speed up build time, but will potentially slow down server startup, as all repositories will have to be searched.
+     *
      */
     var searchRepositories: Boolean = true
         protected set

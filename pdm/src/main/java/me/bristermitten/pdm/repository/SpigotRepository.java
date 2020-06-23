@@ -1,15 +1,13 @@
 package me.bristermitten.pdm.repository;
 
-import me.bristermitten.pdm.dependency.Dependency;
-import me.bristermitten.pdm.http.HTTPService;
-import org.bukkit.Bukkit;
+import me.bristermitten.pdmlibs.artifact.Artifact;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
-public final class SpigotRepository extends MavenRepository
+public final class SpigotRepository
+        //        extends MavenRepository
 {
 
     public static final String SPIGOT_ALIAS = "spigot-repo";
@@ -39,34 +37,29 @@ public final class SpigotRepository extends MavenRepository
     @NotNull
     private final Logger logger = Logger.getLogger("SpigotRepository");
 
-    public SpigotRepository(@NotNull final HTTPService httpService)
-    {
-        super("", httpService);
-    }
+    //    public SpigotRepository(@NotNull final HTTPService httpService)
+    //    {
+    //        super("", httpService);
+    //    }
 
-    @Override
-    public CompletableFuture<Boolean> contains(Dependency dependency)
-    {
-        return CompletableFuture.completedFuture(isSpigotDependency(dependency));
-    }
+    //
+    //    @Override
+    //    public Set<Artifact> getTransitiveDependencies(@NotNull Artifact dependency)
+    //    {
+    //        return Collections.emptySet();
+    //    }
+    //
+    //    @Override
+    //    public byte[] downloadDependency(@NotNull Artifact dependency)
+    //    {
+    //        if (dependency.getVersion().contains(Bukkit.getVersion()))
+    //        {
+    //            logger.warning(() -> "Dependency on " + dependency + " does not match server version of " + Bukkit.getVersion() + ". This could cause version problems.");
+    //        }
+    //        return new byte[0];
+    //    }
 
-    @Override
-    public CompletableFuture<Set<Dependency>> getTransitiveDependencies(Dependency dependency)
-    {
-        return CompletableFuture.completedFuture(Collections.emptySet());
-    }
-
-    @Override
-    public CompletableFuture<byte[]> downloadDependency(Dependency dependency)
-    {
-        if (dependency.getVersion().contains(Bukkit.getVersion()))
-        {
-            logger.warning(() -> "Dependency on " + dependency + " does not match server version of " + Bukkit.getVersion() + ". This could cause version problems.");
-        }
-        return CompletableFuture.completedFuture(null);
-    }
-
-    private boolean isSpigotDependency(Dependency dependency)
+    private boolean isSpigotDependency(Artifact dependency)
     {
         return SPIGOT_DEPENDENCY_GROUPS.contains(dependency.getGroupId().toLowerCase()) && SPIGOT_DEPENDENCY_ARTIFACTS.contains(dependency.getArtifactId().toLowerCase());
     }

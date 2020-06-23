@@ -1,11 +1,13 @@
 package me.bristermitten.pdm;
 
-import me.bristermitten.pdm.dependency.Dependency;
-import me.bristermitten.pdm.http.HTTPService;
-import me.bristermitten.pdm.repository.JarRepository;
-import me.bristermitten.pdm.repository.RepositoryManager;
-import me.bristermitten.pdm.repository.SpigotRepository;
 import me.bristermitten.pdm.util.FileUtil;
+import me.bristermitten.pdmlibs.artifact.Artifact;
+import me.bristermitten.pdmlibs.artifact.ArtifactFactory;
+import me.bristermitten.pdmlibs.http.HTTPService;
+import me.bristermitten.pdmlibs.pom.PomParser;
+import me.bristermitten.pdmlibs.repository.MavenRepositoryFactory;
+import me.bristermitten.pdmlibs.repository.Repository;
+import me.bristermitten.pdmlibs.repository.RepositoryManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayInputStream;
@@ -18,6 +20,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * TODO this is definitely a god object, needs cleaning up.
+ */
 public class DependencyManager
 {
 
@@ -27,9 +32,12 @@ public class DependencyManager
     private final PDMSettings settings;
 
     private final RepositoryManager repositoryManager;
-    private final HTTPService httpService;
+    private final MavenRepositoryFactory repositoryFactory;
     private final DependencyLoader loader;
-    private final Map<Dependency, CompletableFuture<File>> downloadsInProgress = new ConcurrentHashMap<>();
+    private final ArtifactFactory artifactFactory = new ArtifactFactory();
+    private final PomParser pomParser = new PomParser(artifactFactory);
+
+    private final Map<Artifact, CompletableFuture<File>> downloadsInProgress = new ConcurrentHashMap<>();
     private final Logger logger;
     private File pdmDirectory;
 
@@ -43,9 +51,11 @@ public class DependencyManager
         this.settings = settings;
         this.logger = settings.getLoggerSupplier().get();
         this.loader = new DependencyLoader(settings.getClassLoader(), settings.getLoggerSupplier().get());
-        this.httpService = httpService;
 
-        repositoryManager = new RepositoryManager();
+        this.repositoryManager = new RepositoryManager();
+
+        this.repositoryFactory = new MavenRepositoryFactory(httpService, pomParser);
+
         loadRepositories();
 
         setOutputDirectoryName(outputDirectoryName);
@@ -64,19 +74,29 @@ public class DependencyManager
 
     private void loadRepositories()
     {
-        repositoryManager.addRepository(
-                SpigotRepository.SPIGOT_ALIAS, new SpigotRepository(httpService)
-        );
+        //        repositoryManager.addRepository(
+        //                SpigotRepository.SPIGOT_ALIAS, new SpigotRepository(httpService)
+        //        );
     }
 
-    public CompletableFuture<Void> downloadAndLoad(Dependency dependency)
+    public ArtifactFactory getArtifactFactory()
+    {
+        return artifactFactory;
+    }
+
+    public MavenRepositoryFactory getRepositoryFactory()
+    {
+        return repositoryFactory;
+    }
+
+    public CompletableFuture<Void> downloadAndLoad(Artifact dependency)
     {
 
         CompletableFuture<File> downloaded = download(dependency);
         return downloaded.thenAccept(loader::loadDependency);
     }
 
-    private CompletableFuture<File> download(Dependency dependency)
+    private CompletableFuture<File> download(Artifact dependency)
     {
         CompletableFuture<File> inProgress = downloadsInProgress.get(dependency);
         if (inProgress != null)
@@ -86,18 +106,17 @@ public class DependencyManager
 
         File file = new File(pdmDirectory, dependency.getJarName());
 
-        Collection<JarRepository> reposToCheck = getRepositoriesToCheckFor(dependency);
-        Set<JarRepository> checked = ConcurrentHashMap.newKeySet();
+        Collection<Repository> reposToCheck = getRepositoriesToCheckFor(dependency);
+        Set<Repository> checked = ConcurrentHashMap.newKeySet();
 
         CompletableFuture<File> downloadingFuture = CompletableFuture.supplyAsync(() -> {
-            for (JarRepository repo : reposToCheck)
+            for (Repository repository : reposToCheck)
             {
-                Boolean contains = repo.contains(dependency).join();
-                if (contains == null || !contains)
+                if (!file.exists() && !repository.contains(dependency))
                 {
-                    if (dependency.getSourceRepository() != null)
+                    if (Objects.equals(dependency.getRepoAlias(), repository.getURL()))
                     {
-                        logger.info(() -> "Repository " + repo + " did not contain dependency " + dependency + " despite it being the configured repo!");
+                        logger.warning(() -> "Repository " + repository + " did not contain " + dependency + " despite it being the configured repository.");
                     }
                     if (checked.size() == reposToCheck.size())
                     {
@@ -106,64 +125,61 @@ public class DependencyManager
                     }
                     continue;
                 }
+                Set<Artifact> transitiveDependencies = dependency.getTransitiveDependencies();
+                if (transitiveDependencies == null)
+                {
+                    transitiveDependencies = repository.getTransitiveDependencies(dependency);
+                }
 
-                logger.info(() -> "Loading Transitive Dependencies for " + dependency + "...");
-                //Load all transitive dependencies before loading the actual jar
-                repo.getTransitiveDependencies(dependency)
-                        .thenAccept(transitiveDependencies -> transitiveDependencies.forEach(transitive -> downloadAndLoad(transitive).join()))
-                        .thenRun(() -> {
-                            if (!file.exists())
-                            {
-                                downloadToFile(repo, dependency, file);
-                            }
-                        }).join();
+                for (Artifact transitiveDependency : transitiveDependencies)
+                {
+                    downloadAndLoad(transitiveDependency).join();
+                }
+
+                if (!file.exists())
+                {
+                    final byte[] jarContent = repository.download(dependency);
+                    writeToFile(jarContent, file);
+                }
                 return file;
             }
-            throw new NoSuchElementException("Could not find any repositories for " + dependency.toString());
+            return file;
         });
+
         downloadsInProgress.put(dependency, downloadingFuture);
         return downloadingFuture;
     }
 
-    private Collection<JarRepository> getRepositoriesToCheckFor(Dependency dependency)
+    private Collection<Repository> getRepositoriesToCheckFor(Artifact dependency)
     {
-        if (dependency.getSourceRepository() != null)
+        if (dependency.getRepoAlias() != null)
         {
-            return Collections.singleton(dependency.getSourceRepository());
+            Repository byURL = repositoryManager.getByAlias(dependency.getRepoAlias());
+            if (byURL == null)
+            {
+                logger.warning(() -> "No repository configured for " + dependency.getRepoAlias());
+            }
+            return Collections.singleton(byURL);
         } else
         {
             return repositoryManager.getRepositories();
         }
     }
 
-    private synchronized void downloadToFile(JarRepository repo, Dependency dependency, File file)
+    private void writeToFile(@NotNull byte[] bytes, File file)
     {
         FileUtil.createDirectoryIfNotPresent(pdmDirectory);
-        if (file.exists())
+        if (bytes.length == 0)
         {
             return;
         }
-        logger.info(() -> "Downloading Dependency " + dependency + "...");
-        repo.downloadDependency(dependency)
-                .exceptionally(throwable -> {
-                    logger.log(Level.SEVERE, throwable, () -> "Exception thrown while downloading " + dependency);
-                    return new byte[0];
-                })
-                .thenAccept(bytes -> {
-                    if (bytes.length == 0)
-                    {
-                        return;
-                    }
-                    try (final ByteArrayInputStream input = new ByteArrayInputStream(bytes))
-                    {
-                        Files.copy(input, file.toPath());
-                    }
-                    catch (IOException e)
-                    {
-                        logger.log(Level.SEVERE, e, () -> "Could not copy file for " + dependency + ", threw ");
-                        downloadsInProgress.remove(dependency);
-                    }
-                    logger.info(() -> "Downloaded Dependency " + dependency + "!");
-                });
+        try (final ByteArrayInputStream input = new ByteArrayInputStream(bytes))
+        {
+            Files.copy(input, file.toPath());
+        }
+        catch (IOException e)
+        {
+            logger.log(Level.SEVERE, e, () -> "Could not copy file for " + file + ", threw ");
+        }
     }
 }

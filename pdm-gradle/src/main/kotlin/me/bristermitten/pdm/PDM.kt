@@ -1,9 +1,12 @@
 package me.bristermitten.pdm
 
 import com.google.gson.GsonBuilder
-import me.bristermitten.pdm.http.HTTPService
-import me.bristermitten.pdm.repository.artifact.ReleaseArtifact
-import me.bristermitten.pdm.repository.artifact.SnapshotArtifact
+import me.bristermitten.pdmlibs.artifact.Artifact
+import me.bristermitten.pdmlibs.artifact.ArtifactFactory
+import me.bristermitten.pdmlibs.http.HTTPService
+import me.bristermitten.pdmlibs.pom.PomParser
+import me.bristermitten.pdmlibs.repository.MavenRepositoryFactory
+import me.bristermitten.pdmlibs.repository.Repository
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
@@ -20,10 +23,15 @@ class PDM : Plugin<Project>
     }
 
     private val gson = GsonBuilder().setPrettyPrinting().create()
+    private val artifactFactory = ArtifactFactory()
+
 
     override fun apply(project: Project)
     {
         val httpService = HTTPService(project.name)
+        val pomParser = PomParser(artifactFactory)
+        val repositoryFactory = MavenRepositoryFactory(httpService, pomParser)
+
         val extension = project.extensions.create("pdm", PDMExtension::class.java)
         val configurations = project.configurations
         val pdmConfiguration = configurations.create("pdm")
@@ -57,43 +65,22 @@ class PDM : Plugin<Project>
                 {
                     it.url.toString()
                 }
-                it.name to url
+                it.name to repositoryFactory.create(url)
             }.toMap()
 
             val dependencies = pdmConfiguration.allDependencies.mapNotNull { dependency ->
                 val groupId = dependency.group ?: return@mapNotNull null
                 val version = dependency.version ?: return@mapNotNull null
 
-
-                val repoAlias = if (!extension.searchRepositories)
-                {
-                    null
-                } else
-                {
-                    val artifact = if (version.endsWith("-SNAPSHOT"))
-                    {
-                        SnapshotArtifact(groupId, dependency.name, version)
-                    } else
-                    {
-                        ReleaseArtifact(groupId, dependency.name, version)
-                    }
-                    val repoAlias = repositories.entries.firstOrNull { (_, repoURL) ->
-                        val pomContent = httpService.downloadPom(repoURL, artifact)
-                        pomContent.isNotEmpty()
-                    }?.key
-                    if (repoAlias == null)
-                    {
-                        LOGGER.error("No repository found for dependency {}", artifact)
-                    }
-                    repoAlias
-                }
-
-                PDMDependency(groupId, dependency.name, version, repoAlias)
+                artifactFactory.toArtifact(groupId, dependency.name, version, null, null).resolvePDMDependency(
+                        extension.searchRepositories,
+                        repositories
+                )
             }
 
             val json = gson.toJson(
                     DependenciesConfiguration(
-                            repositories,
+                            repositories.mapValues { it.value.url },
                             dependencies.toSet(),
                             extension.outputDirectory
                     )
@@ -103,5 +90,35 @@ class PDM : Plugin<Project>
             outputDir.mkdirs()
             outputDir.resolve("dependencies.json").writeText(json)
         }
+    }
+
+    private fun Artifact.resolvePDMDependency(searchRepositories: Boolean, repositories: Map<String, Repository>): PDMDependency
+    {
+        if (!searchRepositories)
+        {
+            return PDMDependency(groupId, artifactId, version, null, null)
+        }
+
+        val containingRepo = if (repoAlias != null)
+        {
+            repositories[repoAlias!!]
+        } else
+        {
+            repositories.values.firstOrNull { repo ->
+                repo.contains(this)
+            }
+        }
+
+        if (containingRepo == null)
+        {
+            LOGGER.error("No repository found for dependency {}", this)
+            return PDMDependency(groupId, artifactId, version, null, null)
+        }
+
+        val dependencies = containingRepo.getTransitiveDependencies(this)
+                .map { it.resolvePDMDependency(searchRepositories, repositories) }
+                .toSet()
+
+        return PDMDependency(groupId, artifactId, version, repoAlias, dependencies)
     }
 }

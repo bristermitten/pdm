@@ -1,11 +1,15 @@
-package me.bristermitten.pdm.repository.artifact;
+package me.bristermitten.pdmlibs.artifact;
 
-import me.bristermitten.pdm.http.HTTPService;
+import me.bristermitten.pdmlibs.http.HTTPService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Set;
+
 public abstract class Artifact
 {
+
+    private static final String JAR_NAME_FORMAT = "%s-%s.jar";
 
     @NotNull
     private final String groupId;
@@ -14,13 +18,26 @@ public abstract class Artifact
     @NotNull
     private final String version;
 
-    protected Artifact(@NotNull String groupId, @NotNull String artifactId, @NotNull String version)
+    @Nullable
+    private final Set<Artifact> transitiveDependencies;
+
+    @Nullable
+    private final String repoAlias;
+
+    protected Artifact(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @Nullable Set<Artifact> transitiveDependencies, @Nullable String repoAlias)
     {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
+        this.transitiveDependencies = transitiveDependencies;
+        this.repoAlias = repoAlias;
     }
 
+    @Nullable
+    public String getRepoAlias()
+    {
+        return repoAlias;
+    }
 
     @Nullable
     public abstract String getJarURL(@NotNull final String baseRepoURL, @NotNull final HTTPService service);
@@ -46,6 +63,12 @@ public abstract class Artifact
         return version;
     }
 
+    @Nullable
+    public Set<Artifact> getTransitiveDependencies()
+    {
+        return transitiveDependencies;
+    }
+
     @Override
     public String toString()
     {
@@ -53,6 +76,7 @@ public abstract class Artifact
                 "groupId='" + groupId + '\'' +
                 ", artifactId='" + artifactId + '\'' +
                 ", version='" + version + '\'' +
+                ", repoBaseURL='" + repoAlias + '\'' +
                 '}';
     }
 
@@ -80,5 +104,10 @@ public abstract class Artifact
                 artifactId,
                 version
         );
+    }
+
+    public String getJarName()
+    {
+        return String.format(JAR_NAME_FORMAT, artifactId, version);
     }
 }
