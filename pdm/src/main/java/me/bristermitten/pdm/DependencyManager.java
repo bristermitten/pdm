@@ -113,7 +113,12 @@ public class DependencyManager
                 //Load all transitive dependencies before loading the actual jar
                 repo.getTransitiveDependencies(dependency)
                         .thenAccept(transitiveDependencies -> transitiveDependencies.forEach(transitive -> downloadAndLoad(transitive).join()))
-                        .thenRun(() -> downloadToFile(repo, dependency, file)).join();
+                        .thenRun(() -> {
+                            if (!file.exists())
+                            {
+                                downloadToFile(repo, dependency, file);
+                            }
+                        }).join();
                 return file;
             }
             throw new NoSuchElementException(dependency.toString());
@@ -158,12 +163,9 @@ public class DependencyManager
                     catch (IOException e)
                     {
                         logger.log(Level.SEVERE, e, () -> "Could not copy file for " + dependency + ", threw ");
-                    }
-                    finally
-                    {
                         downloadsInProgress.remove(dependency);
-                        logger.info(() -> "Downloaded Dependency " + dependency + "!");
                     }
+                    logger.info(() -> "Downloaded Dependency " + dependency + "!");
                 });
     }
 }

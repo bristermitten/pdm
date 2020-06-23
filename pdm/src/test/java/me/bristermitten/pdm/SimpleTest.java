@@ -49,5 +49,6 @@ public class SimpleTest
                 throw new IllegalArgumentException(e);
             }
         });
+
     }
 }
