@@ -9,7 +9,7 @@ public final class PDMExample extends JavaPlugin
     @Override
     public void onEnable()
     {
-        PluginDependencyManager dependencyManager = new PluginDependencyManager(this);
+        PluginDependencyManager dependencyManager = new PluginDependencyManager(this, logger);
         dependencyManager.loadAllDependencies().thenRun(() -> {
             System.out.println("All loaded!");
         });

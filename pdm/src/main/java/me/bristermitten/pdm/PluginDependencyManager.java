@@ -1,40 +1,67 @@
 package me.bristermitten.pdm;
 
-import com.google.common.io.CharStreams;
 import me.bristermitten.pdm.dependency.Dependency;
 import me.bristermitten.pdm.dependency.JSONDependencies;
 import me.bristermitten.pdm.repository.JarRepository;
 import me.bristermitten.pdm.repository.MavenRepository;
 import me.bristermitten.pdm.util.Constants;
+import me.bristermitten.pdm.util.Streams;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
+import java.io.File;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.net.URLClassLoader;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public final class PluginDependencyManager
 {
 
-    @NotNull
-    private final Plugin managing;
     @NotNull
     private final DependencyManager manager;
 
     @NotNull
     private final Set<Dependency> requiredDependencies = new HashSet<>();
 
+    @NotNull
+    private final Logger logger;
+
     public PluginDependencyManager(@NotNull final Plugin managing)
     {
-        this.managing = managing;
-        manager = new DependencyManager(managing);
+        this(
+                managing::getLogger,
+                managing.getResource("dependencies.json"),
+                managing.getDataFolder().getParentFile(),
+                (URLClassLoader) managing.getClass().getClassLoader()
+        );
+    }
 
-        loadDependenciesFromFile();
+    public PluginDependencyManager(@NotNull final Supplier<Logger> loggerSupplier,
+                                   @Nullable final InputStream dependenciesResource,
+                                   @NotNull final File rootDirectory,
+                                   @NotNull final URLClassLoader classLoader)
+    {
+        this.logger = loggerSupplier.get();
+
+        final PDMSettings settings = new PDMSettings(
+                rootDirectory,
+                loggerSupplier,
+                classLoader
+        );
+
+        this.manager = new DependencyManager(settings);
+
+        if (dependenciesResource != null)
+        {
+            loadDependenciesFromFile(dependenciesResource);
+        }
     }
 
     public void addRequiredDependency(@NotNull final Dependency dependency)
@@ -42,29 +69,19 @@ public final class PluginDependencyManager
         requiredDependencies.add(dependency);
     }
 
-    private void loadDependenciesFromFile()
+    private void loadDependenciesFromFile(@NotNull final InputStream dependenciesResource)
     {
-        final InputStream dependenciesResource = managing.getResource("dependencies.json");
-        if (dependenciesResource == null)
+        final String json = Streams.toString(dependenciesResource);
+        if (json == null)
         {
-            return;
-        }
-        final String json;
-        try
-        {
-            //noinspection UnstableApiUsage
-            json = CharStreams.toString(new InputStreamReader(dependenciesResource));
-        }
-        catch (IOException e)
-        {
-            managing.getLogger().log(Level.WARNING, "Could not read dependencies.json", e);
+            logger.log(Level.WARNING, "Could not read dependencies.json");
             return;
         }
 
         final JSONDependencies jsonDependencies = Constants.GSON.fromJson(json, JSONDependencies.class);
         if (jsonDependencies == null)
         {
-            managing.getLogger().warning("jsonDependencies was null - Invalid JSON?");
+            logger.warning("jsonDependencies was null - Invalid JSON?");
             return;
         }
         final Map<String, String> repositories = jsonDependencies.getRepositories();
@@ -74,13 +91,13 @@ public final class PluginDependencyManager
                 final JarRepository existing = manager.getRepositoryManager().getByName(alias);
                 if (existing != null)
                 {
-                    managing.getLogger().fine(() -> "Will not redefine repository " + alias);
+                    logger.fine(() -> "Will not redefine repository " + alias);
                     return;
                 }
-                final MavenRepository mavenRepository = new MavenRepository(repo, manager.getManager(), manager);
+                final MavenRepository mavenRepository = new MavenRepository(repo);
                 manager.getRepositoryManager().addRepository(alias, mavenRepository);
 
-                managing.getLogger().fine(() -> "Made new repository named " + alias);
+                logger.fine(() -> "Made new repository named " + alias);
             });
         }
 
@@ -89,7 +106,8 @@ public final class PluginDependencyManager
             addRequiredDependency(dependency);
         });
 
-        if(jsonDependencies.getDependenciesDirectory()!=null) {
+        if (jsonDependencies.getDependenciesDirectory() != null)
+        {
             manager.setOutputDirectoryName(jsonDependencies.getDependenciesDirectory());
         }
     }
@@ -97,10 +115,11 @@ public final class PluginDependencyManager
     @NotNull
     public CompletableFuture<Void> loadAllDependencies()
     {
-        managing.getLogger().info("Loading Dependencies, please wait...");
+        logger.info("Loading Dependencies, please wait...");
+
         return CompletableFuture.allOf(requiredDependencies.stream()
                 .map(manager::downloadAndLoad)
                 .toArray(CompletableFuture[]::new))
-                .thenRun(() -> managing.getLogger().info("Done!"));
+                .thenRun(() -> logger.info("Done!"));
     }
 }

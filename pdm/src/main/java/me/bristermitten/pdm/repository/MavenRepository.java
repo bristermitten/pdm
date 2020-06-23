@@ -21,16 +21,12 @@ public class MavenRepository implements JarRepository
 {
 
     private final String baseURL;
-    private final HTTPManager httpManager;
-    private final DependencyManager manager;
     private final Map<Dependency, byte[]> downloaded = new ConcurrentHashMap<>();
     private final Logger logger = Logger.getLogger("MavenRepository");
 
-    public MavenRepository(String baseURL, HTTPManager httpManager, DependencyManager manager)
+    public MavenRepository(String baseURL)
     {
         this.baseURL = baseURL;
-        this.httpManager = httpManager;
-        this.manager = manager;
     }
 
     @Override

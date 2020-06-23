@@ -48,7 +48,7 @@ public final class URLUtil
         }
         try
         {
-            return ByteStreams.toByteArray(connection.getInputStream());
+            return Streams.toByteArray(connection.getInputStream());
         }
         catch (IOException e)
         {

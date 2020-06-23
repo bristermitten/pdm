@@ -1,8 +1,6 @@
 package me.bristermitten.pdm.repository;
 
-import me.bristermitten.pdm.DependencyManager;
 import me.bristermitten.pdm.dependency.Dependency;
-import me.bristermitten.pdm.http.HTTPManager;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,9 +38,9 @@ public final class SpigotRepository extends MavenRepository
     @NotNull
     private final Logger logger = Logger.getLogger("SpigotRepository");
 
-    public SpigotRepository(HTTPManager httpManager, DependencyManager manager)
+    public SpigotRepository()
     {
-        super("", httpManager, manager);
+        super("");
     }
 
     @Override

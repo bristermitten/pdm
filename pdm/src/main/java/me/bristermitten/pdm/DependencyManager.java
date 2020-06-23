@@ -1,13 +1,11 @@
 package me.bristermitten.pdm;
 
 import me.bristermitten.pdm.dependency.Dependency;
-import me.bristermitten.pdm.http.HTTPManager;
 import me.bristermitten.pdm.repository.JarRepository;
 import me.bristermitten.pdm.repository.MavenCentralRepository;
 import me.bristermitten.pdm.repository.RepositoryManager;
 import me.bristermitten.pdm.repository.SpigotRepository;
 import me.bristermitten.pdm.util.FileUtil;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayInputStream;
@@ -18,6 +16,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DependencyManager
 {
@@ -25,27 +24,25 @@ public class DependencyManager
     public static final String PDM_DIRECTORY_NAME = "PluginLibraries";
 
     @NotNull
-    private final Plugin managing;
+    private final PDMSettings settings;
 
     private final RepositoryManager repositoryManager;
 
-    private final HTTPManager manager;
-
     private final DependencyLoader loader;
     private final Map<Dependency, CompletableFuture<File>> downloadsInProgress = new ConcurrentHashMap<>();
+    private final Logger logger;
     private File pdmDirectory;
-    private String outputDirectoryName;
 
-    public DependencyManager(@NotNull final Plugin managing)
+    public DependencyManager(@NotNull final PDMSettings settings)
     {
-        this(managing, PDM_DIRECTORY_NAME);
+        this(settings, PDM_DIRECTORY_NAME);
     }
 
-    public DependencyManager(@NotNull final Plugin managing, String outputDirectoryName)
+    public DependencyManager(@NotNull final PDMSettings settings, String outputDirectoryName)
     {
-        this.managing = managing;
-        this.manager = new HTTPManager(managing.getLogger());
-        this.loader = new DependencyLoader(managing);
+        this.settings = settings;
+        this.logger = settings.getLoggerSupplier().get();
+        this.loader = new DependencyLoader(settings.getClassLoader(), settings.getLoggerSupplier().get());
 
         repositoryManager = new RepositoryManager();
         loadRepositories();
@@ -55,8 +52,7 @@ public class DependencyManager
 
     public void setOutputDirectoryName(@NotNull final String outputDirectoryName)
     {
-        this.outputDirectoryName = outputDirectoryName;
-        this.pdmDirectory = new File(managing.getDataFolder().getParentFile(), outputDirectoryName);
+        this.pdmDirectory = new File(settings.getRootDirectory(), outputDirectoryName);
         FileUtil.createDirectoryIfNotPresent(pdmDirectory);
     }
 
@@ -65,18 +61,13 @@ public class DependencyManager
         return repositoryManager;
     }
 
-    public HTTPManager getManager()
-    {
-        return manager;
-    }
-
     private void loadRepositories()
     {
         repositoryManager.addRepository(
-                MavenCentralRepository.MAVEN_CENTRAL_ALIAS, new MavenCentralRepository(manager, this)
+                MavenCentralRepository.MAVEN_CENTRAL_ALIAS, new MavenCentralRepository()
         );
         repositoryManager.addRepository(
-                SpigotRepository.SPIGOT_ALIAS, new SpigotRepository(manager, this)
+                SpigotRepository.SPIGOT_ALIAS, new SpigotRepository()
         );
     }
 
@@ -108,17 +99,17 @@ public class DependencyManager
                 {
                     if (dependency.getSourceRepository() != null)
                     {
-                        managing.getLogger().info(() -> "Repository " + repo + " did not contain dependency " + dependency + " despite it being the configured repo!");
+                        logger.info(() -> "Repository " + repo + " did not contain dependency " + dependency + " despite it being the configured repo!");
                     }
                     if (checked.size() == reposToCheck.size())
                     {
-                        managing.getLogger().warning(() -> "No repository found for " + dependency + ", it cannot be downloaded. Other plugins may not function properly.");
+                        logger.warning(() -> "No repository found for " + dependency + ", it cannot be downloaded. Other plugins may not function properly.");
                         return file;
                     }
                     continue;
                 }
 
-                managing.getLogger().info(() -> "Loading Transitive Dependencies for " + dependency + "...");
+                logger.info(() -> "Loading Transitive Dependencies for " + dependency + "...");
                 //Load all transitive dependencies before loading the actual jar
                 repo.getTransitiveDependencies(dependency)
                         .thenAccept(transitiveDependencies -> transitiveDependencies.forEach(transitive -> downloadAndLoad(transitive).join()))
@@ -149,10 +140,10 @@ public class DependencyManager
         {
             return;
         }
-        managing.getLogger().info(() -> "Downloading Dependency " + dependency + "...");
+        logger.info(() -> "Downloading Dependency " + dependency + "...");
         repo.downloadDependency(dependency)
                 .exceptionally(throwable -> {
-                    managing.getLogger().log(Level.SEVERE, throwable, () -> "Exception thrown while downloading " + dependency);
+                    logger.log(Level.SEVERE, throwable, () -> "Exception thrown while downloading " + dependency);
                     return null;
                 })
                 .thenAccept(bytes -> {
@@ -166,12 +157,12 @@ public class DependencyManager
                     }
                     catch (IOException e)
                     {
-                        managing.getLogger().log(Level.SEVERE, e, () -> "Could not copy file for " + dependency + ", threw ");
+                        logger.log(Level.SEVERE, e, () -> "Could not copy file for " + dependency + ", threw ");
                     }
                     finally
                     {
                         downloadsInProgress.remove(dependency);
-                        managing.getLogger().info(() -> "Downloaded Dependency " + dependency + "!");
+                        logger.info(() -> "Downloaded Dependency " + dependency + "!");
                     }
                 });
     }

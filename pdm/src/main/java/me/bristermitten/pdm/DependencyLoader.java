@@ -1,7 +1,7 @@
 package me.bristermitten.pdm;
 
 import me.bristermitten.pdm.util.ClassLoaderReflection;
-import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -9,16 +9,22 @@ import java.net.URLClassLoader;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DependencyLoader
 {
 
-    private final Plugin plugin;
+    @NotNull
+    private final URLClassLoader classLoader;
+    @NotNull
+    private final Logger logger;
+
     private final Set<File> loaded = new HashSet<>();
 
-    public DependencyLoader(Plugin plugin)
+    public DependencyLoader(@NotNull final URLClassLoader classLoader, @NotNull final Logger logger)
     {
-        this.plugin = plugin;
+        this.classLoader = classLoader;
+        this.logger = logger;
     }
 
     public void loadDependency(File file)
@@ -33,13 +39,12 @@ public class DependencyLoader
         }
         try
         {
-            URLClassLoader classLoader = (URLClassLoader) plugin.getClass().getClassLoader();
             ClassLoaderReflection.addURL(classLoader, file.toURI().toURL());
             loaded.add(file);
         }
         catch (MalformedURLException e)
         {
-            plugin.getLogger().log(Level.SEVERE, e, () -> "Could not load dependency from file " + file);
+            logger.log(Level.SEVERE, e, () -> "Could not load dependency from file " + file);
         }
     }
 }
