@@ -1,5 +1,6 @@
 package me.bristermitten.pdm.repository.artifact;
 
+import me.bristermitten.pdm.http.HTTPService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,22 +22,25 @@ public abstract class Artifact
     }
 
 
-    @NotNull
-    public abstract byte[] download(@NotNull final String baseRepoURL);
+    @Nullable
+    public abstract String getJarURL(@NotNull final String baseRepoURL, @NotNull final HTTPService service);
+
+    @Nullable
+    public abstract String getPomURL(@NotNull final String baseRepoURL, @NotNull final HTTPService service);
 
     @NotNull
-    public abstract byte[] downloadPom(@NotNull final String baseRepoURL);
-
     public String getGroupId()
     {
         return groupId;
     }
 
+    @NotNull
     public String getArtifactId()
     {
         return artifactId;
     }
 
+    @NotNull
     public String getVersion()
     {
         return version;
@@ -52,12 +56,14 @@ public abstract class Artifact
                 '}';
     }
 
-    protected final String createBaseURL(final String repoURL)
+    @NotNull
+    protected final String createBaseURL(@NotNull final String repoURL)
     {
         return addSlashIfNecessary(repoURL) + this.toArtifactURL() + "/";
     }
 
-    private String addSlashIfNecessary(final String concatTo)
+    @NotNull
+    private String addSlashIfNecessary(@NotNull final String concatTo)
     {
         if (concatTo.endsWith("/"))
         {
@@ -66,6 +72,7 @@ public abstract class Artifact
         return concatTo + "/";
     }
 
+    @NotNull
     public final String toArtifactURL()
     {
         return String.format("%s/%s/%s",

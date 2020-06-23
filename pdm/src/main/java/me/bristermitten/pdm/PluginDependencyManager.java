@@ -2,6 +2,7 @@ package me.bristermitten.pdm;
 
 import me.bristermitten.pdm.dependency.Dependency;
 import me.bristermitten.pdm.dependency.JSONDependencies;
+import me.bristermitten.pdm.http.HTTPService;
 import me.bristermitten.pdm.repository.JarRepository;
 import me.bristermitten.pdm.repository.MavenRepository;
 import me.bristermitten.pdm.util.Constants;
@@ -33,29 +34,33 @@ public final class PluginDependencyManager
     @NotNull
     private final Logger logger;
 
+    private final HTTPService httpService;
+
     public PluginDependencyManager(@NotNull final Plugin managing)
     {
         this(
                 managing::getLogger,
                 managing.getResource("dependencies.json"),
                 managing.getDataFolder().getParentFile(),
-                (URLClassLoader) managing.getClass().getClassLoader()
-        );
+                (URLClassLoader) managing.getClass().getClassLoader(),
+                managing.getName());
     }
 
     public PluginDependencyManager(@NotNull final Supplier<Logger> loggerSupplier,
                                    @Nullable final InputStream dependenciesResource,
                                    @NotNull final File rootDirectory,
-                                   @NotNull final URLClassLoader classLoader)
+                                   @NotNull final URLClassLoader classLoader,
+                                   @NotNull final String applicationName)
     {
         this.logger = loggerSupplier.get();
+        this.httpService = new HTTPService(applicationName);
 
         final PDMSettings settings = new PDMSettings(
                 rootDirectory,
                 loggerSupplier,
                 classLoader);
 
-        this.manager = new DependencyManager(settings);
+        this.manager = new DependencyManager(settings, httpService);
 
         if (dependenciesResource != null)
         {
@@ -93,7 +98,7 @@ public final class PluginDependencyManager
                     logger.fine(() -> "Will not redefine repository " + alias);
                     return;
                 }
-                final MavenRepository mavenRepository = new MavenRepository(repo);
+                final MavenRepository mavenRepository = new MavenRepository(repo, httpService);
                 manager.getRepositoryManager().addRepository(alias, mavenRepository);
 
                 logger.fine(() -> "Made new repository named " + alias);

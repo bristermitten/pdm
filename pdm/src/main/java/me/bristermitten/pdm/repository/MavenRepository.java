@@ -1,6 +1,7 @@
 package me.bristermitten.pdm.repository;
 
 import me.bristermitten.pdm.dependency.Dependency;
+import me.bristermitten.pdm.http.HTTPService;
 import me.bristermitten.pdm.repository.artifact.Artifact;
 import me.bristermitten.pdm.repository.artifact.ReleaseArtifact;
 import me.bristermitten.pdm.repository.artifact.SnapshotArtifact;
@@ -21,10 +22,12 @@ public class MavenRepository implements JarRepository
     private final String baseURL;
     private final Map<Dependency, byte[]> downloaded = new ConcurrentHashMap<>();
     private final Logger logger = Logger.getLogger("MavenRepository");
+    private final HTTPService httpService;
 
-    public MavenRepository(String baseURL)
+    public MavenRepository(String baseURL, HTTPService httpService)
     {
         this.baseURL = baseURL;
+        this.httpService = httpService;
     }
 
     @Override
@@ -47,7 +50,7 @@ public class MavenRepository implements JarRepository
                 new SnapshotArtifact(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion()) :
                 new ReleaseArtifact(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion());
 
-        return CompletableFuture.supplyAsync(() -> artifact.download(baseURL))
+        return CompletableFuture.supplyAsync(() -> httpService.download(baseURL, artifact))
                 .handle((bytes, throwable) -> {
                     if (bytes != null && throwable == null && downloaded.get(dependency) == null)
                     {
@@ -69,7 +72,7 @@ public class MavenRepository implements JarRepository
                 new SnapshotArtifact(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion()) :
                 new ReleaseArtifact(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion());
 
-        return CompletableFuture.supplyAsync(() -> artifact.downloadPom(baseURL))
+        return CompletableFuture.supplyAsync(() -> httpService.downloadPom(baseURL, artifact))
                 .thenApply(PomParser::extractDependenciesFromPom)
                 .handle((pomContent, throwable) -> {
                     if (throwable != null)

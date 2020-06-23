@@ -2,6 +2,7 @@ package me.bristermitten.pdm;
 
 import me.bristermitten.pdm.util.ClassLoaderReflection;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -19,6 +20,7 @@ public class DependencyLoader
     @NotNull
     private final Logger logger;
 
+    @NotNull
     private final Set<File> loaded = new HashSet<>();
 
     public DependencyLoader(@NotNull final URLClassLoader classLoader, @NotNull final Logger logger)
@@ -27,7 +29,7 @@ public class DependencyLoader
         this.logger = logger;
     }
 
-    public void loadDependency(File file)
+    public void loadDependency(@Nullable final File file)
     {
         if (file == null)
         {

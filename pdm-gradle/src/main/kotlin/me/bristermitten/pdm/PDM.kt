@@ -1,6 +1,7 @@
 package me.bristermitten.pdm
 
 import com.google.gson.GsonBuilder
+import me.bristermitten.pdm.http.HTTPService
 import me.bristermitten.pdm.repository.artifact.ReleaseArtifact
 import me.bristermitten.pdm.repository.artifact.SnapshotArtifact
 import org.gradle.api.Plugin
@@ -22,6 +23,7 @@ class PDM : Plugin<Project>
 
     override fun apply(project: Project)
     {
+        val httpService = HTTPService(project.name)
         val extension = project.extensions.create("pdm", PDMExtension::class.java)
         val configurations = project.configurations
         val pdmConfiguration = configurations.create("pdm")
@@ -71,7 +73,7 @@ class PDM : Plugin<Project>
                 }
 
                 val repoAlias = repositories.entries.firstOrNull { (_, repoURL) ->
-                    val pomContent = artifact.downloadPom(repoURL)
+                    val pomContent = httpService.downloadPom(repoURL, artifact)
                     pomContent.isNotEmpty()
                 }?.key
                 if (repoAlias == null)

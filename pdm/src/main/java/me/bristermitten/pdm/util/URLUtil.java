@@ -17,13 +17,13 @@ public final class URLUtil
     }
 
     @Nullable
-    public static URLConnection prepareConnection(@NotNull final String urlText)
+    public static URLConnection prepareConnection(@NotNull final String urlText, @NotNull final String userAgent)
     {
         try
         {
             URL url = new URL(urlText);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestProperty("User-Agent", "Java-PDM");
+            connection.setRequestProperty("User-Agent", userAgent);
             connection.connect();
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK)
             {
@@ -38,9 +38,9 @@ public final class URLUtil
     }
 
     @NotNull
-    public static byte[] getBytes(@NotNull final String url)
+    public static byte[] getBytes(@NotNull final String url, @NotNull final String userAgent)
     {
-        URLConnection connection = URLUtil.prepareConnection(url);
+        URLConnection connection = URLUtil.prepareConnection(url, userAgent);
         if (connection == null)
         {
             return new byte[0];

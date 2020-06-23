@@ -1,6 +1,7 @@
 package me.bristermitten.pdm.repository;
 
 import me.bristermitten.pdm.dependency.Dependency;
+import me.bristermitten.pdm.http.HTTPService;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,9 +39,9 @@ public final class SpigotRepository extends MavenRepository
     @NotNull
     private final Logger logger = Logger.getLogger("SpigotRepository");
 
-    public SpigotRepository()
+    public SpigotRepository(@NotNull final HTTPService httpService)
     {
-        super("");
+        super("", httpService);
     }
 
     @Override

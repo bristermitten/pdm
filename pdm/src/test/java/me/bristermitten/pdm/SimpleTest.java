@@ -39,8 +39,8 @@ public class SimpleTest
                     () -> LOGGER,
                     new ByteArrayInputStream(DEPENDENCIES_JSON.getBytes()),
                     Files.createTempDirectory("tests").toFile(),
-                    classLoader
-            ).loadAllDependencies().join();
+                    classLoader,
+                    "Testing").loadAllDependencies().join();
 
             LOGGER.info(() -> {
                 try

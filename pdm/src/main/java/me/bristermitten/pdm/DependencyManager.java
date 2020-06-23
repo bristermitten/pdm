@@ -1,6 +1,7 @@
 package me.bristermitten.pdm;
 
 import me.bristermitten.pdm.dependency.Dependency;
+import me.bristermitten.pdm.http.HTTPService;
 import me.bristermitten.pdm.repository.JarRepository;
 import me.bristermitten.pdm.repository.RepositoryManager;
 import me.bristermitten.pdm.repository.SpigotRepository;
@@ -26,22 +27,23 @@ public class DependencyManager
     private final PDMSettings settings;
 
     private final RepositoryManager repositoryManager;
-
+    private final HTTPService httpService;
     private final DependencyLoader loader;
     private final Map<Dependency, CompletableFuture<File>> downloadsInProgress = new ConcurrentHashMap<>();
     private final Logger logger;
     private File pdmDirectory;
 
-    public DependencyManager(@NotNull final PDMSettings settings)
+    public DependencyManager(@NotNull final PDMSettings settings, HTTPService httpService)
     {
-        this(settings, PDM_DIRECTORY_NAME);
+        this(settings, PDM_DIRECTORY_NAME, httpService);
     }
 
-    public DependencyManager(@NotNull final PDMSettings settings, String outputDirectoryName)
+    public DependencyManager(@NotNull final PDMSettings settings, String outputDirectoryName, HTTPService httpService)
     {
         this.settings = settings;
         this.logger = settings.getLoggerSupplier().get();
         this.loader = new DependencyLoader(settings.getClassLoader(), settings.getLoggerSupplier().get());
+        this.httpService = httpService;
 
         repositoryManager = new RepositoryManager();
         loadRepositories();
@@ -63,7 +65,7 @@ public class DependencyManager
     private void loadRepositories()
     {
         repositoryManager.addRepository(
-                SpigotRepository.SPIGOT_ALIAS, new SpigotRepository()
+                SpigotRepository.SPIGOT_ALIAS, new SpigotRepository(httpService)
         );
     }
 

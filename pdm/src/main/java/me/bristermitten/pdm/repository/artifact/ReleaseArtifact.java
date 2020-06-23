@@ -1,7 +1,8 @@
 package me.bristermitten.pdm.repository.artifact;
 
-import me.bristermitten.pdm.util.URLUtil;
+import me.bristermitten.pdm.http.HTTPService;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ReleaseArtifact extends Artifact
 {
@@ -12,19 +13,17 @@ public class ReleaseArtifact extends Artifact
     }
 
     @Override
-    @NotNull
-    public byte[] download(@NotNull final String baseRepoURL)
+    @Nullable
+    public String getJarURL(@NotNull String baseRepoURL, @NotNull HTTPService service)
     {
-        final String url = createBaseURL(baseRepoURL) + getArtifactId() + "-" + getVersion() + ".jar";
-
-        return URLUtil.getBytes(url);
+        return createBaseURL(baseRepoURL) + getArtifactId() + "-" + getVersion() + ".jar";
     }
 
     @Override
-    @NotNull
-    public byte[] downloadPom(@NotNull final String baseRepoURL)
+    @Nullable
+    public String getPomURL(@NotNull String baseRepoURL, @NotNull HTTPService service)
     {
-        final String url = createBaseURL(baseRepoURL) + getArtifactId() + "-" + getVersion() + ".pom";
-        return URLUtil.getBytes(url);
+        return createBaseURL(baseRepoURL) + getArtifactId() + "-" + getVersion() + ".pom";
     }
+
 }

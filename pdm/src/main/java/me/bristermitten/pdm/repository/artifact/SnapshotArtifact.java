@@ -1,8 +1,8 @@
 package me.bristermitten.pdm.repository.artifact;
 
-import com.google.common.io.ByteStreams;
-import me.bristermitten.pdm.util.URLUtil;
+import me.bristermitten.pdm.http.HTTPService;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -15,9 +15,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URLConnection;
 
-@SuppressWarnings("UnstableApiUsage")
 public class SnapshotArtifact extends Artifact
 {
 
@@ -36,54 +34,36 @@ public class SnapshotArtifact extends Artifact
     }
 
     @Override
-    @NotNull
-    public byte[] download(@NotNull final String baseRepoURL)
+    @Nullable
+    public String getJarURL(@NotNull final String baseRepoURL, @NotNull final HTTPService httpService)
     {
-        final String latestSnapshotVersion = getLatestVersion(baseRepoURL);
+        final String latestSnapshotVersion = getLatestVersion(baseRepoURL, httpService);
         if (latestSnapshotVersion == null)
         {
-            return new byte[0];
+            return null;
         }
 
-        final String url = createBaseURL(baseRepoURL) + getArtifactId() + "-" + latestSnapshotVersion + ".jar";
-
-        return URLUtil.getBytes(url);
+        return createBaseURL(baseRepoURL) + getArtifactId() + "-" + latestSnapshotVersion + ".jar";
     }
 
     @Override
-    @NotNull
-    public byte[] downloadPom(@NotNull final String baseRepoURL)
+    @Nullable
+    public String getPomURL(@NotNull final String baseRepoURL, @NotNull final HTTPService httpService)
     {
-        final String latestSnapshotVersion = getLatestVersion(baseRepoURL);
+        final String latestSnapshotVersion = getLatestVersion(baseRepoURL, httpService);
         if (latestSnapshotVersion == null)
         {
-            return new byte[0];
+            return null;
         }
 
-        final String url = createBaseURL(baseRepoURL) + getArtifactId() + "-" + latestSnapshotVersion + ".pom";
-
-        return URLUtil.getBytes(url);
+        return createBaseURL(baseRepoURL) + getArtifactId() + "-" + latestSnapshotVersion + ".pom";
     }
 
 
-    private String getLatestVersion(String baseURL)
+    private String getLatestVersion(String baseURL, HTTPService httpService)
     {
         String metadataURL = createBaseURL(baseURL) + "/maven-metadata.xml";
-
-        URLConnection connection = URLUtil.prepareConnection(metadataURL);
-        if (connection == null)
-        {
-            return null;
-        }
-        byte[] bytes;
-        try
-        {
-            bytes = ByteStreams.toByteArray(connection.getInputStream());
-        }
-        catch (IOException e)
-        {
-            return null;
-        }
+        byte[] bytes = httpService.downloadFrom(metadataURL);
 
         Document doc;
         try
