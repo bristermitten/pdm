@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public class DependencyDAO
+public class DependencyDTO
 {
 
     @NotNull
@@ -21,7 +21,7 @@ public class DependencyDAO
     @SerializedName("repository")
     private final String repository;
 
-    public DependencyDAO(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @NotNull String sourceRepository)
+    public DependencyDTO(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @NotNull String sourceRepository)
     {
         this.groupId = groupId;
         this.artifactId = artifactId;
@@ -50,8 +50,8 @@ public class DependencyDAO
     public boolean equals(Object o)
     {
         if (this == o) return true;
-        if (!(o instanceof DependencyDAO)) return false;
-        DependencyDAO that = (DependencyDAO) o;
+        if (!(o instanceof DependencyDTO)) return false;
+        DependencyDTO that = (DependencyDTO) o;
         return getGroupId().equals(that.getGroupId()) &&
                 getArtifactId().equals(that.getArtifactId()) &&
                 getVersion().equals(that.getVersion()) &&
