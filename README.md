@@ -13,6 +13,8 @@ Jars are downloaded to this directory and loaded into the classpath of plugins t
 * Reduce overall Jar Size 
 * No need to relocate dependencies
 * Reduce build time when dealing with many libraries
+* PDM is small! It uses absolutely no external dependencies that 
+aren't provided by Spigot, making the size footprint of using it tiny
 
 ## How to Use 
 
@@ -87,6 +89,7 @@ An instance of `RepositoryManager` is exposed through
 ## Gradle Plugin
 
 PDM also includes a Gradle Plugin to automatically generate a `dependencies.json` file!
+This is the recommended approach, as it does 99% of the work for you and is much more extendable.
 
 *Currently, the plugin isn't in the Gradle Plugins Repository. If you want to use it, you will need to build from source to your local repo*
 
