@@ -84,6 +84,35 @@ An instance of `RepositoryManager` is exposed through
 `PluginDependencyManager#getManager#getRepositoryManager`.
 
 
-## Todo
+## Gradle Plugin
 
-- [ ] Create a Gradle plugin that will automatically generate a `dependencies.json` file
+PDM also includes a Gradle Plugin to automatically generate a `dependencies.json` file!
+
+*Currently, the plugin isn't in the Gradle Plugins Repository. If you want to use it, you will need to build from source to your local repo*
+
+This is a basic example of the usage that will be improved on in future:
+
+```gradle
+buildscript {
+    repositories {
+        mavenLocal()
+    }
+    dependencies {
+        classpath "me.bristermitten:pdm-gradle:0.0.1-SNAPSHOT"
+    }
+}
+
+apply plugin: 'me.bristermitten.pdm'
+
+dependencies {
+    compileOnly 'org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT'
+    pdm 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.72' //This will be added to the dependencies.json
+}
+
+pdm {
+    outputDirectory = 'Hello' //Change the output directory
+}
+
+jar.dependsOn project.tasks.getByName('pdm') //Always run the pdm task when we build 
+
+```
