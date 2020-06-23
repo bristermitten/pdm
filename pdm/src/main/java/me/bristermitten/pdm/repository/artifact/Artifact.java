@@ -21,10 +21,10 @@ public abstract class Artifact
     }
 
 
-    @Nullable
+    @NotNull
     public abstract byte[] download(@NotNull final String baseRepoURL);
 
-    @Nullable
+    @NotNull
     public abstract byte[] downloadPom(@NotNull final String baseRepoURL);
 
     public String getGroupId()

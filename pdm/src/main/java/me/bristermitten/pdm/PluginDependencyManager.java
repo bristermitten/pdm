@@ -53,8 +53,7 @@ public final class PluginDependencyManager
         final PDMSettings settings = new PDMSettings(
                 rootDirectory,
                 loggerSupplier,
-                classLoader
-        );
+                classLoader);
 
         this.manager = new DependencyManager(settings);
 

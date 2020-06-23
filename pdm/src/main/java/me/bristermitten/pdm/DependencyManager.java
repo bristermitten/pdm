@@ -2,7 +2,6 @@ package me.bristermitten.pdm;
 
 import me.bristermitten.pdm.dependency.Dependency;
 import me.bristermitten.pdm.repository.JarRepository;
-import me.bristermitten.pdm.repository.MavenCentralRepository;
 import me.bristermitten.pdm.repository.RepositoryManager;
 import me.bristermitten.pdm.repository.SpigotRepository;
 import me.bristermitten.pdm.util.FileUtil;
@@ -64,9 +63,6 @@ public class DependencyManager
     private void loadRepositories()
     {
         repositoryManager.addRepository(
-                MavenCentralRepository.MAVEN_CENTRAL_ALIAS, new MavenCentralRepository()
-        );
-        repositoryManager.addRepository(
                 SpigotRepository.SPIGOT_ALIAS, new SpigotRepository()
         );
     }
@@ -121,7 +117,7 @@ public class DependencyManager
                         }).join();
                 return file;
             }
-            throw new NoSuchElementException(dependency.toString());
+            throw new NoSuchElementException("Could not find any repositories for " + dependency.toString());
         });
         downloadsInProgress.put(dependency, downloadingFuture);
         return downloadingFuture;

@@ -1,11 +1,13 @@
 package me.bristermitten.pdm;
 
+import me.bristermitten.pdm.repository.MavenCentral;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.util.logging.Logger;
 
 public class SimpleTest
@@ -15,7 +17,7 @@ public class SimpleTest
 
     private static final String DEPENDENCIES_JSON = "{\n" +
             "  \"repositories\": {\n" +
-            "    \"maven\": \"https://hub.spigotmc.org/nexus/content/repositories/snapshots/\"\n" +
+            "    \"maven\": \"" + MavenCentral.DEFAULT_CENTRAL_MIRROR + "\"\n" +
             "  },\n" +
             "  \"dependencies\": [\n" +
             "    {\n" +
@@ -29,26 +31,28 @@ public class SimpleTest
             "}";
 
     @Test
-    public void simplePDMTest()
+    public void simplePDMTest() throws IOException
     {
-        URLClassLoader classLoader = new URLClassLoader(new URL[]{}, this.getClass().getClassLoader());
-        new PluginDependencyManager(
-                () -> LOGGER,
-                new ByteArrayInputStream(DEPENDENCIES_JSON.getBytes()),
-                new File("tests"),
-                classLoader
-        ).loadAllDependencies().join();
+        try (URLClassLoader classLoader = new URLClassLoader(new URL[]{}, this.getClass().getClassLoader()))
+        {
+            new PluginDependencyManager(
+                    () -> LOGGER,
+                    new ByteArrayInputStream(DEPENDENCIES_JSON.getBytes()),
+                    Files.createTempDirectory("tests").toFile(),
+                    classLoader
+            ).loadAllDependencies().join();
 
-        LOGGER.info(() -> {
-            try
-            {
-                return "Kotlin? " + classLoader.loadClass("kotlin.Unit");
-            }
-            catch (ClassNotFoundException e)
-            {
-                throw new IllegalArgumentException(e);
-            }
-        });
+            LOGGER.info(() -> {
+                try
+                {
+                    return "Kotlin? " + classLoader.loadClass("kotlin.Unit");
+                }
+                catch (ClassNotFoundException e)
+                {
+                    throw new IllegalArgumentException(e);
+                }
+            });
+        }
 
     }
 }

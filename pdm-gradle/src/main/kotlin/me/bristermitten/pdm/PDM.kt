@@ -1,13 +1,13 @@
 package me.bristermitten.pdm
 
 import com.google.gson.GsonBuilder
-import me.bristermitten.pdm.repository.MavenCentralRepository
 import me.bristermitten.pdm.repository.artifact.ReleaseArtifact
 import me.bristermitten.pdm.repository.artifact.SnapshotArtifact
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.jvm.tasks.Jar
+import org.slf4j.LoggerFactory
 import java.io.File
 
 class PDM : Plugin<Project>
@@ -15,7 +15,7 @@ class PDM : Plugin<Project>
     companion object
     {
         private val IGNORED_REPOS = setOf("MavenLocal")
-        private val REMAPPED_REPOS = mapOf("MavenRepo" to MavenCentralRepository.MAVEN_CENTRAL_ALIAS)
+        private val LOGGER = LoggerFactory.getLogger(PDM::class.java)
     }
 
     private val gson = GsonBuilder().setPrettyPrinting().create()
@@ -48,7 +48,14 @@ class PDM : Plugin<Project>
                     }
 
             val repositories = mavenRepositories.map {
-                (REMAPPED_REPOS[it.name] ?: it.name) to it.url.toString()
+                val url = if (it.name == "MavenRepo")
+                {
+                    extension.centralMirror
+                } else
+                {
+                    it.url.toString()
+                }
+                it.name to url
             }.toMap()
 
             val dependencies = pdmConfiguration.allDependencies.mapNotNull { dependency ->
@@ -63,21 +70,20 @@ class PDM : Plugin<Project>
                     ReleaseArtifact(groupId, dependency.name, version)
                 }
 
-                val repo = mavenRepositories.firstOrNull { repo ->
-                    val downloadPom = artifact.downloadPom(repo.url.toString())
-                    downloadPom != null
-                }
-                val repoAlias = repositories.entries.firstOrNull {
-                    it.value == repo?.url?.toString()
+                val repoAlias = repositories.entries.firstOrNull { (_, repoURL) ->
+                    val pomContent = artifact.downloadPom(repoURL)
+                    pomContent.isNotEmpty()
                 }?.key
+                if (repoAlias == null)
+                {
+                    LOGGER.error("No repository found for dependency {}", artifact)
+                }
                 PDMDependency(groupId, dependency.name, version, repoAlias)
             }
 
             val json = gson.toJson(
                     DependenciesConfiguration(
-                            repositories.filterKeys {
-                                it !in REMAPPED_REPOS.values
-                            },
+                            repositories,
                             dependencies.toSet(),
                             extension.outputDirectory
                     )
