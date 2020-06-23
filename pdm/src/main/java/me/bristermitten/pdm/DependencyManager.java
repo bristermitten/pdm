@@ -144,16 +144,16 @@ public class DependencyManager
         repo.downloadDependency(dependency)
                 .exceptionally(throwable -> {
                     logger.log(Level.SEVERE, throwable, () -> "Exception thrown while downloading " + dependency);
-                    return null;
+                    return new byte[0];
                 })
                 .thenAccept(bytes -> {
-                    if (bytes == null)
+                    if (bytes.length == 0)
                     {
                         return;
                     }
-                    try
+                    try (final ByteArrayInputStream input = new ByteArrayInputStream(bytes))
                     {
-                        Files.copy(new ByteArrayInputStream(bytes), file.toPath());
+                        Files.copy(input, file.toPath());
                     }
                     catch (IOException e)
                     {

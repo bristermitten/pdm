@@ -1,6 +1,5 @@
 package me.bristermitten.pdm.util;
 
-import com.google.common.io.ByteStreams;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,13 +37,13 @@ public final class URLUtil
         }
     }
 
-    @Nullable
+    @NotNull
     public static byte[] getBytes(@NotNull final String url)
     {
         URLConnection connection = URLUtil.prepareConnection(url);
         if (connection == null)
         {
-            return null;
+            return new byte[0];
         }
         try
         {
@@ -52,7 +51,7 @@ public final class URLUtil
         }
         catch (IOException e)
         {
-            return null;
+            return new byte[0];
         }
     }
 }

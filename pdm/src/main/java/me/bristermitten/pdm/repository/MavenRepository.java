@@ -1,8 +1,6 @@
 package me.bristermitten.pdm.repository;
 
-import me.bristermitten.pdm.DependencyManager;
 import me.bristermitten.pdm.dependency.Dependency;
-import me.bristermitten.pdm.http.HTTPManager;
 import me.bristermitten.pdm.repository.artifact.Artifact;
 import me.bristermitten.pdm.repository.artifact.ReleaseArtifact;
 import me.bristermitten.pdm.repository.artifact.SnapshotArtifact;
@@ -33,11 +31,11 @@ public class MavenRepository implements JarRepository
     public CompletableFuture<Boolean> contains(Dependency dependency)
     {
         return downloadDependency(dependency)
-                .thenApply(Objects::nonNull);
+                .thenApply(bytes -> bytes.length != 0);
     }
 
     @Override
-    public synchronized CompletableFuture<byte[]> downloadDependency(Dependency dependency)
+    public CompletableFuture<byte[]> downloadDependency(Dependency dependency)
     {
         byte[] existing = downloaded.get(dependency);
         if (existing != null)
@@ -57,9 +55,9 @@ public class MavenRepository implements JarRepository
                         return bytes;
                     } else if (throwable != null)
                     {
-                        throwable.printStackTrace();
+                        logger.log(Level.SEVERE, throwable, () -> "Could not download " + dependency);
                     }
-                    return null;
+                    return new byte[0];
                 });
     }
 

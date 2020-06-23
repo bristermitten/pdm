@@ -3,7 +3,6 @@ package me.bristermitten.pdm.repository.artifact;
 import com.google.common.io.ByteStreams;
 import me.bristermitten.pdm.util.URLUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -37,13 +36,13 @@ public class SnapshotArtifact extends Artifact
     }
 
     @Override
-    @Nullable
+    @NotNull
     public byte[] download(@NotNull final String baseRepoURL)
     {
         final String latestSnapshotVersion = getLatestVersion(baseRepoURL);
         if (latestSnapshotVersion == null)
         {
-            return null;
+            return new byte[0];
         }
 
         final String url = createBaseURL(baseRepoURL) + getArtifactId() + "-" + latestSnapshotVersion + ".jar";
@@ -52,13 +51,13 @@ public class SnapshotArtifact extends Artifact
     }
 
     @Override
-    @Nullable
+    @NotNull
     public byte[] downloadPom(@NotNull final String baseRepoURL)
     {
         final String latestSnapshotVersion = getLatestVersion(baseRepoURL);
         if (latestSnapshotVersion == null)
         {
-            return null;
+            return new byte[0];
         }
 
         final String url = createBaseURL(baseRepoURL) + getArtifactId() + "-" + latestSnapshotVersion + ".pom";

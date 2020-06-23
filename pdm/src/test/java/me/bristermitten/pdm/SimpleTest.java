@@ -29,7 +29,7 @@ public class SimpleTest
             "}";
 
     @Test
-    public void simplePDMTest() throws ClassNotFoundException
+    public void simplePDMTest()
     {
         URLClassLoader classLoader = new URLClassLoader(new URL[]{}, this.getClass().getClassLoader());
         new PluginDependencyManager(
@@ -38,6 +38,16 @@ public class SimpleTest
                 new File("tests"),
                 classLoader
         ).loadAllDependencies().join();
-        System.out.println("Kotlin? " + classLoader.loadClass("kotlin.Unit"));
+
+        LOGGER.info(() -> {
+            try
+            {
+                return "Kotlin? " + classLoader.loadClass("kotlin.Unit");
+            }
+            catch (ClassNotFoundException e)
+            {
+                throw new IllegalArgumentException(e);
+            }
+        });
     }
 }
