@@ -64,22 +64,30 @@ class PDM : Plugin<Project>
                 val groupId = dependency.group ?: return@mapNotNull null
                 val version = dependency.version ?: return@mapNotNull null
 
-                val artifact = if (version.endsWith("-SNAPSHOT"))
+
+                val repoAlias = if (!extension.searchRepositories)
                 {
-                    SnapshotArtifact(groupId, dependency.name, version)
+                    null
                 } else
                 {
-                    ReleaseArtifact(groupId, dependency.name, version)
+                    val artifact = if (version.endsWith("-SNAPSHOT"))
+                    {
+                        SnapshotArtifact(groupId, dependency.name, version)
+                    } else
+                    {
+                        ReleaseArtifact(groupId, dependency.name, version)
+                    }
+                    val repoAlias = repositories.entries.firstOrNull { (_, repoURL) ->
+                        val pomContent = httpService.downloadPom(repoURL, artifact)
+                        pomContent.isNotEmpty()
+                    }?.key
+                    if (repoAlias == null)
+                    {
+                        LOGGER.error("No repository found for dependency {}", artifact)
+                    }
+                    repoAlias
                 }
 
-                val repoAlias = repositories.entries.firstOrNull { (_, repoURL) ->
-                    val pomContent = httpService.downloadPom(repoURL, artifact)
-                    pomContent.isNotEmpty()
-                }?.key
-                if (repoAlias == null)
-                {
-                    LOGGER.error("No repository found for dependency {}", artifact)
-                }
                 PDMDependency(groupId, dependency.name, version, repoAlias)
             }
 

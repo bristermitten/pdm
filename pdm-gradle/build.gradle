@@ -8,7 +8,6 @@ plugins {
     id 'com.gradle.plugin-publish' version '0.12.0'
 }
 
-
 repositories {
     mavenCentral()
 }
@@ -50,6 +49,13 @@ gradlePlugin {
     }
 }
 
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+
 artifacts {
-    add("archives", shadowJar)
+    archives shadowJar
+    archives sourcesJar
 }
