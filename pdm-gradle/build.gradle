@@ -1,5 +1,4 @@
 import org.apache.tools.ant.filters.ReplaceTokens
-import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
 
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.3.72'
@@ -18,7 +17,6 @@ repositories {
 
 dependencies {
     shadow gradleApi()
-
     implementation "me.bristermitten:common-lib:${project.version}"
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     implementation 'com.google.code.gson:gson:2.8.6'
@@ -31,17 +29,38 @@ processResources {
     }
 }
 
+
+configurations.compile.dependencies.remove dependencies.gradleApi()
 shadowJar {
     classifier = ''
 }
 
-task relocateShadowJar(type: ConfigureShadowRelocation) {
-    target = tasks.shadowJar
+//task relocateShadowJar(type: ConfigureShadowRelocation) {
+//    target = tasks.shadowJar
+//}
+//
+//tasks.shadowJar.dependsOn tasks.relocateShadowJar
+
+
+publishing {
+    publications {
+        shadow(MavenPublication) { publication ->
+            project.shadow.component(publication)
+        }
+    }
+    repositories {
+        maven {
+            def releasesRepoUrl = "https://repo.bristermitten.me/repository/maven-releases"
+            def snapshotsRepoUrl = "https://repo.bristermitten.me/repository/maven-snapshots"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+
+            credentials {
+                username project.hasProperty('mavenUser') ? mavenUser : System.env["MAVEN_USER"]
+                password project.hasProperty('mavenPassword') ? mavenPassword : System.env["MAVEN_PASSWORD"]
+            }
+        }
+    }
 }
-
-tasks.shadowJar.dependsOn tasks.relocateShadowJar
-
-
 
 pluginBundle {
     website = 'https://github.com/knightzmc/pdm'
@@ -67,6 +86,6 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 
 
 artifacts {
-    archives shadowJar
+//    archives shadowJar
     archives sourcesJar
 }
