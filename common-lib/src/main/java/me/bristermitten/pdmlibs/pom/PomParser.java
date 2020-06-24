@@ -26,26 +26,30 @@ public class PomParser
             "test",
             "provided"
     ));
+    private static final DocumentBuilderFactory dbFactory;
+
+    static
+    {
+        dbFactory = DocumentBuilderFactory.newInstance();
+        dbFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        dbFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+
+    }
 
     private final ArtifactFactory artifactFactory;
 
     public PomParser(ArtifactFactory artifactFactory)
     {
-
         this.artifactFactory = artifactFactory;
     }
 
     public Set<Artifact> extractDependenciesFromPom(@NotNull final String pomContent)
     {
         Set<Artifact> dependencySet = new HashSet<>();
-        try
+        try (ByteArrayInputStream is = new ByteArrayInputStream(pomContent.getBytes()))
         {
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            dbFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            dbFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            ByteArrayInputStream is = new ByteArrayInputStream(pomContent.getBytes());
+
 
             Document doc = dBuilder.parse(is);
             doc.getDocumentElement().normalize();
@@ -64,11 +68,11 @@ public class PomParser
             }
             for (int temp = 0; temp < dependencies.getLength(); temp++)
             {
-                Node nNode = dependencies.item(temp);
+                Node node = dependencies.item(temp);
 
-                if (nNode.getNodeType() == Node.ELEMENT_NODE)
+                if (node instanceof Element)
                 {
-                    Artifact parsed = getDependencyFromXML((Element) nNode);
+                    Artifact parsed = getDependencyFromXML((Element) node);
                     if (parsed != null)
                     {
                         dependencySet.add(parsed);
@@ -80,19 +84,31 @@ public class PomParser
         {
             throw new IllegalArgumentException(e);
         }
+
         return dependencySet;
     }
 
     private Artifact getDependencyFromXML(Element dependencyElement)
     {
-        String groupId = dependencyElement.getElementsByTagName("groupId").item(0).getTextContent();
-        String artifactId = dependencyElement.getElementsByTagName("artifactId").item(0).getTextContent();
-        String version = dependencyElement.getElementsByTagName("version").item(0).getTextContent();
-        String scope = dependencyElement.getElementsByTagName("scope").item(0).getTextContent();
-        if (SCOPES_TO_DROP.contains(scope))
+        final String groupId = dependencyElement.getElementsByTagName("groupId").item(0).getTextContent();
+        final String artifactId = dependencyElement.getElementsByTagName("artifactId").item(0).getTextContent();
+        final NodeList versionNodeList = dependencyElement.getElementsByTagName("version");
+        if (versionNodeList == null || versionNodeList.getLength() == 0)
         {
             return null;
         }
+
+        final String version = versionNodeList.item(0).getTextContent();
+        final NodeList scopeList = dependencyElement.getElementsByTagName("scope");
+        if (scopeList != null && scopeList.getLength() > 0)
+        {
+            String scope = scopeList.item(0).getTextContent();
+            if (SCOPES_TO_DROP.contains(scope))
+            {
+                return null;
+            }
+        }
+
         return artifactFactory.toArtifact(groupId, artifactId, version, null, null);
     }
 }

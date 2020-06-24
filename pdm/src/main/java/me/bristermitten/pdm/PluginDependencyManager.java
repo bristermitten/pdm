@@ -42,17 +42,19 @@ public final class PluginDependencyManager
                 managing.getResource("dependencies.json"),
                 managing.getDataFolder().getParentFile(),
                 (URLClassLoader) managing.getClass().getClassLoader(),
-                managing.getName());
+                managing.getName(),
+                managing.getDescription().getVersion());
     }
 
     public PluginDependencyManager(@NotNull final Supplier<Logger> loggerSupplier,
                                    @Nullable final InputStream dependenciesResource,
                                    @NotNull final File rootDirectory,
                                    @NotNull final URLClassLoader classLoader,
-                                   @NotNull final String applicationName)
+                                   @NotNull final String applicationName,
+                                   @NotNull final String applicationVersion)
     {
         this.logger = loggerSupplier.get();
-        this.httpService = new HTTPService(applicationName);
+        this.httpService = new HTTPService(applicationName, applicationVersion);
 
         final PDMSettings settings = new PDMSettings(
                 rootDirectory,

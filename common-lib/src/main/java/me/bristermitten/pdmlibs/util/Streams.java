@@ -35,6 +35,7 @@ public final class Streams
             {
                 output.write(next);
             }
+
             return output.toByteArray();
         }
         catch (IOException e)

@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -45,9 +46,9 @@ public final class URLUtil
         {
             return new byte[0];
         }
-        try
+        try (final InputStream inputStream = connection.getInputStream();)
         {
-            return Streams.toByteArray(connection.getInputStream());
+            return Streams.toByteArray(inputStream);
         }
         catch (IOException e)
         {

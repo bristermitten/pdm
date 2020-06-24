@@ -1,13 +1,16 @@
 package me.bristermitten.pdm.repository;
 
 import me.bristermitten.pdmlibs.artifact.Artifact;
+import me.bristermitten.pdmlibs.http.HTTPService;
+import me.bristermitten.pdmlibs.pom.PomParser;
+import me.bristermitten.pdmlibs.repository.MavenRepository;
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.logging.Logger;
 
-public final class SpigotRepository
-        //        extends MavenRepository
+public final class SpigotRepository extends MavenRepository
 {
 
     public static final String SPIGOT_ALIAS = "spigot-repo";
@@ -37,27 +40,33 @@ public final class SpigotRepository
     @NotNull
     private final Logger logger = Logger.getLogger("SpigotRepository");
 
-    //    public SpigotRepository(@NotNull final HTTPService httpService)
-    //    {
-    //        super("", httpService);
-    //    }
+    public SpigotRepository(@NotNull HTTPService httpService, @NotNull PomParser pomParser)
+    {
+        super("", httpService, pomParser);
+    }
 
-    //
-    //    @Override
-    //    public Set<Artifact> getTransitiveDependencies(@NotNull Artifact dependency)
-    //    {
-    //        return Collections.emptySet();
-    //    }
-    //
-    //    @Override
-    //    public byte[] downloadDependency(@NotNull Artifact dependency)
-    //    {
-    //        if (dependency.getVersion().contains(Bukkit.getVersion()))
-    //        {
-    //            logger.warning(() -> "Dependency on " + dependency + " does not match server version of " + Bukkit.getVersion() + ". This could cause version problems.");
-    //        }
-    //        return new byte[0];
-    //    }
+
+    @Override
+    public @NotNull Set<Artifact> getTransitiveDependencies(@NotNull Artifact dependency)
+    {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public boolean contains(@NotNull Artifact artifact)
+    {
+        return isSpigotDependency(artifact);
+    }
+
+    @Override
+    public byte[] download(@NotNull Artifact dependency)
+    {
+        if (dependency.getVersion().contains(Bukkit.getVersion()))
+        {
+            logger.warning(() -> "Dependency on " + dependency + " does not match server version of " + Bukkit.getVersion() + ". This could cause version problems.");
+        }
+        return new byte[0];
+    }
 
     private boolean isSpigotDependency(Artifact dependency)
     {

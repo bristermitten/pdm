@@ -1,4 +1,4 @@
-package me.bristermitten.pdm
+package me.bristermitten.pdm.json
 
 data class DependenciesConfiguration(
         private val repositories: Map<String, String>,

@@ -37,13 +37,50 @@ open class PDMExtension
     var searchRepositories: Boolean = true
         protected set
 
-
     /**
      * Disable the searching of repositories at build type.
+     *
      * @see [searchRepositories]
      */
     protected fun disableRepositorySearching()
     {
         searchRepositories = false
+    }
+
+    /**
+     * If this project should be treated as a Spigot project.
+     * If it is, no repository searching will be done for any Spigot dependencies, as they are assumed to be provided at runtime.
+     *
+     * @see [isSpigotArtifact]
+     */
+    var spigot: Boolean = true
+        private set
+
+    /**
+     * Disable Spigot handling for this project.
+     *
+     * @see [spigot]
+     */
+    protected fun disableSpigot()
+    {
+        this.spigot = false
+    }
+
+    /**
+     * If the PDM runtime should be bundled into the built jar.
+     * These classes are required for functionality, and are automatically set to include via the `jar` task.
+     *
+     * However, this can be disabled if necessary, if the classes will be provided via alternative means.
+     */
+    var bundlePDMRuntime: Boolean = true
+        private set
+
+    /**
+     * Disable the bundling of the PDM runtime
+     * @see [bundlePDMRuntime]
+     */
+    protected fun disableRuntimeBundling()
+    {
+        this.bundlePDMRuntime = false
     }
 }

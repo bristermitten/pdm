@@ -3,16 +3,18 @@ package me.bristermitten.pdmlibs.repository;
 import me.bristermitten.pdmlibs.artifact.Artifact;
 import me.bristermitten.pdmlibs.http.HTTPService;
 import me.bristermitten.pdmlibs.pom.PomParser;
+import me.bristermitten.pdmlibs.util.Strings;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MavenRepository implements Repository
 {
 
-    private static final Set<Artifact> containingArtifacts = ConcurrentHashMap.newKeySet();
+    private final Set<Artifact> containingArtifacts = ConcurrentHashMap.newKeySet();
     @NotNull
     private final String baseURL;
     @NotNull
@@ -63,15 +65,30 @@ public class MavenRepository implements Repository
     }
 
     @Override
-    public @NotNull Set<Artifact> getTransitiveDependencies(@NotNull Artifact artifact)
+    @NotNull
+    public Set<Artifact> getTransitiveDependencies(@NotNull Artifact artifact)
     {
         @NotNull byte[] pom = httpService.downloadPom(baseURL, artifact);
-        final String pomContent = new String(pom);
-        if (pomContent.isEmpty())
+        final String pomContent = new String(pom).trim();
+        if (Strings.isBlank(pomContent))
         {
             return Collections.emptySet();
         }
-
         return pomParser.extractDependenciesFromPom(pomContent);
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (!(o instanceof MavenRepository)) return false;
+        MavenRepository that = (MavenRepository) o;
+        return baseURL.equals(that.baseURL);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(baseURL);
     }
 }

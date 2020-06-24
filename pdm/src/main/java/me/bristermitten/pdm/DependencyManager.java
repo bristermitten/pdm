@@ -1,5 +1,6 @@
 package me.bristermitten.pdm;
 
+import me.bristermitten.pdm.repository.SpigotRepository;
 import me.bristermitten.pdm.util.FileUtil;
 import me.bristermitten.pdmlibs.artifact.Artifact;
 import me.bristermitten.pdmlibs.artifact.ArtifactFactory;
@@ -36,6 +37,7 @@ public class DependencyManager
     private final DependencyLoader loader;
     private final ArtifactFactory artifactFactory = new ArtifactFactory();
     private final PomParser pomParser = new PomParser(artifactFactory);
+    private final HTTPService httpService;
 
     private final Map<Artifact, CompletableFuture<File>> downloadsInProgress = new ConcurrentHashMap<>();
     private final Logger logger;
@@ -51,12 +53,13 @@ public class DependencyManager
         this.settings = settings;
         this.logger = settings.getLoggerSupplier().get();
         this.loader = new DependencyLoader(settings.getClassLoader(), settings.getLoggerSupplier().get());
+        this.httpService = httpService;
 
         this.repositoryManager = new RepositoryManager();
 
         this.repositoryFactory = new MavenRepositoryFactory(httpService, pomParser);
 
-        loadRepositories();
+//        loadRepositories();
 
         setOutputDirectoryName(outputDirectoryName);
     }
@@ -74,9 +77,9 @@ public class DependencyManager
 
     private void loadRepositories()
     {
-        //        repositoryManager.addRepository(
-        //                SpigotRepository.SPIGOT_ALIAS, new SpigotRepository(httpService)
-        //        );
+        repositoryManager.addRepository(
+                SpigotRepository.SPIGOT_ALIAS, new SpigotRepository(httpService, pomParser)
+        );
     }
 
     public ArtifactFactory getArtifactFactory()
@@ -91,8 +94,8 @@ public class DependencyManager
 
     public CompletableFuture<Void> downloadAndLoad(Artifact dependency)
     {
-
         CompletableFuture<File> downloaded = download(dependency);
+
         return downloaded.thenAccept(loader::loadDependency);
     }
 
@@ -106,22 +109,16 @@ public class DependencyManager
 
         File file = new File(pdmDirectory, dependency.getJarName());
 
-        Collection<Repository> reposToCheck = getRepositoriesToCheckFor(dependency);
-        Set<Repository> checked = ConcurrentHashMap.newKeySet();
+        Collection<Repository> repositoriesToSearch = getRepositoriesToSearchFor(dependency);
 
         CompletableFuture<File> downloadingFuture = CompletableFuture.supplyAsync(() -> {
-            for (Repository repository : reposToCheck)
+            for (Repository repository : repositoriesToSearch)
             {
                 if (!file.exists() && !repository.contains(dependency))
                 {
                     if (Objects.equals(dependency.getRepoAlias(), repository.getURL()))
                     {
                         logger.warning(() -> "Repository " + repository + " did not contain " + dependency + " despite it being the configured repository.");
-                    }
-                    if (checked.size() == reposToCheck.size())
-                    {
-                        logger.warning(() -> "No repository found for " + dependency + ", it cannot be downloaded. Other plugins may not function properly.");
-                        return file;
                     }
                     continue;
                 }
@@ -143,6 +140,10 @@ public class DependencyManager
                 }
                 return file;
             }
+            logger.warning(() -> "No repository found for " + dependency + ", it cannot be downloaded. Other plugins may not function properly.");
+            return file;
+        }).exceptionally(t -> {
+            t.printStackTrace();
             return file;
         });
 
@@ -150,7 +151,7 @@ public class DependencyManager
         return downloadingFuture;
     }
 
-    private Collection<Repository> getRepositoriesToCheckFor(Artifact dependency)
+    private Collection<Repository> getRepositoriesToSearchFor(Artifact dependency)
     {
         if (dependency.getRepoAlias() != null)
         {

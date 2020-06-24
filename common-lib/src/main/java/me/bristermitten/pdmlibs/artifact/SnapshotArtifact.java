@@ -65,17 +65,21 @@ public class SnapshotArtifact extends Artifact
         return createBaseURL(baseRepoURL) + getArtifactId() + "-" + latestSnapshotVersion + ".pom";
     }
 
-
+    @Nullable
     private String getLatestVersion(String baseURL, HTTPService httpService)
     {
-        String metadataURL = createBaseURL(baseURL) + "/maven-metadata.xml";
+        String metadataURL = createBaseURL(baseURL) + "maven-metadata.xml";
         byte[] bytes = httpService.downloadFrom(metadataURL);
+        if (bytes.length == 0)
+        {
+            return null;
+        }
 
         Document doc;
-        try
+        try (final ByteArrayInputStream in = new ByteArrayInputStream(bytes))
         {
             DocumentBuilder builder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
-            doc = builder.parse(new ByteArrayInputStream(bytes));
+            doc = builder.parse(in);
         }
         catch (ParserConfigurationException | SAXException | IOException e)
         {
@@ -84,20 +88,20 @@ public class SnapshotArtifact extends Artifact
 
         doc.getDocumentElement().normalize();
         Element versioning = (Element) doc.getElementsByTagName("versioning").item(0);
-        NodeList snapshotVersions = versioning.getElementsByTagName("snapshotVersions");
-        for (int i = 0; i < snapshotVersions.getLength(); i++)
-        {
-            NodeList snapshotVersion = ((Element) snapshotVersions.item(i)).getElementsByTagName("snapshotVersion");
-            for (int j = 0; j < snapshotVersion.getLength(); j++)
-            {
-                Element snapshotItem = (Element) snapshotVersion.item(j);
-                String extension = snapshotItem.getElementsByTagName("extension").item(0).getTextContent();
-                Node classifier = snapshotItem.getElementsByTagName("classifier").item(0);
 
-                if (extension.equals("jar") && classifier == null)
-                {
-                    return snapshotItem.getElementsByTagName("value").item(0).getTextContent();
-                }
+        NodeList versions = versioning.getElementsByTagName("snapshotVersions");
+        Element snapshotVersions = (Element) versions.item(0);
+
+        NodeList snapshotVersion = snapshotVersions.getElementsByTagName("snapshotVersion");
+
+        for (int j = 0; j < snapshotVersion.getLength(); j++)
+        {
+            Element snapshotItem = (Element) snapshotVersion.item(j);
+            String extension = snapshotItem.getElementsByTagName("extension").item(0).getTextContent();
+            Node classifier = snapshotItem.getElementsByTagName("classifier").item(0);
+            if (extension.equals("jar") && classifier == null)
+            {
+                return snapshotItem.getElementsByTagName("value").item(0).getTextContent();
             }
         }
         return null;
