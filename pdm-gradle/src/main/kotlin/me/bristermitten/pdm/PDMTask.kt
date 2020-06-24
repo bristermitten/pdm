@@ -56,7 +56,10 @@ class PDMTask(
     {
         val jarTask = (project.tasks.getByName("jar") ?: project.task("jar")) as Jar
 
-        jarTask.from(pdmDependency.map(project::zipTree))
+        jarTask.from(pdmDependency.map {
+            @Suppress("IMPLICIT_CAST_TO_ANY")
+            if (it.isDirectory) it else project.zipTree(it)
+        })
     }
 
 

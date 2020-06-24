@@ -83,4 +83,14 @@ open class PDMExtension
     {
         this.bundlePDMRuntime = false
     }
+
+
+    /**
+     * If the PDM Repository should be added by the plugin. This is the repository for the runtime, and is located at:
+     * [https://repo.bristermitten.me/repository/maven-public/]
+     *
+     * This can be disabled if another repository which provides it is added.
+     */
+    var addPDMRepository: Boolean = true
+    protected set
 }
