@@ -21,8 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * TODO this is definitely a god object, needs cleaning up.
+/*
+ * This is definitely a god object, needs cleaning up.
  */
 public class DependencyManager
 {
@@ -59,7 +59,7 @@ public class DependencyManager
 
         this.repositoryFactory = new MavenRepositoryFactory(httpService, pomParser);
 
-//        loadRepositories();
+        loadRepositories();
 
         setOutputDirectoryName(outputDirectoryName);
     }
@@ -122,16 +122,8 @@ public class DependencyManager
                     }
                     continue;
                 }
-                Set<Artifact> transitiveDependencies = dependency.getTransitiveDependencies();
-                if (transitiveDependencies == null)
-                {
-                    transitiveDependencies = repository.getTransitiveDependencies(dependency);
-                }
 
-                for (Artifact transitiveDependency : transitiveDependencies)
-                {
-                    downloadAndLoad(transitiveDependency).join();
-                }
+                downloadTransitiveDependencies(repository, dependency);
 
                 if (!file.exists())
                 {
@@ -143,12 +135,26 @@ public class DependencyManager
             logger.warning(() -> "No repository found for " + dependency + ", it cannot be downloaded. Other plugins may not function properly.");
             return file;
         }).exceptionally(t -> {
-            t.printStackTrace();
+            logger.log(Level.SEVERE, t, () -> "Could not download " + dependency);
             return file;
         });
 
         downloadsInProgress.put(dependency, downloadingFuture);
         return downloadingFuture;
+    }
+
+    private void downloadTransitiveDependencies(@NotNull final Repository repository, @NotNull final Artifact artifact)
+    {
+        Set<Artifact> transitiveDependencies = artifact.getTransitiveDependencies();
+        if (transitiveDependencies == null)
+        {
+            transitiveDependencies = repository.getTransitiveDependencies(artifact);
+        }
+
+        for (Artifact transitiveDependency : transitiveDependencies)
+        {
+            downloadAndLoad(transitiveDependency).join();
+        }
     }
 
     private Collection<Repository> getRepositoriesToSearchFor(Artifact dependency)

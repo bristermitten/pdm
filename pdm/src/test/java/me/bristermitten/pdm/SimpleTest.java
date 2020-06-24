@@ -10,6 +10,8 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.util.logging.Logger;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class SimpleTest
 {
 
@@ -40,7 +42,8 @@ public class SimpleTest
                     new ByteArrayInputStream(DEPENDENCIES_JSON.getBytes()),
                     Files.createTempDirectory("tests").toFile(),
                     classLoader,
-                    "Testing").loadAllDependencies().join();
+                    "Testing",
+                    "1.0").loadAllDependencies().join();
 
             LOGGER.info(() -> {
                 try
@@ -53,6 +56,7 @@ public class SimpleTest
                 }
             });
         }
+        assertTrue(true);
 
     }
 }

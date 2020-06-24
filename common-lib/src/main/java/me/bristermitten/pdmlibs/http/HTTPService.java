@@ -10,12 +10,10 @@ public class HTTPService
     private static final String USER_AGENT_FORMAT = "PDM/%s; Plugin:%s";
 
     private final String userAgent;
-    private final String version;
 
     public HTTPService(@NotNull final String managing, @NotNull final String version)
     {
         this.userAgent = String.format(USER_AGENT_FORMAT, version, managing);
-        this.version = version;
     }
 
     @NotNull
