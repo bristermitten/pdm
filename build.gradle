@@ -1,11 +1,8 @@
-group 'me.bristermitten'
-version '1.0-SNAPSHOT'
-
 subprojects {
     apply plugin: 'java'
 
     group 'me.bristermitten'
-    version '0.0.1-SNAPSHOT'
+    version '0.0.1-ALPHA'
 
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
