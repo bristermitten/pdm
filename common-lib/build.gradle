@@ -32,9 +32,10 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            from components.java
+//            from components.java
             artifact sourcesJar
             artifact javadocJar
+            from components.java
         }
     }
     repositories {
