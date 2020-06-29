@@ -31,6 +31,7 @@ class PDM : Plugin<Project>
         val dependency = project.dependencies.add(pdmInternal.name, "me.bristermitten:pdm:${extension.version}")
         implementation?.dependencies?.add(dependency)
 
+
         pdmInternal.dependencies.add(dependency)
         return pdmInternal
     }
