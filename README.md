@@ -91,21 +91,12 @@ An instance of `RepositoryManager` is exposed through
 PDM also includes a Gradle Plugin to automatically generate a `dependencies.json` file!
 This is the recommended approach, as it does 99% of the work for you and is much more extendable.
 
-*Currently, the plugin isn't in the Gradle Plugins Repository. If you want to use it, you will need to build from source to your local repo*
-
 This is a basic example of the usage that will be improved on in future:
 
 ```gradle
-buildscript {
-    repositories {
-        mavenLocal()
-    }
-    dependencies {
-        classpath "me.bristermitten:pdm-gradle:0.0.1-SNAPSHOT"
-    }
+plugins {
+  id "me.bristermitten.pdm" version "0.0.1"
 }
-
-apply plugin: 'me.bristermitten.pdm'
 
 dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT'
