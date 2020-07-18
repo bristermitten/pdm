@@ -25,20 +25,24 @@ PDM is incredibly simple. Usage involves 2 processes:
 
 Declaration can be done programmatically or via JSON file: 
 
-**Programmatically**:
+**Programmatically (java)**:
 
-Create a new `PluginDependencyManager`, and call `PluginDependencyManager#addRequiredDependency`
+Create a new `PluginDependencyManager`, and call `PluginDependencyManager#loadAllDependencies`
 
 For example: 
 ```java
 PluginDependencyManager dependencyManager = new PluginDependencyManager(this);
-dependencyManager.addRequiredDependency(
-        new Dependency(
-            "org.jetbrains.kotlin", //groupId
-            "kotlin-stdlib.jdk8", //artifactId
-            "1.3.72" //version
-        )
-);
+dependencyManager.loadAllDependencies().thenRun(() -> getLogger().info("All Loaded!"));
+```
+
+**Programmatically (kotlin)**:
+
+Create a new `PluginDependencyManager`, and call `PluginDependencyManager#loadAllDependencies`
+
+For example:
+```kotlin
+val dependencyManager = PluginDependencyManager(this)
+dependencyManager.loadAllDependencies().join()
 ```
 
 **JSON Based**:
