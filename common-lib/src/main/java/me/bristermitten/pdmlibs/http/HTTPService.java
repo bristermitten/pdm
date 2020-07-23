@@ -22,7 +22,6 @@ public class HTTPService
         return URLUtil.getBytes(url, userAgent);
     }
 
-    @NotNull
     public boolean ping(@NotNull final String url)
     {
         return URLUtil.prepareConnection(url, userAgent) != null;
