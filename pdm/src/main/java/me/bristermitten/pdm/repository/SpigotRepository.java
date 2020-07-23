@@ -61,7 +61,7 @@ public final class SpigotRepository extends MavenRepository
     @Override
     public byte[] download(@NotNull Artifact dependency)
     {
-        if (dependency.getVersion().contains(Bukkit.getVersion()))
+        if (!dependency.getVersion().contains(Bukkit.getVersion()))
         {
             logger.warning(() -> "Dependency on " + dependency + " does not match server version of " + Bukkit.getVersion() + ". This could cause version problems.");
         }
