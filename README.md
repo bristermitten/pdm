@@ -31,20 +31,24 @@ There are 2 ways of doing Dependency Declaration:
 
 Declaration can be done programmatically or via JSON file: 
 
-**Programmatically**:
+**Programmatically (java)**:
 
-Create a new `PluginDependencyManager`, and call `PluginDependencyManager#addRequiredDependency`
+Create a new `PluginDependencyManager`, and call `PluginDependencyManager#loadAllDependencies`
 
 For example: 
 ```java
 PluginDependencyManager dependencyManager = new PluginDependencyManager(this);
-dependencyManager.addRequiredDependency(
-        new Dependency(
-            "org.jetbrains.kotlin", //groupId
-            "kotlin-stdlib.jdk8", //artifactId
-            "1.3.72" //version
-        )
-);
+dependencyManager.loadAllDependencies().thenRun(() -> getLogger().info("All Loaded!"));
+```
+
+**Programmatically (kotlin)**:
+
+Create a new `PluginDependencyManager`, and call `PluginDependencyManager#loadAllDependencies`
+
+For example:
+```kotlin
+val dependencyManager = PluginDependencyManager(this)
+dependencyManager.loadAllDependencies().join()
 ```
 
 **JSON Based**:
@@ -97,21 +101,12 @@ An instance of `RepositoryManager` is exposed through
 PDM also includes a Gradle Plugin to automatically generate a `dependencies.json` file!
 This is the recommended approach, as it does 99% of the work for you and is much more extendable.
 
-*Currently, the plugin isn't in the Gradle Plugins Repository. If you want to use it, you will need to build from source to your local repo*
-
 This is a basic example of the usage that will be improved on in future:
 
 ```gradle
-buildscript {
-    repositories {
-        mavenLocal()
-    }
-    dependencies {
-        classpath "me.bristermitten:pdm-gradle:0.0.1-SNAPSHOT"
-    }
+plugins {
+  id "me.bristermitten.pdm" version "0.0.1"
 }
-
-apply plugin: 'me.bristermitten.pdm'
 
 dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT'
