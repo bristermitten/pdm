@@ -12,21 +12,21 @@ repositories {
         url 'https://repo.bristermitten.me/repository/maven-public/'
     }
 }
+
 configurations {
-    unzipme { transitive = false }
-    compileOnly { extendsFrom unzipme }
+    unzip { transitive = false }
+    compileOnly { extendsFrom unzip }
 }
 
 dependencies {
-    compileOnly gradleApi()
-    unzipme project(':common-lib')
+    unzip project(':common-lib')
     compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     compile 'com.google.code.gson:gson:2.8.6'
     compile 'com.google.guava:guava:21.0'
 }
 
 processResources {
-    from zipTree(configurations.unzipme.singleFile)
+    from zipTree(configurations.unzip.singleFile)
     from(sourceSets.main.resources.srcDirs) {
         filter ReplaceTokens, tokens: [version: version]
     }
@@ -36,9 +36,6 @@ pluginBundle {
     website = 'https://github.com/knightzmc/pdm'
     vcsUrl = 'https://github.com/knightzmc/pdm'
     tags = ['spigot', 'shading', 'runtime', 'bukkit', 'plugin']
-    withDependencies {
-        it.clear()
-    }
 }
 
 gradlePlugin {
@@ -53,7 +50,7 @@ gradlePlugin {
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
+    archiveClassifier.set('sources')
     from sourceSets.main.allSource
 }
 
