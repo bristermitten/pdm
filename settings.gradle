@@ -1,12 +1,3 @@
-pluginManagement {
-    repositories {
-        maven {
-            url 'https://repo.bristermitten.me/repository/maven-public/'
-        }
-        gradlePluginPortal()
-    }
-}
-
 rootProject.name = 'pdm'
 include 'example'
 include 'pdm-gradle'
