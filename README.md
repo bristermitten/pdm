@@ -15,7 +15,7 @@ Jars are downloaded to this directory and loaded into the classpath of plugins t
 * No need to relocate dependencies
 * Reduce build time when dealing with many libraries
 * PDM is small! It uses absolutely no external dependencies that 
-aren't provided by Spigot, making the size footprint of using it tiny - less than 20KB!
+aren't provided by Spigot, making the size footprint of using it tiny - less than 50KB!
 
 ## How to Use 
 
