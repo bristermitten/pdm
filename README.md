@@ -23,6 +23,12 @@ PDM is incredibly simple. Usage involves 2 processes:
 1. Declaring Dependencies
 2. Loading Dependencies
 
+### Declaring Dependencies
+
+There are 2 ways of doing Dependency Declaration:
+1. Programmatically
+2. JSON File
+
 Declaration can be done programmatically or via JSON file: 
 
 **Programmatically**:
