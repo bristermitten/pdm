@@ -1,6 +1,7 @@
 # PDM
 *The Plugin Dependency Manager*
 
+![demo](https://img.bristermitten.me/nMpAG5yZQ2.gif])
 PDM aims to reduce the amount of shading that plugin authors have to do
 by creating a central repository for storing libraries.
 
