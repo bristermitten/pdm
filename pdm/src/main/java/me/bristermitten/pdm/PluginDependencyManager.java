@@ -144,11 +144,8 @@ public final class PluginDependencyManager
     @NotNull
     public CompletableFuture<Void> loadAllDependencies()
     {
-        logger.info("Loading Dependencies, please wait...");
-
         return CompletableFuture.allOf(requiredDependencies.stream()
                 .map(manager::downloadAndLoad)
-                .toArray(CompletableFuture[]::new))
-                .thenRun(() -> logger.info("Done!"));
+                .toArray(CompletableFuture[]::new));
     }
 }
