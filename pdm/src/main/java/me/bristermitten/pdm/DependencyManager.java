@@ -40,6 +40,12 @@ public class DependencyManager
     private final PomParser pomParser = new PomParser(artifactFactory);
     private final HTTPService httpService;
 
+    /**
+     * A Map that caches download tasks for artifacts.
+     * <p>
+     * This ensures that artifacts are only downloaded once, rather than a potential race condition that involves multiple
+     * tasks writing to the same file.
+     */
     private final Map<Artifact, CompletableFuture<File>> downloadsInProgress = new ConcurrentHashMap<>();
     private final Logger logger;
     private File pdmDirectory;
@@ -138,8 +144,11 @@ public class DependencyManager
             return file;
         }).exceptionally(t -> {
             logger.log(Level.SEVERE, t, () -> "Could not download " + dependency);
+            downloadsInProgress.remove(dependency);
             return file;
         });
+
+        downloadingFuture.thenRun(() -> downloadsInProgress.remove(dependency)); //remove from the cache once the download is actually done
 
         downloadsInProgress.put(dependency, downloadingFuture);
         return downloadingFuture;
