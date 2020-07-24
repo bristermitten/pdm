@@ -1,0 +1,40 @@
+package me.bristermitten.pdm;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.util.logging.Logger;
+
+/**
+ * @author AlexL
+ */
+public class PDMTestSuite
+{
+
+    protected final PluginDependencyManager pdm;
+    protected final URLClassLoader classLoader;
+    protected final File libraryDirectory;
+
+    public PDMTestSuite() throws IOException
+    {
+        classLoader = new URLClassLoader(new URL[0], getClass().getClassLoader());
+        libraryDirectory = Files.createTempDirectory("PDM").toFile();
+        libraryDirectory.deleteOnExit();
+
+        pdm = new PluginDependencyManager(
+                Logger::getLogger,
+                null,
+                libraryDirectory,
+                classLoader,
+                "PDM-Test-Suite",
+                "N/A"
+        );
+
+        pdm.addRepository(
+                "maven-central",
+                "https://repo.bristermitten.me/repository/maven-central/"
+        );
+    }
+}

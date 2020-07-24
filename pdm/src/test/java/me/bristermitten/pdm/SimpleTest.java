@@ -1,58 +1,35 @@
 package me.bristermitten.pdm;
 
-import me.bristermitten.pdmlibs.repository.MavenCentral;
+import me.bristermitten.pdmlibs.artifact.ReleaseArtifact;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-public class SimpleTest
+class SimpleTest extends PDMTestSuite
 {
 
-    private static final Logger LOGGER = Logger.getLogger("SimpleTest");
 
-    private static final String DEPENDENCIES_JSON = "{\n" +
-            "  \"repositories\": {\n" +
-            "    \"maven\": \"" + MavenCentral.DEFAULT_CENTRAL_MIRROR + "\"\n" +
-            "  },\n" +
-            "  \"dependencies\": [\n" +
-            "    {\n" +
-            "      \"groupId\": \"org.jetbrains.kotlin\",\n" +
-            "      \"artifactId\": \"kotlin-stdlib-jdk8\",\n" +
-            "      \"version\": \"1.3.72\",\n" +
-            "      \"repository\": \"maven-central\"\n" +
-            "    }\n" +
-            "  ],\n" +
-            "  \"dependenciesDirectory\": \"Hello\"\n" +
-            "}";
+    public SimpleTest() throws IOException
+    {
+    }
 
     @Test
-    public void simplePDMTest() throws IOException
+    void simplePDMTest()
     {
-        //        try (URLClassLoader classLoader = new URLClassLoader(new URL[]{}, this.getClass().getClassLoader()))
-        //        {
-        //            new PluginDependencyManager(
-        //                    () -> LOGGER,
-        //                    new ByteArrayInputStream(DEPENDENCIES_JSON.getBytes()),
-        //                    Files.createTempDirectory("tests").toFile(),
-        //                    classLoader,
-        //                    "Testing",
-        //                    "1.0").loadAllDependencies().join();
-        //
-        //            LOGGER.info(() -> {
-        //                try
-        //                {
-        //                    return "Kotlin? " + classLoader.loadClass("kotlin.Unit");
-        //                }
-        //                catch (ClassNotFoundException e)
-        //                {
-        //                    throw new IllegalArgumentException(e);
-        //                }
-        //            });
-        //        }
-        assertTrue(true);
+        pdm.addRequiredDependency(
+                new ReleaseArtifact(
+                        "org.jetbrains.kotlin",
+                        "kotlin-stdlib-jdk8",
+                        "1.3.72"
+                )
+        );
+        pdm.loadAllDependencies().join();
+
+        assertDoesNotThrow(() -> {
+            classLoader.loadClass("kotlin.Unit");
+        });
 
     }
 }
