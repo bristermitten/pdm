@@ -3,9 +3,11 @@ package me.bristermitten.pdmlibs.repository;
 import me.bristermitten.pdmlibs.artifact.Artifact;
 import me.bristermitten.pdmlibs.http.HTTPService;
 import me.bristermitten.pdmlibs.pom.PomParser;
+import me.bristermitten.pdmlibs.util.Streams;
 import me.bristermitten.pdmlibs.util.Strings;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
@@ -61,7 +63,14 @@ public class MavenRepository implements Repository
     @NotNull
     public byte[] download(@NotNull Artifact artifact)
     {
-        return httpService.download(baseURL, artifact);
+        return Streams.toByteArray(fetchJarContent(artifact));
+    }
+
+    @Override
+    @NotNull
+    public InputStream fetchJarContent(@NotNull Artifact artifact)
+    {
+        return httpService.read(baseURL, artifact);
     }
 
     @Override

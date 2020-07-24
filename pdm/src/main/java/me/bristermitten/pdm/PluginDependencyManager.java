@@ -17,7 +17,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,12 +33,18 @@ public final class PluginDependencyManager
     @NotNull
     private final Logger logger;
 
+    @NotNull
     private final HTTPService httpService;
 
+    /**
+     * Create a new PluginDependencyManager for a given Plugin.
+     *
+     * @param managing the Plugin whose Logger, dependencies.json, and other data should be used.
+     */
     public PluginDependencyManager(@NotNull final Plugin managing)
     {
         this(
-                managing::getLogger,
+                name -> managing.getLogger(),
                 managing.getResource("dependencies.json"),
                 managing.getDataFolder().getParentFile(),
                 (URLClassLoader) managing.getClass().getClassLoader(),
@@ -46,19 +52,19 @@ public final class PluginDependencyManager
                 managing.getDescription().getVersion());
     }
 
-    public PluginDependencyManager(@NotNull final Supplier<Logger> loggerSupplier,
+    public PluginDependencyManager(@NotNull final Function<String, Logger> loggerFactory,
                                    @Nullable final InputStream dependenciesResource,
                                    @NotNull final File rootDirectory,
                                    @NotNull final URLClassLoader classLoader,
                                    @NotNull final String applicationName,
                                    @NotNull final String applicationVersion)
     {
-        this.logger = loggerSupplier.get();
+        this.logger = loggerFactory.apply(getClass().getName());
         this.httpService = new HTTPService(applicationName, applicationVersion);
 
         final PDMSettings settings = new PDMSettings(
                 rootDirectory,
-                loggerSupplier,
+                loggerFactory,
                 classLoader);
 
         this.manager = new DependencyManager(settings, httpService);
@@ -72,6 +78,11 @@ public final class PluginDependencyManager
     public void addRequiredDependency(@NotNull final Artifact dependency)
     {
         requiredDependencies.add(dependency);
+    }
+
+    public void addRepository(@NotNull final String alias, @NotNull final String repositoryUrl)
+    {
+        manager.getRepositoryManager().addRepository(alias, manager.getRepositoryFactory().create(repositoryUrl));
     }
 
     private void loadDependenciesFromFile(@NotNull final InputStream dependenciesResource)
@@ -117,6 +128,19 @@ public final class PluginDependencyManager
         }
     }
 
+    /**
+     * Download (if applicable) and load all required dependencies
+     * as configured by {@link PluginDependencyManager#addRequiredDependency(Artifact)} and {@link PluginDependencyManager#loadDependenciesFromFile(InputStream)}
+     * <p>
+     * This method is <b>non blocking</b>, and returns a {@link CompletableFuture<Void>}
+     * which is completed once all dependencies have been downloaded (if applicable), loaded into the classpath, or failed.
+     * <p>
+     * Because of the non blocking nature, important parts of initialization (that require classes from dependencies) should
+     * typically either block, or
+     *
+     * @return a {@link CompletableFuture<Void>} that is completed when dependency loading finishes.
+     * @since 0.0.1
+     */
     @NotNull
     public CompletableFuture<Void> loadAllDependencies()
     {

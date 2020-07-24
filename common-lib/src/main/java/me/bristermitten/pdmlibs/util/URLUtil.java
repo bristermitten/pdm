@@ -41,18 +41,31 @@ public final class URLUtil
     @NotNull
     public static byte[] getBytes(@NotNull final String url, @NotNull final String userAgent)
     {
-        URLConnection connection = URLUtil.prepareConnection(url, userAgent);
-        if (connection == null)
-        {
-            return new byte[0];
-        }
-        try (final InputStream inputStream = connection.getInputStream();)
+        try (final InputStream inputStream = read(url, userAgent))
         {
             return Streams.toByteArray(inputStream);
         }
         catch (IOException e)
         {
             return new byte[0];
+        }
+    }
+
+    @NotNull
+    public static InputStream read(@NotNull final String url, @NotNull final String userAgent)
+    {
+        URLConnection connection = URLUtil.prepareConnection(url, userAgent);
+        if (connection == null)
+        {
+            return Streams.createEmptyStream();
+        }
+        try
+        {
+            return connection.getInputStream();
+        }
+        catch (IOException e)
+        {
+            return Streams.createEmptyStream();
         }
     }
 }

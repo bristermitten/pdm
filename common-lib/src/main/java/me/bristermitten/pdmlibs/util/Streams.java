@@ -3,6 +3,7 @@ package me.bristermitten.pdmlibs.util;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,5 +43,11 @@ public final class Streams
         {
             return new byte[0];
         }
+    }
+
+    @NotNull
+    public static InputStream createEmptyStream()
+    {
+        return new ByteArrayInputStream(new byte[0]);
     }
 }

@@ -1,8 +1,12 @@
 package me.bristermitten.pdmlibs.http;
 
 import me.bristermitten.pdmlibs.artifact.Artifact;
+import me.bristermitten.pdmlibs.util.Streams;
 import me.bristermitten.pdmlibs.util.URLUtil;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 public class HTTPService
 {
@@ -17,9 +21,9 @@ public class HTTPService
     }
 
     @NotNull
-    public byte[] downloadFrom(@NotNull final String url)
+    public InputStream readFrom(@NotNull final String url)
     {
-        return URLUtil.getBytes(url, userAgent);
+        return URLUtil.read(url, userAgent);
     }
 
     public boolean ping(@NotNull final String url)
@@ -28,14 +32,14 @@ public class HTTPService
     }
 
     @NotNull
-    public byte[] download(@NotNull final String url, @NotNull final Artifact artifact)
+    public InputStream read(@NotNull final String url, @NotNull final Artifact artifact)
     {
         String jarURL = artifact.getJarURL(url, this);
         if (jarURL == null)
         {
-            return new byte[0];
+            return new ByteArrayInputStream(new byte[0]);
         }
-        return downloadFrom(jarURL);
+        return readFrom(jarURL);
     }
 
     @NotNull
@@ -46,6 +50,6 @@ public class HTTPService
         {
             return new byte[0];
         }
-        return downloadFrom(pomURL);
+        return Streams.toByteArray(readFrom(pomURL));
     }
 }

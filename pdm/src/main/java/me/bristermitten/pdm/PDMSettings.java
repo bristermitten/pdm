@@ -2,17 +2,17 @@ package me.bristermitten.pdm;
 
 import java.io.File;
 import java.net.URLClassLoader;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 public class PDMSettings
 {
 
     private final File rootDirectory;
-    private final Supplier<Logger> loggerSupplier;
+    private final Function<String, Logger> loggerSupplier;
     private final URLClassLoader classLoader;
 
-    public PDMSettings(File rootDirectory, Supplier<Logger> loggerSupplier, URLClassLoader classLoader)
+    public PDMSettings(File rootDirectory, Function<String, Logger> loggerSupplier, URLClassLoader classLoader)
     {
         this.rootDirectory = rootDirectory;
         this.loggerSupplier = loggerSupplier;
@@ -29,7 +29,7 @@ public class PDMSettings
         return rootDirectory;
     }
 
-    public Supplier<Logger> getLoggerSupplier()
+    public Function<String, Logger> getLoggerSupplier()
     {
         return loggerSupplier;
     }

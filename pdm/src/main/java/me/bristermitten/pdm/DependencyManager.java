@@ -11,15 +11,16 @@ import me.bristermitten.pdmlibs.repository.Repository;
 import me.bristermitten.pdmlibs.repository.RepositoryManager;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static java.util.stream.Collectors.toList;
 
 /*
  * This is definitely a god object, needs cleaning up.
@@ -51,8 +52,8 @@ public class DependencyManager
     public DependencyManager(@NotNull final PDMSettings settings, String outputDirectoryName, HTTPService httpService)
     {
         this.settings = settings;
-        this.logger = settings.getLoggerSupplier().get();
-        this.loader = new DependencyLoader(settings.getClassLoader(), settings.getLoggerSupplier().get());
+        this.logger = settings.getLoggerSupplier().apply(getClass().getName());
+        this.loader = new DependencyLoader(settings.getClassLoader(), settings.getLoggerSupplier());
         this.httpService = httpService;
 
         this.repositoryManager = new RepositoryManager();
@@ -127,12 +128,13 @@ public class DependencyManager
 
                 if (!file.exists())
                 {
-                    final byte[] jarContent = repository.download(dependency);
+                    final InputStream jarContent = repository.fetchJarContent(dependency);
                     writeToFile(jarContent, file);
                 }
                 return file;
             }
-            logger.warning(() -> "No repository found for " + dependency + ", it cannot be downloaded. Other plugins may not function properly.");
+            logger.warning(() -> "No repository found for " + dependency + ", it cannot be downloaded. Other plugins may not function properly. " +
+                    "Repositories Searched: " + repositoriesToSearch.stream().map(Repository::getURL).collect(toList()));
             return file;
         }).exceptionally(t -> {
             logger.log(Level.SEVERE, t, () -> "Could not download " + dependency);
@@ -165,6 +167,7 @@ public class DependencyManager
             if (byURL == null)
             {
                 logger.warning(() -> "No repository configured for " + dependency.getRepoAlias());
+                return Collections.emptySet();
             }
             return Collections.singleton(byURL);
         } else
@@ -173,20 +176,16 @@ public class DependencyManager
         }
     }
 
-    private void writeToFile(@NotNull byte[] bytes, File file)
+    private void writeToFile(@NotNull final InputStream data, @NotNull final File file)
     {
         FileUtil.createDirectoryIfNotPresent(pdmDirectory);
-        if (bytes.length == 0)
+        try
         {
-            return;
-        }
-        try (final ByteArrayInputStream input = new ByteArrayInputStream(bytes))
-        {
-            Files.copy(input, file.toPath());
+            FileUtil.writeFrom(file, data);
         }
         catch (IOException e)
         {
-            logger.log(Level.SEVERE, e, () -> "Could not copy file for " + file + ", threw ");
+            logger.log(Level.SEVERE, e, () -> "Could not copy file for " + file);
         }
     }
 }

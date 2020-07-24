@@ -13,8 +13,8 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Set;
 
 public class SnapshotArtifact extends Artifact
@@ -69,17 +69,16 @@ public class SnapshotArtifact extends Artifact
     private String getLatestVersion(String baseURL, HTTPService httpService)
     {
         String metadataURL = createBaseURL(baseURL) + "maven-metadata.xml";
-        byte[] bytes = httpService.downloadFrom(metadataURL);
-        if (bytes.length == 0)
-        {
-            return null;
-        }
 
         Document doc;
-        try (final ByteArrayInputStream in = new ByteArrayInputStream(bytes))
+        try (final InputStream content = httpService.readFrom(metadataURL))
         {
+            if (content.available() == 0)
+            {
+                return null;
+            }
             DocumentBuilder builder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
-            doc = builder.parse(in);
+            doc = builder.parse(content);
         }
         catch (ParserConfigurationException | SAXException | IOException e)
         {

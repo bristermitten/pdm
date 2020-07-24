@@ -9,6 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URLClassLoader;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,10 +24,10 @@ public class DependencyLoader
     @NotNull
     private final Set<File> loaded = new HashSet<>();
 
-    public DependencyLoader(@NotNull final URLClassLoader classLoader, @NotNull final Logger logger)
+    public DependencyLoader(@NotNull final URLClassLoader classLoader, @NotNull final Function<String, Logger> logger)
     {
         this.classLoader = classLoader;
-        this.logger = logger;
+        this.logger = logger.apply(getClass().getName());
     }
 
     public void loadDependency(@Nullable final File file)
