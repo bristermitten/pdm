@@ -5,6 +5,13 @@
 PDM aims to reduce the amount of shading that plugin authors have to do
 by creating a central repository for storing libraries.
 
+
+
+# **PDM IS STILL IN ALPHA!** - Nothing is guaranteed to work and every update could include breaking changes!
+
+
+
+
 This is done in the form of a new directory - `plugins/PluginLibraries`
 
 Jars are downloaded to this directory and loaded into the classpath of plugins that need them.
