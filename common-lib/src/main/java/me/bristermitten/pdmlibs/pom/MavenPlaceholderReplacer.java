@@ -37,7 +37,10 @@ public class MavenPlaceholderReplacer
             Matcher matcher = entry.getKey();
             matcher.reset(temp);
             String replacement = entry.getValue();
-
+            if (replacement == null)
+            {
+                continue;
+            }
             temp = matcher.replaceAll(replacement);
         }
 

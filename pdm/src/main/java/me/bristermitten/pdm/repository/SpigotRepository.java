@@ -42,7 +42,7 @@ public final class SpigotRepository extends MavenRepository
 
     public SpigotRepository(@NotNull HTTPService httpService, @NotNull ParseProcess<Set<Artifact>> parseProcess)
     {
-        super("", httpService, parseProcess);
+        super(SPIGOT_ALIAS, httpService, parseProcess);
     }
 
 

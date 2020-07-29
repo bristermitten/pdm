@@ -32,4 +32,22 @@ class SimpleTest extends PDMTestSuite
         });
 
     }
+
+    @Test
+    void simplePDMTest2()
+    {
+        pdm.addRequiredDependency(
+                new ReleaseArtifact(
+                        "com.zaxxer",
+                        "HikariCP",
+                        "3.4.5"
+                )
+        );
+        pdm.loadAllDependencies().join();
+
+        assertDoesNotThrow(() -> {
+            classLoader.loadClass("com.zaxxer.hikari.HikariConfig");
+        });
+
+    }
 }

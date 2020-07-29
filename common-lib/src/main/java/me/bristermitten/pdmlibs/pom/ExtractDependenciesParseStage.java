@@ -18,7 +18,8 @@ public class ExtractDependenciesParseStage implements ParseStage<Set<Artifact>>
 
     private static final Set<String> DEFAULT_SCOPES_TO_DROP = new HashSet<>(Arrays.asList(
             "test",
-            "provided"
+            "provided",
+            "system"
     ));
 
     @NotNull

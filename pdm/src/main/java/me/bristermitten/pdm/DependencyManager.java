@@ -19,6 +19,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -121,6 +122,11 @@ public class DependencyManager
 
 
         CompletableFuture<File> downloadingFuture = CompletableFuture.supplyAsync(() -> {
+            if (file.exists())
+            {
+                logger.fine(() -> dependency + " seems to already be present. We won't re-download it or any of its transitive dependencies.");
+                return file;
+            }
             for (Repository repository : repositoriesToSearch)
             {
                 if (!file.exists() && !repository.contains(dependency))
@@ -132,13 +138,15 @@ public class DependencyManager
                     continue;
                 }
 
-                downloadTransitiveDependencies(repository, dependency);
+                downloadTransitiveDependencies(repository, dependency)
+                        .forEach(CompletableFuture::join);
 
                 if (!file.exists())
                 {
                     final InputStream jarContent = repository.fetchJarContent(dependency);
                     writeToFile(jarContent, file);
                 }
+
                 return file;
             }
             logger.warning(() -> "No repository found for " + dependency + ", it cannot be downloaded. Other plugins may not function properly. " +
@@ -156,18 +164,20 @@ public class DependencyManager
         return downloadingFuture;
     }
 
-    private void downloadTransitiveDependencies(@NotNull final Repository repository, @NotNull final Artifact artifact)
+    private Set<CompletableFuture<Void>> downloadTransitiveDependencies(@NotNull final Repository repository, @NotNull final Artifact artifact)
     {
+        logger.fine(() -> "Downloading Transitive Dependencies for " + artifact);
         Set<Artifact> transitiveDependencies = artifact.getTransitiveDependencies();
         if (transitiveDependencies == null)
         {
             transitiveDependencies = repository.getTransitiveDependencies(artifact);
         }
 
-        for (Artifact transitiveDependency : transitiveDependencies)
-        {
-            downloadAndLoad(transitiveDependency).join();
-        }
+        return transitiveDependencies.stream().map(this::downloadAndLoad).collect(Collectors.toSet());
+        //        for (Artifact transitiveDependency : transitiveDependencies)
+        //        {
+        //            downloadAndLoad(transitiveDependency).join();
+        //        }
     }
 
     private Collection<Repository> getRepositoriesToSearchFor(Artifact dependency)

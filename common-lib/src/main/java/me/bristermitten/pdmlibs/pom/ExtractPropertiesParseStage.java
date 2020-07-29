@@ -20,6 +20,16 @@ public class ExtractPropertiesParseStage implements ParseStage<Map<String, Strin
     public Map<String, String> parse(@NotNull Document document)
     {
         final Map<String, String> properties = new LinkedHashMap<>();
+        //Default Placeholders
+        Node groupId = document.getElementsByTagName("groupId").item(0);
+        properties.put("project.groupId", groupId.getNodeValue());
+
+        Node artifactId = document.getElementsByTagName("artifactId").item(0);
+        properties.put("project.artifactId", artifactId.getNodeValue());
+
+        Node version = document.getElementsByTagName("version").item(0);
+        properties.put("project.version", version.getNodeValue());
+
         NodeList propertiesElement = document.getElementsByTagName("properties");
         if (propertiesElement == null)
         {
