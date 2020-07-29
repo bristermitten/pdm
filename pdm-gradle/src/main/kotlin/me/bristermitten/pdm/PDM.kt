@@ -13,7 +13,7 @@ class PDM : Plugin<Project>
     private fun Project.createPDMConfiguration(): Configuration
     {
         val pdmConfig = configurations.create("pdm")
-        val compileOnly = configurations.findByName("compileOnly")
+        val compileOnly = configurations.findByName("compile")
         compileOnly?.extendsFrom(pdmConfig)
         return pdmConfig
     }

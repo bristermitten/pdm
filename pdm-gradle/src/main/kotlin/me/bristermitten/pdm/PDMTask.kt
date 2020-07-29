@@ -22,7 +22,6 @@ class PDMTask(
 
     override fun invoke(project: Project, task: Task)
     {
-        @Suppress("UnstableApiUsage")
         if (config.bundlePDMRuntime)
         {
             setupBundling(project)

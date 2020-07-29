@@ -16,14 +16,23 @@ repositories {
 
 configurations {
     unzip { transitive = false }
-    compileOnly { extendsFrom unzip }
+    shade
+    compileOnly {
+        extendsFrom unzip
+        extendsFrom shade
+    }
 }
 
 dependencies {
     unzip project(':common-lib')
-    compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-    compile 'com.google.code.gson:gson:2.8.6'
-    compile 'com.google.guava:guava:21.0'
+    shade 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    shade 'com.google.code.gson:gson:2.8.6'
+    shade 'com.google.guava:guava:21.0'
+}
+jar {
+    from {
+        configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
 
 processResources {
@@ -54,7 +63,6 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     archiveClassifier.set('sources')
     from sourceSets.main.allSource
 }
-
 
 artifacts {
     archives sourcesJar
