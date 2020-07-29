@@ -2,7 +2,7 @@ package me.bristermitten.pdm.repository;
 
 import me.bristermitten.pdmlibs.artifact.Artifact;
 import me.bristermitten.pdmlibs.http.HTTPService;
-import me.bristermitten.pdmlibs.pom.PomParser;
+import me.bristermitten.pdmlibs.pom.ParseProcess;
 import me.bristermitten.pdmlibs.repository.MavenRepository;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
@@ -40,9 +40,9 @@ public final class SpigotRepository extends MavenRepository
     @NotNull
     private final Logger logger = Logger.getLogger("SpigotRepository");
 
-    public SpigotRepository(@NotNull HTTPService httpService, @NotNull PomParser pomParser)
+    public SpigotRepository(@NotNull HTTPService httpService, @NotNull ParseProcess<Set<Artifact>> parseProcess)
     {
-        super("", httpService, pomParser);
+        super("", httpService, parseProcess);
     }
 
 

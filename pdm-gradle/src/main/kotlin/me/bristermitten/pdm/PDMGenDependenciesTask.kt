@@ -7,7 +7,7 @@ import me.bristermitten.pdm.json.PDMDependency
 import me.bristermitten.pdmlibs.artifact.Artifact
 import me.bristermitten.pdmlibs.artifact.ArtifactFactory
 import me.bristermitten.pdmlibs.http.HTTPService
-import me.bristermitten.pdmlibs.pom.PomParser
+import me.bristermitten.pdmlibs.pom.DefaultParseProcess
 import me.bristermitten.pdmlibs.repository.MavenRepositoryFactory
 import me.bristermitten.pdmlibs.repository.Repository
 import org.gradle.api.Project
@@ -31,8 +31,7 @@ class PDMGenDependenciesTask(
     private fun generateProjectState(project: Project): ProjectState
     {
         val httpService = HTTPService(project.name, config.version)
-        val pomParser = PomParser(artifactFactory)
-        val repositoryFactory = MavenRepositoryFactory(httpService, pomParser)
+        val repositoryFactory = MavenRepositoryFactory(httpService, DefaultParseProcess(artifactFactory))
         return generateProjectState(project, repositoryFactory)
     }
 

@@ -4,7 +4,7 @@ import com.google.gson.GsonBuilder
 import me.bristermitten.pdm.json.RepositoryTypeAdapter
 import me.bristermitten.pdmlibs.artifact.ArtifactFactory
 import me.bristermitten.pdmlibs.http.HTTPService
-import me.bristermitten.pdmlibs.pom.PomParser
+import me.bristermitten.pdmlibs.pom.DefaultParseProcess
 import me.bristermitten.pdmlibs.repository.MavenRepositoryFactory
 import me.bristermitten.pdmlibs.repository.Repository
 import org.gradle.api.Project
@@ -29,8 +29,7 @@ class PDMTask(
         }
 
         val httpService = HTTPService(project.name, config.version)
-        val pomParser = PomParser(artifactFactory)
-        val repositoryFactory = MavenRepositoryFactory(httpService, pomParser)
+        val repositoryFactory = MavenRepositoryFactory(httpService, DefaultParseProcess(artifactFactory))
         val gson = GsonBuilder().registerTypeAdapter(Repository::class.java, RepositoryTypeAdapter(repositoryFactory)).create()
 
         val state = dependenciesTask.generateProjectState(project, repositoryFactory)

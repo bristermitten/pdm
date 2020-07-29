@@ -5,7 +5,7 @@ import me.bristermitten.pdm.util.FileUtil;
 import me.bristermitten.pdmlibs.artifact.Artifact;
 import me.bristermitten.pdmlibs.artifact.ArtifactFactory;
 import me.bristermitten.pdmlibs.http.HTTPService;
-import me.bristermitten.pdmlibs.pom.PomParser;
+import me.bristermitten.pdmlibs.pom.DefaultParseProcess;
 import me.bristermitten.pdmlibs.repository.MavenRepositoryFactory;
 import me.bristermitten.pdmlibs.repository.Repository;
 import me.bristermitten.pdmlibs.repository.RepositoryManager;
@@ -37,7 +37,6 @@ public class DependencyManager
     private final MavenRepositoryFactory repositoryFactory;
     private final DependencyLoader loader;
     private final ArtifactFactory artifactFactory = new ArtifactFactory();
-    private final PomParser pomParser = new PomParser(artifactFactory);
     private final HTTPService httpService;
 
     /**
@@ -48,6 +47,7 @@ public class DependencyManager
      */
     private final Map<Artifact, CompletableFuture<File>> downloadsInProgress = new ConcurrentHashMap<>();
     private final Logger logger;
+    private final DefaultParseProcess parseProcess = new DefaultParseProcess(artifactFactory);
     private File pdmDirectory;
 
     public DependencyManager(@NotNull final PDMSettings settings, HTTPService httpService)
@@ -64,7 +64,8 @@ public class DependencyManager
 
         this.repositoryManager = new RepositoryManager();
 
-        this.repositoryFactory = new MavenRepositoryFactory(httpService, pomParser);
+
+        this.repositoryFactory = new MavenRepositoryFactory(httpService, parseProcess);
 
         loadRepositories();
 
@@ -85,7 +86,7 @@ public class DependencyManager
     private void loadRepositories()
     {
         repositoryManager.addRepository(
-                SpigotRepository.SPIGOT_ALIAS, new SpigotRepository(httpService, pomParser)
+                SpigotRepository.SPIGOT_ALIAS, new SpigotRepository(httpService, parseProcess)
         );
     }
 
@@ -117,6 +118,7 @@ public class DependencyManager
         File file = new File(pdmDirectory, dependency.getJarName());
 
         Collection<Repository> repositoriesToSearch = getRepositoriesToSearchFor(dependency);
+
 
         CompletableFuture<File> downloadingFuture = CompletableFuture.supplyAsync(() -> {
             for (Repository repository : repositoriesToSearch)

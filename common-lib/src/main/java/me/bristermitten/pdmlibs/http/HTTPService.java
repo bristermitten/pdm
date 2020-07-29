@@ -43,13 +43,13 @@ public class HTTPService
     }
 
     @NotNull
-    public byte[] downloadPom(@NotNull final String url, @NotNull final Artifact artifact)
+    public InputStream readPom(@NotNull final String url, @NotNull final Artifact artifact)
     {
         String pomURL = artifact.getPomURL(url, this);
         if (pomURL == null)
         {
-            return new byte[0];
+            return Streams.createEmptyStream();
         }
-        return Streams.toByteArray(readFrom(pomURL));
+        return readFrom(pomURL);
     }
 }

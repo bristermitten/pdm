@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
-import java.util.logging.Logger;
 
 /**
  * @author AlexL
@@ -23,14 +22,12 @@ public class PDMTestSuite
         libraryDirectory = Files.createTempDirectory("PDM").toFile();
         libraryDirectory.deleteOnExit();
 
-        pdm = new PluginDependencyManager(
-                Logger::getLogger,
-                null,
-                libraryDirectory,
-                classLoader,
-                "PDM-Test-Suite",
-                "N/A"
-        );
+        pdm = new PDMBuilder()
+                .rootDirectory(libraryDirectory)
+                .classLoader(classLoader)
+                .applicationName("PDM-Test-Suite")
+                .applicationVersion("N/A")
+                .build();
 
         pdm.addRepository(
                 "maven-central",

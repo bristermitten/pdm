@@ -40,7 +40,9 @@ public final class PluginDependencyManager
      * Create a new PluginDependencyManager for a given Plugin.
      *
      * @param managing the Plugin whose Logger, dependencies.json, and other data should be used.
+     * @deprecated Use {@link PDMBuilder#PDMBuilder(Plugin)}
      */
+    @Deprecated
     public PluginDependencyManager(@NotNull final Plugin managing)
     {
         this(
@@ -52,12 +54,12 @@ public final class PluginDependencyManager
                 managing.getDescription().getVersion());
     }
 
-    public PluginDependencyManager(@NotNull final Function<String, Logger> loggerFactory,
-                                   @Nullable final InputStream dependenciesResource,
-                                   @NotNull final File rootDirectory,
-                                   @NotNull final URLClassLoader classLoader,
-                                   @NotNull final String applicationName,
-                                   @NotNull final String applicationVersion)
+    PluginDependencyManager(@NotNull final Function<String, Logger> loggerFactory,
+                            @Nullable final InputStream dependenciesResource,
+                            @NotNull final File rootDirectory,
+                            @NotNull final URLClassLoader classLoader,
+                            @NotNull final String applicationName,
+                            @NotNull final String applicationVersion)
     {
         this.logger = loggerFactory.apply(getClass().getName());
         this.httpService = new HTTPService(applicationName, applicationVersion);

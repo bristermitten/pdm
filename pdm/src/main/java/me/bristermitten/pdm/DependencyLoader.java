@@ -40,6 +40,7 @@ public class DependencyLoader
         {
             return;
         }
+
         try
         {
             ClassLoaderReflection.addURL(classLoader, file.toURI().toURL());

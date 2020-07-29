@@ -2,11 +2,12 @@ package me.bristermitten.pdmlibs.repository;
 
 import me.bristermitten.pdmlibs.artifact.Artifact;
 import me.bristermitten.pdmlibs.http.HTTPService;
+import me.bristermitten.pdmlibs.pom.ParseProcess;
 import me.bristermitten.pdmlibs.pom.PomParser;
 import me.bristermitten.pdmlibs.util.Streams;
-import me.bristermitten.pdmlibs.util.Strings;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Objects;
@@ -21,14 +22,15 @@ public class MavenRepository implements Repository
     private final String baseURL;
     @NotNull
     private final HTTPService httpService;
-    @NotNull
-    private final PomParser pomParser;
 
-    public MavenRepository(@NotNull final String baseURL, @NotNull HTTPService httpService, @NotNull PomParser pomParser)
+    @NotNull
+    private final ParseProcess<Set<Artifact>> parseProcess;
+
+    public MavenRepository(@NotNull final String baseURL, @NotNull HTTPService httpService, @NotNull ParseProcess<Set<Artifact>> parseProcess)
     {
         this.baseURL = baseURL;
         this.httpService = httpService;
-        this.pomParser = pomParser;
+        this.parseProcess = parseProcess;
     }
 
     @Override
@@ -77,13 +79,20 @@ public class MavenRepository implements Repository
     @NotNull
     public Set<Artifact> getTransitiveDependencies(@NotNull Artifact artifact)
     {
-        @NotNull byte[] pom = httpService.downloadPom(baseURL, artifact);
-        final String pomContent = new String(pom).trim();
-        if (Strings.isBlank(pomContent))
+        try (@NotNull InputStream pom = httpService.readPom(baseURL, artifact))
         {
+            if (pom.available() == 0)
+            {
+                return Collections.emptySet();
+            }
+
+            return new PomParser().parse(parseProcess, pom);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
             return Collections.emptySet();
         }
-        return pomParser.extractDependenciesFromPom(pomContent);
     }
 
     @Override
