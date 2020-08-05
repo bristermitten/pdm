@@ -15,5 +15,5 @@ if $? != 0; then
 fi
 
 echo Publishing Gradle Plugin...
-gradle pdm-gradle:publish
+gradle pdm-gradle:publishPlugins
 echo Done!

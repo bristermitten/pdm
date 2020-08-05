@@ -99,6 +99,20 @@ public class ExtractDependenciesParseStage implements ParseStage<Set<Artifact>>
             }
         }
 
+        /*
+         *  TODO currently we're just skipping optional dependencies.
+         *  In the future we should look into having them loaded or not based on if they are actually needed
+         */
+        Node optional = dependencyElement.getElementsByTagName("optional").item(0);
+        if (optional instanceof Element)
+        {
+            String isOptional = optional.getTextContent();
+            if (isOptional.equals("true"))
+            {
+                return null;
+            }
+        }
+
         return artifactFactory.toArtifact(groupId, artifactId, version, null, null);
     }
 }

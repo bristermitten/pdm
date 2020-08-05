@@ -9,6 +9,5 @@ import org.w3c.dom.Document;
 public interface ParseStage<T>
 {
 
-    @NotNull
     T parse(@NotNull final Document document);
 }
