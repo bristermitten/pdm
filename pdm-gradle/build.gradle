@@ -40,21 +40,27 @@ processResources {
     from(sourceSets.main.resources.srcDirs) {
         filter ReplaceTokens, tokens: [version: version]
     }
-}
-
-pluginBundle {
-    website = 'https://github.com/knightzmc/pdm'
-    vcsUrl = 'https://github.com/knightzmc/pdm'
-    tags = ['spigot', 'shading', 'runtime', 'bukkit', 'plugin']
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 gradlePlugin {
     plugins {
         pdm {
             id = 'me.bristermitten.pdm'
-            displayName = 'Plugin Dependency Manager'
-            description = 'Sets up PDM to automatically download any dependencies for Spigot plugins'
             implementationClass = 'me.bristermitten.pdm.PDM'
+        }
+    }
+}
+
+pluginBundle {
+    website = 'https://github.com/knightzmc/pdm'
+    vcsUrl = 'https://github.com/knightzmc/pdm'
+    tags = ['spigot', 'shading', 'runtime', 'bukkit', 'plugin']
+    description = 'Sets up PDM to automatically download any dependencies for Spigot plugins'
+
+    plugins {
+        pdm {
+            displayName = 'Plugin Dependency Manager'
         }
     }
 }

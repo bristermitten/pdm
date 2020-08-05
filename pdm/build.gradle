@@ -1,9 +1,6 @@
-plugins {
-    id 'maven'
-    id 'maven-publish'
-}
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
+
 repositories {
     mavenCentral()
     maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
@@ -17,7 +14,7 @@ dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT'
     compileOnly 'com.google.code.gson:gson:2.8.0'
 
-    testCompile 'org.junit.jupiter:junit-jupiter:5.4.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
 }
 
 test {
@@ -46,18 +43,6 @@ publishing {
             from components.java
             artifact sourcesJar
             artifact javadocJar
-        }
-    }
-    repositories {
-        maven {
-            def releasesRepoUrl = "https://repo.bristermitten.me/repository/maven-releases"
-            def snapshotsRepoUrl = "https://repo.bristermitten.me/repository/maven-snapshots"
-            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-
-            credentials {
-                username project.hasProperty('mavenUser') ? mavenUser : System.env["MAVEN_USER"]
-                password project.hasProperty('mavenPassword') ? mavenPassword : System.env["MAVEN_PASSWORD"]
-            }
         }
     }
 }
