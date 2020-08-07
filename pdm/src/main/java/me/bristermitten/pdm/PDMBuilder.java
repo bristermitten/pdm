@@ -1,10 +1,14 @@
 package me.bristermitten.pdm;
 
+import org.apache.commons.lang.Validate;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.net.URLClassLoader;
 import java.util.Objects;
 import java.util.function.Function;
@@ -32,6 +36,38 @@ public final class PDMBuilder
         classLoader((URLClassLoader) plugin.getClass().getClassLoader());
         applicationName(plugin.getName());
         applicationVersion(plugin.getDescription().getVersion());
+    }
+
+    public PDMBuilder(@NotNull final Class<? extends Plugin> plugin)
+    {
+        Validate.isTrue("org.bukkit.plugin.java.PluginClassLoader".equals(plugin.getClassLoader().getClass().getName()),
+            "Plugin must be loaded with a PluginClassLoader");
+        classLoader((URLClassLoader) plugin.getClassLoader());
+        PluginDescriptionFile description = get(classLoader, "description");
+        dependenciesResource(classLoader.getResourceAsStream(DEPENDENCIES_RESOURCE_NAME));
+        rootDirectory(new File("./plugins"));
+        applicationName(description.getName());
+        applicationVersion(description.getVersion());
+        loggerFactory(clazz -> Logger.getLogger(description.getName()));
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T get(Object instance, String fieldName)
+    {
+        try
+        {
+            Field field = instance.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            return (T) field.get(instance);
+        }
+        catch (NoSuchFieldException e)
+        {
+            throw new RuntimeException("Field could not be found", e);
+        }
+        catch (IllegalAccessException e)
+        {
+            throw new AssertionError("Field could not be accessed after setting accessible = true", e);
+        }
     }
 
     public PDMBuilder()

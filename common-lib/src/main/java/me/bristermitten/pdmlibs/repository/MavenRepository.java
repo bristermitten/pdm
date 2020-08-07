@@ -57,7 +57,6 @@ public class MavenRepository implements Repository
         {
             containingArtifacts.add(artifact);
         }
-
         return contains;
     }
 
