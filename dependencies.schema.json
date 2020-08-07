@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "type": "object",
+  "title": "Root Dependency Configuration",
+  "properties": {
+    "repositories": {
+      "type": "object",
+      "properties": {
+        "$ref": {
+          "type": "string"
+        }
+      },
+      "required": []
+    },
+    "dependencies": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "groupId": {
+              "type": "string"
+            },
+            "artifactId": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            },
+            "repository": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "groupId",
+            "artifactId",
+            "version"
+          ]
+        }
+      ]
+    }
+  }
+}
