@@ -52,6 +52,11 @@ public class SnapshotArtifact extends Artifact
     {
         String metadataURL = createBaseURL(baseURL) + "maven-metadata.xml";
 
+        if (!httpService.ping(metadataURL))
+        {
+            return null; //Don't even attempt to parse if the request will fail
+        }
+
         PomParser pomParser = new PomParser();
         try
         {
