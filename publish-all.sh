@@ -1,12 +1,4 @@
 #!/bin/sh
-echo Running Tests...
-gradle test
-echo Done!
-
-if $? != 0; then
-  exit $?
-fi
-
 echo Publishing Common Lib...
 gradle common-lib:publish
 echo Done!
