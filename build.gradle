@@ -20,8 +20,8 @@ subprojects {
                 url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
 
                 credentials {
-                    username project.hasProperty('mavenUser') ? mavenUser : System.env["MAVEN_USER"]
-                    password project.hasProperty('mavenPassword') ? mavenPassword : System.env["MAVEN_PASSWORD"]
+                    username project.hasProperty('mavenUser') ? mavenUser : System.getenv('MAVEN_USER')
+                    password project.hasProperty('mavenPassword') ? mavenPassword : System.getenv('MAVEN_PASSWORD')
                 }
             }
         }
