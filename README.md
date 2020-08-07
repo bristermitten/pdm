@@ -3,6 +3,10 @@
 
 [![Build Status](https://travis-ci.org/knightzmc/pdm.svg?branch=master)](https://travis-ci.org/knightzmc/pdm)
 
+![Latest Runtime Version](https://img.shields.io/maven-metadata/v?color=blue&label=PDM%20Runtime&metadataUrl=https%3A%2F%2Frepo.bristermitten.me%2Frepository%2Fmaven-public%2Fme%2Fbristermitten%2Fpdm%2Fmaven-metadata.xml)
+
+[![Gradle Plugin Version](https://img.shields.io/maven-metadata/v?color=blue&label=Gradle%20%20Plugin&metadataUrl=https%3A%2F%2Fplugins.gradle.org%2Fm2%2Fme%2Fbristermitten%2Fpdm-gradle%2Fmaven-metadata.xml)](https://plugins.gradle.org/plugin/me.bristermitten.pdm)
+
 ![PDM Demo](https://img.bristermitten.me/nMpAG5yZQ2.gif)
 PDM aims to reduce the amount of shading that plugin authors have to do
 by creating a central repository for storing libraries.
