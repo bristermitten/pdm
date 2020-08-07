@@ -53,6 +53,13 @@ public class SnapshotArtifact extends Artifact
         String metadataURL = createBaseURL(baseURL) + "maven-metadata.xml";
 
         PomParser pomParser = new PomParser();
-        return pomParser.parse(new GetLatestSnapshotVersionParseProcess(), httpService.readFrom(metadataURL));
+        try
+        {
+            return pomParser.parse(new GetLatestSnapshotVersionParseProcess(), httpService.readFrom(metadataURL));
+        }
+        catch (final Exception exception)
+        {
+            throw new IllegalArgumentException("Error while parsing POM from " + metadataURL, exception);
+        }
     }
 }
