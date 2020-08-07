@@ -1,6 +1,9 @@
 package me.bristermitten.pdm;
 
+import me.bristermitten.pdmlibs.util.Reflection;
+import org.apache.commons.lang.Validate;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -32,6 +35,19 @@ public final class PDMBuilder
         classLoader((URLClassLoader) plugin.getClass().getClassLoader());
         applicationName(plugin.getName());
         applicationVersion(plugin.getDescription().getVersion());
+    }
+
+    public PDMBuilder(@NotNull final Class<? extends Plugin> plugin)
+    {
+        Validate.isTrue("org.bukkit.plugin.java.PluginClassLoader".equals(plugin.getClassLoader().getClass().getName()),
+            "Plugin must be loaded with a PluginClassLoader");
+        classLoader((URLClassLoader) plugin.getClassLoader());
+        PluginDescriptionFile description = Reflection.getFieldValue(classLoader, "description");
+        dependenciesResource(classLoader.getResourceAsStream(DEPENDENCIES_RESOURCE_NAME));
+        rootDirectory(new File("./plugins"));
+        applicationName(description.getName());
+        applicationVersion(description.getVersion());
+        loggerFactory(clazz -> Logger.getLogger(description.getName()));
     }
 
     public PDMBuilder()

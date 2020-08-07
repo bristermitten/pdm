@@ -1,5 +1,8 @@
 package me.bristermitten.pdm;
 
+import com.google.common.io.ByteStreams;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
 import me.bristermitten.pdm.dependency.JSONDependencies;
 import me.bristermitten.pdm.util.Constants;
 import me.bristermitten.pdmlibs.artifact.Artifact;
@@ -10,8 +13,7 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URLClassLoader;
 import java.util.HashSet;
 import java.util.Map;
@@ -89,17 +91,21 @@ public final class PluginDependencyManager
 
     private void loadDependenciesFromFile(@NotNull final InputStream dependenciesResource)
     {
-        final String json = Streams.toString(dependenciesResource);
-        if (json == null)
+        final JSONDependencies jsonDependencies;
+        try (Reader reader = new InputStreamReader(dependenciesResource))
         {
-            logger.log(Level.WARNING, "Could not read dependencies.json");
+            jsonDependencies = Constants.GSON.fromJson(reader, JSONDependencies.class);
+        }
+        catch (IOException | JsonSyntaxException | JsonIOException e)
+        {
+            logger.log(Level.WARNING, "Could not read dependencies.json", e);
+            e.printStackTrace();
             return;
         }
 
-        final JSONDependencies jsonDependencies = Constants.GSON.fromJson(json, JSONDependencies.class);
         if (jsonDependencies == null)
         {
-            logger.warning("jsonDependencies was null - Invalid JSON?");
+            logger.log(Level.WARNING, "jsonDependencies was null - Invalid JSON?");
             return;
         }
         final Map<String, String> repositories = jsonDependencies.getRepositories();
