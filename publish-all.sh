@@ -1,6 +1,6 @@
 #!/bin/sh
 echo Publishing Common Lib...
-gradle common-lib:publish
+./gradlew common-lib:publish
 echo Done!
 
 if $? != 0; then
@@ -8,12 +8,12 @@ if $? != 0; then
 fi
 
 echo Publishing PDM Runtime...
-gradle pdm:publish
+./gradlew pdm:publish
 echo Done!
 if $? != 0; then
   exit $?
 fi
 
 echo Publishing Gradle Plugin...
-gradle pdm-gradle:publishPlugins
+./gradlew pdm-gradle:publishPlugins
 echo Done!
