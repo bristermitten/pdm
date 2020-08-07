@@ -29,10 +29,11 @@ public final class Streams
     @NotNull
     public static byte[] toByteArray(@NotNull final InputStream stream)
     {
-        try (final ByteArrayOutputStream output = new ByteArrayOutputStream())
+        try (InputStream in = stream)
         {
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
             int next;
-            while ((next = stream.read()) != -1)
+            while ((next = in.read()) != -1)
             {
                 output.write(next);
             }
