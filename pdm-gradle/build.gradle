@@ -3,7 +3,6 @@ import org.apache.tools.ant.filters.ReplaceTokens
 plugins {
     id 'java-gradle-plugin'
     id 'com.gradle.plugin-publish' version '0.12.0'
-    id "org.jlleitschuh.gradle.ktlint" version "9.3.0"
 }
 
 repositories {
