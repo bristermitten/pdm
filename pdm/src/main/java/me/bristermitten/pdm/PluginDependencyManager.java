@@ -137,13 +137,13 @@ public final class PluginDependencyManager
      * Download (if applicable) and load all required dependencies
      * as configured by {@link PluginDependencyManager#addRequiredDependency(Artifact)} and {@link PluginDependencyManager#loadDependenciesFromFile(InputStream)}
      * <p>
-     * This method is <b>non blocking</b>, and returns a {@link CompletableFuture<Void>}
+     * This method is <b>non blocking</b>, and returns a {@link CompletableFuture}
      * which is completed once all dependencies have been downloaded (if applicable), loaded into the classpath, or failed.
      * <p>
      * Because of the non blocking nature, important parts of initialization (that require classes from dependencies) should
      * typically either block, or
      *
-     * @return a {@link CompletableFuture<Void>} that is completed when dependency loading finishes.
+     * @return a {@link CompletableFuture} that is completed when dependency loading finishes.
      * @since 0.0.1
      */
     @NotNull
