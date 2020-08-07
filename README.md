@@ -113,7 +113,7 @@ This is a basic example of the usage that will be improved on in future:
 
 ```gradle
 plugins {
-  id "me.bristermitten.pdm" version "0.0.1"
+  id "me.bristermitten.pdm" version "0.0.8"
 }
 
 dependencies {
