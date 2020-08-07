@@ -3,20 +3,16 @@
 
 [![Build Status](https://travis-ci.org/knightzmc/pdm.svg?branch=master)](https://travis-ci.org/knightzmc/pdm)
 
-![Latest Runtime Version](https://img.shields.io/maven-metadata/v?color=blue&label=PDM%20Runtime&metadataUrl=https%3A%2F%2Frepo.bristermitten.me%2Frepository%2Fmaven-public%2Fme%2Fbristermitten%2Fpdm%2Fmaven-metadata.xml)
+[![Latest Runtime Version](https://img.shields.io/maven-metadata/v?color=blue&label=PDM%20Runtime&metadataUrl=https%3A%2F%2Frepo.bristermitten.me%2Frepository%2Fmaven-public%2Fme%2Fbristermitten%2Fpdm%2Fmaven-metadata.xml)](https://repo.bristermitten.me/#browse/browse:maven-releases:me%2Fbristermitten%2Fpdm)
 
 [![Gradle Plugin Version](https://img.shields.io/maven-metadata/v?color=blue&label=Gradle%20%20Plugin&metadataUrl=https%3A%2F%2Fplugins.gradle.org%2Fm2%2Fme%2Fbristermitten%2Fpdm-gradle%2Fmaven-metadata.xml)](https://plugins.gradle.org/plugin/me.bristermitten.pdm)
 
 ![PDM Demo](https://img.bristermitten.me/nMpAG5yZQ2.gif)
-PDM aims to reduce the amount of shading that plugin authors have to do
-by creating a central repository for storing libraries.
-
-
 
 # **PDM IS STILL IN ALPHA!** - Nothing is guaranteed to work and every update could include breaking changes!
 
-
-
+PDM aims to reduce the amount of shading that plugin authors have to do
+by creating a central repository for storing libraries.
 
 This is done in the form of a new directory - `plugins/PluginLibraries`
 
@@ -28,7 +24,7 @@ Jars are downloaded to this directory and loaded into the classpath of plugins t
 * No need to relocate dependencies
 * Reduce build time when dealing with many libraries
 * PDM is small! It uses absolutely no external dependencies that 
-aren't provided by Spigot, making the size footprint of using it tiny - less than 50KB!
+aren't provided by Spigot, making the size footprint of using it tiny - less than 50 KB!
 
 ## How to Use 
 
@@ -45,28 +41,19 @@ There are 2 ways of doing Dependency Declaration:
 
 Declaration can be done programmatically or via JSON file: 
 
-**Programmatically (java)**:
+**Programmatically (Java)**:
 
-Create a new `PluginDependencyManager`, and call `PluginDependencyManager#loadAllDependencies`
+Create a new `PluginDependencyManager` with `PDMBuilder`, and call `PluginDependencyManager#loadAllDependencies`
 
 For example: 
 ```java
-PluginDependencyManager dependencyManager = new PluginDependencyManager(this);
-dependencyManager.loadAllDependencies().thenRun(() -> getLogger().info("All Loaded!"));
-```
-
-**Programmatically (kotlin)**:
-
-Create a new `PluginDependencyManager`, and call `PluginDependencyManager#loadAllDependencies`
-
-For example:
-```kotlin
-val dependencyManager = PluginDependencyManager(this)
-dependencyManager.loadAllDependencies().join()
+PluginDependencyManager dependencyManager = new PDMBuilder(this).build();
+CompletableFuture<Void> onLoad = dependencyManager.loadAllDependencies();
+//loadAllDependencies is async, the returned future is completed when downloading and loading completes
+onLoad.thenRun(() -> System.out.println("Everything is loaded!"));
 ```
 
 **JSON Based**:
-
 Make a file called `dependencies.json` in your resources directory.
 
 It should follow a format similar to this example: 
@@ -87,7 +74,7 @@ It should follow a format similar to this example:
 }
 ```
 
-This file's contents will be loaded automatically when you create a new `PluginDependencyManager`
+This file's contents will be loaded automatically and downloaded.
 
 
 **Loading**
@@ -96,18 +83,8 @@ Loading the dependencies is as simple as calling `PluginDependencyManager#loadAl
 
 This will return a `CompletableFuture<Void>` which is completed when all libraries are loaded.
 
-
 **That's it!** All dependencies should be downloaded and loaded into the classpath,
-including transitive dependencies. Any that failed will be logged gracefully.
-
-## Repositories
-PDM has 2 default repositories:
-* Maven Central
-* Spigot - this provides the spigot classes based on the current server version.
-
-Custom repositories can be added with `RepositoryManager#addRepository`. 
-An instance of `RepositoryManager` is exposed through 
-`PluginDependencyManager#getManager#getRepositoryManager`.
+including transitive dependencies. Any that failed will be logged and handled gracefully.
 
 
 ## Gradle Plugin
@@ -115,11 +92,11 @@ An instance of `RepositoryManager` is exposed through
 PDM also includes a Gradle Plugin to automatically generate a `dependencies.json` file!
 This is the recommended approach, as it does 99% of the work for you and is much more extendable.
 
-This is a basic example of the usage that will be improved on in future:
+This is a basic example of the usage:
 
 ```gradle
 plugins {
-  id "me.bristermitten.pdm" version "0.0.8"
+  id "me.bristermitten.pdm" version "0.0.11" //Replace with the latest version 
 }
 
 dependencies {
@@ -127,10 +104,7 @@ dependencies {
     pdm 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.72' //This will be added to the dependencies.json
 }
 
-pdm {
-    outputDirectory = 'Hello' //Change the output directory
-}
-
-jar.dependsOn project.tasks.getByName('pdm') //Always run the pdm task when we build 
-
+jar.dependsOn project.tasks.getByName('pdm') //Always run the pdm task when we build. Alternatively, just run [gradle pdm build]
 ```
+
+A full example can be found [here](/example)
