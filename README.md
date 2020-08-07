@@ -1,6 +1,8 @@
 # PDM
 *The Plugin Dependency Manager*
 
+[![Build Status](https://travis-ci.org/knightzmc/pdm.svg?branch=master)](https://travis-ci.org/knightzmc/pdm)
+
 ![PDM Demo](https://img.bristermitten.me/nMpAG5yZQ2.gif)
 PDM aims to reduce the amount of shading that plugin authors have to do
 by creating a central repository for storing libraries.
