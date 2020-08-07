@@ -1,14 +1,11 @@
 package me.bristermitten.pdm;
 
-import com.google.common.io.ByteStreams;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.JsonParseException;
 import me.bristermitten.pdm.dependency.JSONDependencies;
 import me.bristermitten.pdm.util.Constants;
 import me.bristermitten.pdmlibs.artifact.Artifact;
 import me.bristermitten.pdmlibs.http.HTTPService;
 import me.bristermitten.pdmlibs.repository.Repository;
-import me.bristermitten.pdmlibs.util.Streams;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -96,7 +93,7 @@ public final class PluginDependencyManager
         {
             jsonDependencies = Constants.GSON.fromJson(reader, JSONDependencies.class);
         }
-        catch (IOException | JsonSyntaxException | JsonIOException e)
+        catch (IOException | JsonParseException e)
         {
             logger.log(Level.WARNING, "Could not read dependencies.json", e);
             e.printStackTrace();
