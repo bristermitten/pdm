@@ -1,9 +1,9 @@
 package me.bristermitten.pdmlibs.artifact
 
 import me.bristermitten.pdmlibs.http.HTTPService
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 
 /**
  * @author AlexL

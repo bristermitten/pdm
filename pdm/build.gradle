@@ -14,7 +14,6 @@ dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT'
     compileOnly 'com.google.code.gson:gson:2.8.0'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
     testImplementation 'com.google.code.gson:gson:2.8.0'
 }
 
@@ -23,7 +22,7 @@ test {
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier.set('javadoc')
     from javadoc.destinationDir
 }
 
@@ -34,7 +33,7 @@ javadoc {
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
+    archiveClassifier.set('sources')
     from sourceSets.main.allSource
 }
 
