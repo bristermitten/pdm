@@ -8,7 +8,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * @author AlexL
@@ -31,16 +34,18 @@ public class ExtractDependenciesParseStage implements ParseStage<Set<Artifact>>
     @NotNull
     private final MavenPlaceholderReplacer placeholderReplacer;
 
-    public ExtractDependenciesParseStage(@NotNull final ArtifactFactory artifactFactory, @NotNull Map<String, String> placeholders)
+    public ExtractDependenciesParseStage(@NotNull final ArtifactFactory artifactFactory, @NotNull final MavenPlaceholderReplacer placeholders)
     {
         this(artifactFactory, DEFAULT_SCOPES_TO_DROP, placeholders);
     }
 
-    public ExtractDependenciesParseStage(@NotNull final ArtifactFactory artifactFactory, @NotNull final Set<String> ignoredScopes, @NotNull Map<String, String> placeholders)
+    public ExtractDependenciesParseStage(@NotNull final ArtifactFactory artifactFactory,
+                                         @NotNull final Set<String> ignoredScopes,
+                                         @NotNull final MavenPlaceholderReplacer placeholders)
     {
         this.artifactFactory = artifactFactory;
         this.ignoredScopes = ignoredScopes;
-        this.placeholderReplacer = new MavenPlaceholderReplacer(placeholders);
+        this.placeholderReplacer = placeholders;
     }
 
     @NotNull

@@ -20,12 +20,17 @@ public class MavenPlaceholderReplacer
 
     public MavenPlaceholderReplacer(@NotNull final Map<String, String> placeholders)
     {
-        placeholders.forEach((placeholder, replacement) -> {
-            String format = String.format(PATTERN_FORMAT, placeholder)
-                    .replace(".", "\\."); //sanitize for regex
+        placeholders.forEach(this::addPlaceholder);
+    }
 
-            this.placeholders.put(Pattern.compile(format).matcher(""), replacement);
-        });
+    public void addPlaceholder(@NotNull final String placeholder, @NotNull final String replacement)
+    {
+
+        String format = String.format(PATTERN_FORMAT, placeholder)
+                .replace(".", "\\."); //sanitize for regex
+
+        String replace = replace(replacement);
+        this.placeholders.put(Pattern.compile(format).matcher(""), replace);
     }
 
     @NotNull
@@ -41,7 +46,7 @@ public class MavenPlaceholderReplacer
             {
                 continue;
             }
-            temp = matcher.replaceAll(replacement);
+            temp = matcher.replaceFirst(replacement);
         }
 
         return temp;

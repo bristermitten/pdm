@@ -5,7 +5,6 @@ import me.bristermitten.pdmlibs.artifact.ArtifactFactory;
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
 
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -30,7 +29,7 @@ public class DefaultParseProcess implements ParseProcess<Set<Artifact>>
     @Override
     public Set<Artifact> parse(@NotNull Document document)
     {
-        final Map<String, String> placeholders = propertiesParseStage.parse(document);
+        final MavenPlaceholderReplacer placeholders = propertiesParseStage.parse(document);
 
         final ParseStage<Set<Artifact>> dependenciesParseStage = new ExtractDependenciesParseStage(this.artifactFactory, placeholders);
 
