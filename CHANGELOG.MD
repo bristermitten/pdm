@@ -97,3 +97,12 @@ Basic functionality, buggy
 ### Changed
   - The placeholder parsing process a little to hopefully fix some bugs
  
+## [0.0.17] - 2020-08-11
+### Fixed
+  - Shading the runtime no longer bundles Gson, Guava, and Jetbrains Annotations
+  
+## [0.0.18] - 2020-08-11
+### Fixed
+   - Gradle Plugin: If a dependencies.json isn't present, it will be copied from a cached version
+### Added
+   - Runtime: If there are no configured dependencies, a warning will be logged 
