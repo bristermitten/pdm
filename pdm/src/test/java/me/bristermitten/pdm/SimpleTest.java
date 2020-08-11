@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 class SimpleTest extends PDMTestSuite
 {
 
-
     public SimpleTest() throws IOException
     {
     }
@@ -47,6 +46,26 @@ class SimpleTest extends PDMTestSuite
 
         assertDoesNotThrow(() -> {
             classLoader.loadClass("com.zaxxer.hikari.HikariConfig");
+        });
+
+    }
+
+    @Test
+    void simplePDMTest3()
+    {
+        pdm.addRepository("bintray", "https://jcenter.bintray.com");
+        pdm.addRequiredDependency(
+                new ReleaseArtifact(
+                        "net.dv8tion",
+                        "JDA",
+                        "4.2.0_187"
+                )
+        );
+
+        pdm.loadAllDependencies().join();
+
+        assertDoesNotThrow(() -> {
+            classLoader.loadClass("net.dv8tion.jda.api.JDABuilder");
         });
 
     }

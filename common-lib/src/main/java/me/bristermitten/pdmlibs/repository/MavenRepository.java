@@ -47,12 +47,12 @@ public class MavenRepository implements Repository
         {
             return true;
         }
-        String jarURL = artifact.getJarURL(baseURL, httpService);
-        if (jarURL == null)
+        String pomURL = artifact.getPomURL(baseURL, httpService);
+        if (pomURL == null)
         {
             return false;
         }
-        boolean contains = httpService.ping(jarURL);
+        boolean contains = httpService.ping(pomURL);
         if (contains)
         {
             containingArtifacts.add(artifact);
@@ -84,8 +84,14 @@ public class MavenRepository implements Repository
             {
                 return Collections.emptySet();
             }
-
-            return new PomParser().parse(parseProcess, pom);
+            try
+            {
+                return new PomParser().parse(parseProcess, pom);
+            }
+            catch (final Exception e)
+            {
+                throw new IllegalArgumentException("Could not parse pom for " + artifact + " at " + artifact.getPomURL(baseURL, httpService), e);
+            }
         }
         catch (IOException e)
         {

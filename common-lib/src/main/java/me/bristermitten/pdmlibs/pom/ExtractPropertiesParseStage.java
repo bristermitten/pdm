@@ -6,39 +6,70 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.Collections;
 
 /**
  * @author AlexL
  */
-public class ExtractPropertiesParseStage implements ParseStage<Map<String, String>>
+public class ExtractPropertiesParseStage implements ParseStage<MavenPlaceholderReplacer>
 {
+
+    private final MavenPlaceholderReplacer replacer;
+
+    public ExtractPropertiesParseStage()
+    {
+        replacer = new MavenPlaceholderReplacer(Collections.emptyMap());
+    }
+
+    public ExtractPropertiesParseStage(@NotNull final MavenPlaceholderReplacer replacer)
+    {
+        this.replacer = replacer;
+    }
 
     @NotNull
     @Override
-    public Map<String, String> parse(@NotNull Document document)
+    public MavenPlaceholderReplacer parse(@NotNull Document document)
     {
-        final Map<String, String> properties = new LinkedHashMap<>();
         //Default Placeholders
-        Node groupId = document.getElementsByTagName("groupId").item(0);
-        properties.put("project.groupId", groupId.getNodeValue());
+        final String groupId = document.getElementsByTagName("groupId").item(0).getTextContent();
+        if (groupId != null)
+        {
+            replacer.addPlaceholder("project.groupId", groupId);
+        } else
+        {
+            throw new IllegalArgumentException("No group Id");
+        }
 
-        Node artifactId = document.getElementsByTagName("artifactId").item(0);
-        properties.put("project.artifactId", artifactId.getNodeValue());
+        final String artifactId = document.getElementsByTagName("artifactId").item(0).getTextContent();
+        if (artifactId != null)
+        {
+            replacer.addPlaceholder("project.artifactId", artifactId);
+        }
+        else
+        {
+            throw new IllegalArgumentException("No artifact Id");
+        }
 
-        Node version = document.getElementsByTagName("version").item(0);
-        properties.put("project.version", version.getNodeValue());
+        final String version = document.getElementsByTagName("version").item(0).getTextContent();
+        if (version != null)
+        {
+            replacer.addPlaceholder("project.version", version);
+        }
+        else
+        {
+            throw new IllegalArgumentException("No version");
+        }
 
         NodeList propertiesElement = document.getElementsByTagName("properties");
         if (propertiesElement == null)
         {
-            return properties;
+            return replacer;
         }
+
         Node firstProperties = propertiesElement.item(0);
         if (firstProperties == null)
         {
-            return properties;
+            return replacer;
         }
 
         NodeList propertiesList = firstProperties.getChildNodes();
@@ -53,11 +84,10 @@ public class ExtractPropertiesParseStage implements ParseStage<Map<String, Strin
                 {
                     continue;
                 }
-                properties.put(((Element) item).getTagName(), child.getNodeValue());
+                replacer.addPlaceholder(((Element) item).getTagName(), child.getNodeValue());
             }
-
         }
 
-        return properties;
+        return replacer;
     }
 }

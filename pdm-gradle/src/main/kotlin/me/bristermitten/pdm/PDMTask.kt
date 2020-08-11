@@ -7,6 +7,7 @@ import me.bristermitten.pdmlibs.http.HTTPService
 import me.bristermitten.pdmlibs.pom.DefaultParseProcess
 import me.bristermitten.pdmlibs.repository.MavenRepositoryFactory
 import me.bristermitten.pdmlibs.repository.Repository
+import me.bristermitten.pdmlibs.repository.RepositoryManager
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
@@ -16,6 +17,7 @@ class PDMTask(
 		private val config: PDMExtension,
 		private val pdmDependency: Configuration,
 		private val artifactFactory: ArtifactFactory,
+		private val repositoryManager: RepositoryManager,
 		private val dependenciesTask: PDMGenDependenciesTask
 ) : (Project, Task) -> Unit
 {
@@ -28,7 +30,7 @@ class PDMTask(
 		}
 
 		val httpService = HTTPService(project.name, config.version)
-		val repositoryFactory = MavenRepositoryFactory(httpService, DefaultParseProcess(artifactFactory))
+		val repositoryFactory = MavenRepositoryFactory(httpService, DefaultParseProcess(artifactFactory, repositoryManager, httpService))
 		val gson = GsonBuilder().registerTypeAdapter(Repository::class.java, RepositoryTypeAdapter(repositoryFactory)).create()
 
 		val state = dependenciesTask.generateProjectState(project, repositoryFactory)

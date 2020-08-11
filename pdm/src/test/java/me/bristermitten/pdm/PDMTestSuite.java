@@ -21,6 +21,7 @@ public class PDMTestSuite
 
         classLoader = new URLClassLoader(new URL[0], getClass().getClassLoader());
         libraryDirectory = Files.createTempDirectory("PDM").toFile();
+        //        libraryDirectory.deleteOnExit();
 
         pdm = new PDMBuilder()
                 .rootDirectory(libraryDirectory)

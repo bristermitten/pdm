@@ -1,32 +1,40 @@
 package me.bristermitten.pdmlibs.pom
 
 import me.bristermitten.pdmlibs.artifact.ArtifactFactory
+import me.bristermitten.pdmlibs.http.HTTPService
+import me.bristermitten.pdmlibs.repository.RepositoryManager
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.util.logging.Logger
 
 /**
  * @author AlexL
  */
 class DefaultParseProcessTest
 {
-    @Test
-    fun `Test Parsing Correctly Functioning`()
-    {
-        val pom = SAMPLE_POM.replace("{slf4j.version}", "\${slf4j.version}").byteInputStream()
+	val logger = Logger.getLogger(javaClass.name)
 
-        val defaultParseProcess = DefaultParseProcess(ArtifactFactory())
+	@Test
+	fun `Test Parsing Correctly Functioning`()
+	{
+		val pom = SAMPLE_POM.replace("{slf4j.version}", "\${slf4j.version}").byteInputStream()
 
-        val results = PomParser().parse(defaultParseProcess, pom)
+		val repositoryManager = RepositoryManager(logger)
+		val httpService = HTTPService("PDM-Test-Suite", "N/A")
 
-        assertEquals(results.first().version, "1.7.25")
-    }
+		val defaultParseProcess = DefaultParseProcess(ArtifactFactory(), repositoryManager, httpService)
 
-    private companion object
-    {
-        @Language("xml")
-        //Adjusted from https://repo1.maven.org/maven2/com/zaxxer/HikariCP/3.4.5/HikariCP-3.4.5.pom for simplicity
-        private val SAMPLE_POM = """
+		val results = PomParser().parse(defaultParseProcess, pom)
+
+		assertEquals(results.first().version, "1.7.25")
+	}
+
+	private companion object
+	{
+		@Language("xml")
+		//Adjusted from https://repo1.maven.org/maven2/com/zaxxer/HikariCP/3.4.5/HikariCP-3.4.5.pom for simplicity
+		private val SAMPLE_POM = """
             <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -47,5 +55,5 @@ class DefaultParseProcessTest
         </dependency>
     </dependencies>
 </project>"""
-    }
+	}
 }

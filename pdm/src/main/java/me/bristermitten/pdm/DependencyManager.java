@@ -10,11 +10,15 @@ import me.bristermitten.pdmlibs.repository.MavenRepositoryFactory;
 import me.bristermitten.pdmlibs.repository.Repository;
 import me.bristermitten.pdmlibs.repository.RepositoryManager;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -48,7 +52,7 @@ public class DependencyManager
      */
     private final Map<Artifact, CompletableFuture<File>> downloadsInProgress = new ConcurrentHashMap<>();
     private final Logger logger;
-    private final DefaultParseProcess parseProcess = new DefaultParseProcess(artifactFactory);
+    private final DefaultParseProcess parseProcess;
     private File pdmDirectory;
 
     public DependencyManager(@NotNull final PDMSettings settings, HTTPService httpService)
@@ -63,9 +67,10 @@ public class DependencyManager
         this.loader = new DependencyLoader(settings.getClassLoader(), settings.getLoggerSupplier());
         this.httpService = httpService;
 
-        this.repositoryManager = new RepositoryManager();
+        this.repositoryManager = new RepositoryManager(settings.getLoggerSupplier().apply(RepositoryManager.class.getName()));
 
 
+        this.parseProcess = new DefaultParseProcess(artifactFactory, repositoryManager, httpService);
         this.repositoryFactory = new MavenRepositoryFactory(httpService, parseProcess);
 
         loadRepositories();
@@ -127,30 +132,23 @@ public class DependencyManager
                 logger.fine(() -> dependency + " seems to already be present. We won't re-download it or any of its transitive dependencies.");
                 return file;
             }
-            for (Repository repository : repositoriesToSearch)
+            @Nullable final Repository containingRepo = repositoryManager.firstContaining(dependency);
+            if (containingRepo == null)
             {
-                if (!file.exists() && !repository.contains(dependency))
-                {
-                    if (Objects.equals(dependency.getRepoAlias(), repository.getURL()))
-                    {
-                        logger.warning(() -> "Repository " + repository + " did not contain " + dependency + " despite it being the configured repository.");
-                    }
-                    continue;
-                }
-
-                downloadTransitiveDependencies(repository, dependency)
-                        .forEach(CompletableFuture::join);
-
-                if (!file.exists())
-                {
-                    final InputStream jarContent = repository.fetchJarContent(dependency);
-                    writeToFile(jarContent, file);
-                }
-
+                logger.warning(() -> "No repository found for " + dependency + ", it cannot be downloaded. Other plugins may not function properly. " +
+                        "Repositories Searched: " + repositoriesToSearch.stream().map(Repository::getURL).collect(toList()));
                 return file;
             }
-            logger.warning(() -> "No repository found for " + dependency + ", it cannot be downloaded. Other plugins may not function properly. " +
-                    "Repositories Searched: " + repositoriesToSearch.stream().map(Repository::getURL).collect(toList()));
+
+            downloadTransitiveDependencies(containingRepo, dependency)
+                    .forEach(CompletableFuture::join);
+
+            if (!file.exists())
+            {
+                final InputStream jarContent = containingRepo.fetchJarContent(dependency);
+                writeToFile(jarContent, file);
+            }
+
             return file;
         }).exceptionally(t -> {
             logger.log(Level.SEVERE, t, () -> "Could not download " + dependency);
@@ -174,10 +172,6 @@ public class DependencyManager
         }
 
         return transitiveDependencies.stream().map(this::downloadAndLoad).collect(Collectors.toSet());
-        //        for (Artifact transitiveDependency : transitiveDependencies)
-        //        {
-        //            downloadAndLoad(transitiveDependency).join();
-        //        }
     }
 
     private Collection<Repository> getRepositoriesToSearchFor(Artifact dependency)
