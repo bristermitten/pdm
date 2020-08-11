@@ -134,6 +134,9 @@ public final class PluginDependencyManager
     @NotNull
     public CompletableFuture<Void> loadAllDependencies()
     {
+        if(requiredDependencies.isEmpty()) {
+            logger.warning("There were no dependencies to load! This might be intentional, but if not, check your dependencies configuration!");
+        }
         return CompletableFuture.allOf(requiredDependencies.stream()
                 .map(manager::downloadAndLoad)
                 .toArray(CompletableFuture[]::new));
