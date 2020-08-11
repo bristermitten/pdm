@@ -90,7 +90,7 @@ public class MavenRepository implements Repository
             }
             catch (final Exception e)
             {
-                throw new IllegalArgumentException("Could not parse pom for " + artifact, e);
+                throw new IllegalArgumentException("Could not parse pom for " + artifact + " at " + artifact.getPomURL(baseURL, httpService), e);
             }
         }
         catch (IOException e)

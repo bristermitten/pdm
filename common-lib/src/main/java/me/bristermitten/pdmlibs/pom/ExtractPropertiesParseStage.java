@@ -14,14 +14,24 @@ import java.util.Collections;
 public class ExtractPropertiesParseStage implements ParseStage<MavenPlaceholderReplacer>
 {
 
-    private final MavenPlaceholderReplacer replacer = new MavenPlaceholderReplacer(Collections.emptyMap());
+    private final MavenPlaceholderReplacer replacer;
+
+    public ExtractPropertiesParseStage()
+    {
+        replacer = new MavenPlaceholderReplacer(Collections.emptyMap());
+    }
+
+    public ExtractPropertiesParseStage(@NotNull final MavenPlaceholderReplacer replacer)
+    {
+        this.replacer = replacer;
+    }
 
     @NotNull
     @Override
     public MavenPlaceholderReplacer parse(@NotNull Document document)
     {
         //Default Placeholders
-        final String groupId = document.getElementsByTagName("groupId").item(0).getNodeValue();
+        final String groupId = document.getElementsByTagName("groupId").item(0).getTextContent();
         if (groupId != null)
         {
             replacer.addPlaceholder("project.groupId", groupId);
@@ -30,16 +40,24 @@ public class ExtractPropertiesParseStage implements ParseStage<MavenPlaceholderR
             throw new IllegalArgumentException("No group Id");
         }
 
-        final String artifactId = document.getElementsByTagName("artifactId").item(0).getNodeValue();
+        final String artifactId = document.getElementsByTagName("artifactId").item(0).getTextContent();
         if (artifactId != null)
         {
             replacer.addPlaceholder("project.artifactId", artifactId);
         }
+        else
+        {
+            throw new IllegalArgumentException("No artifact Id");
+        }
 
-        final String version = document.getElementsByTagName("version").item(0).getNodeValue();
+        final String version = document.getElementsByTagName("version").item(0).getTextContent();
         if (version != null)
         {
             replacer.addPlaceholder("project.version", version);
+        }
+        else
+        {
+            throw new IllegalArgumentException("No version");
         }
 
         NodeList propertiesElement = document.getElementsByTagName("properties");

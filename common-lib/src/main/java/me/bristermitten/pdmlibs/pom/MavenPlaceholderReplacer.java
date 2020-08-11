@@ -33,6 +33,11 @@ public class MavenPlaceholderReplacer
         this.placeholders.put(Pattern.compile(format).matcher(""), replace);
     }
 
+    public void addAllFrom(@NotNull final MavenPlaceholderReplacer other)
+    {
+        other.placeholders.forEach(placeholders::put);
+    }
+
     @NotNull
     public String replace(@NotNull final String value)
     {

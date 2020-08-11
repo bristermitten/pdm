@@ -1,18 +1,21 @@
 package me.bristermitten.pdm
 
 import me.bristermitten.pdmlibs.artifact.ArtifactFactory
+import me.bristermitten.pdmlibs.repository.RepositoryManager
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import java.util.logging.Logger
 
 class PDM : Plugin<Project>
 {
 	private val artifactFactory = ArtifactFactory()
 
+	private val repositoryManager = RepositoryManager(Logger.getLogger(javaClass.name))
 
 	private fun Project.createPDMConfiguration(): Configuration
 	{
-		plugins.apply("java") //add the Java Plugin
+		plugins.apply("java") //add the Java Plugin if it's not already present
 
 		val pdmConfig = configurations.create("pdm")
 		val compileConfig = configurations.findByName("compile") ?: configurations.findByName("compileClasspath")
@@ -46,8 +49,8 @@ class PDM : Plugin<Project>
 		val pdmConfiguration = project.createPDMConfiguration()
 
 		val pdmDependency = project.addPDMDependency(extension)
-		val dependenciesTask = PDMGenDependenciesTask(artifactFactory, pdmConfiguration, extension)
-		val pdmTask = PDMTask(extension, pdmDependency, artifactFactory, dependenciesTask)
+		val dependenciesTask = PDMGenDependenciesTask(artifactFactory, pdmConfiguration, extension, repositoryManager)
+		val pdmTask = PDMTask(extension, pdmDependency, artifactFactory, repositoryManager, dependenciesTask)
 
 		project.task("pdm").doLast {
 			pdmTask.invoke(project, it)

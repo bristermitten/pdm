@@ -16,14 +16,14 @@ public class ArtifactDTO
     @NotNull
     private final String version;
 
-    @NotNull
+    @Nullable
     @SerializedName("repository")
     private final String repositoryAlias;
 
     @Nullable
     private final Set<ArtifactDTO> transitive;
 
-    public ArtifactDTO(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @NotNull String sourceRepository, @Nullable Set<ArtifactDTO> transitive)
+    public ArtifactDTO(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @Nullable String sourceRepository, @Nullable Set<ArtifactDTO> transitive)
     {
         this.groupId = groupId;
         this.artifactId = artifactId;
@@ -50,7 +50,7 @@ public class ArtifactDTO
         return version;
     }
 
-    @NotNull
+    @Nullable
     public String getRepositoryAlias()
     {
         return repositoryAlias;

@@ -25,19 +25,27 @@ public class PomParser
 
     public <T> T parse(@NotNull final ParseProcess<T> parseProcess, @NotNull final InputStream pomContent)
     {
+
+        final Document document = getDocument(pomContent);
+
+        return parseProcess.parse(document);
+    }
+
+    @NotNull
+    public Document getDocument(@NotNull final InputStream pomContent)
+    {
         try
         {
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 
             Document doc = dBuilder.parse(pomContent);
-            doc.getDocumentElement().normalize();
+            doc.normalizeDocument();
 
-            return parseProcess.parse(doc);
+            return doc;
         }
         catch (ParserConfigurationException | SAXException | IOException e)
         {
             throw new IllegalArgumentException(e);
         }
     }
-
 }

@@ -1,6 +1,7 @@
 package me.bristermitten.pdmlibs.pom;
 
 import me.bristermitten.pdmlibs.artifact.Artifact;
+import me.bristermitten.pdmlibs.artifact.ArtifactDTO;
 import me.bristermitten.pdmlibs.artifact.ArtifactFactory;
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
@@ -83,17 +84,18 @@ public class ExtractDependenciesParseStage implements ParseStage<Set<Artifact>>
         return dependencySet;
     }
 
-    private Artifact getDependencyFromXML(Element dependencyElement)
+    public Artifact getDependencyFromXML(Element dependencyElement)
     {
-        final String groupId = placeholderReplacer.replace(dependencyElement.getElementsByTagName("groupId").item(0).getTextContent());
-        final String artifactId = placeholderReplacer.replace(dependencyElement.getElementsByTagName("artifactId").item(0).getTextContent());
-        final NodeList versionNodeList = dependencyElement.getElementsByTagName("version");
-        if (versionNodeList == null || versionNodeList.getLength() == 0)
+        final ArtifactDTO artifactDTO = DependencyNotationExtractor.extractFrom(dependencyElement);
+        if (artifactDTO == null)
         {
             return null;
         }
 
-        final String version = placeholderReplacer.replace(versionNodeList.item(0).getTextContent());
+        final String groupId = placeholderReplacer.replace(artifactDTO.getGroupId());
+        final String artifactId = placeholderReplacer.replace(artifactDTO.getArtifactId());
+        final String version = placeholderReplacer.replace(artifactDTO.getVersion());
+
         final NodeList scopeList = dependencyElement.getElementsByTagName("scope");
         if (scopeList != null && scopeList.getLength() > 0)
         {
