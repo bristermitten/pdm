@@ -1,5 +1,5 @@
 plugins {
-    id 'me.bristermitten.pdm' version '0.0.10' //change to latest version
+    id 'me.bristermitten.pdm' version '0.0.12' //change to latest version
 }
 
 repositories {

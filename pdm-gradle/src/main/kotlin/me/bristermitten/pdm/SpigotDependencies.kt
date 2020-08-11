@@ -3,19 +3,19 @@ package me.bristermitten.pdm
 import me.bristermitten.pdmlibs.artifact.Artifact
 
 private val SPIGOT_GROUP_IDS = setOf(
-        "net.minecraft",
-        "org.spigotmc",
-        "org.bukkit",
-        "com.destroystokyo.paper"
+		"net.minecraft",
+		"org.spigotmc",
+		"org.bukkit",
+		"com.destroystokyo.paper"
 )
 
 private val SPIGOT_ARTIFACT_IDS = setOf(
-        "server",
-        "spigot",
-        "spigot-api",
-        "bukkit",
-        "craftbukkit",
-        "paper-api"
+		"server",
+		"spigot",
+		"spigot-api",
+		"bukkit",
+		"craftbukkit",
+		"paper-api"
 )
 
 /**
@@ -25,5 +25,5 @@ private val SPIGOT_ARTIFACT_IDS = setOf(
  */
 fun Artifact.isSpigotArtifact(): Boolean
 {
-    return groupId in SPIGOT_GROUP_IDS && artifactId in SPIGOT_ARTIFACT_IDS
+	return groupId in SPIGOT_GROUP_IDS && artifactId in SPIGOT_ARTIFACT_IDS
 }

@@ -102,6 +102,7 @@ public final class PDMBuilder
         return this;
     }
 
+    @NotNull
     public PluginDependencyManager build()
     {
         Objects.requireNonNull(loggerFactory, "loggerFactory cannot be null");
