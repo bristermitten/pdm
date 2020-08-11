@@ -53,11 +53,7 @@ Basic functionality, buggy
   - Add a method to `PDMBuilder` that can use the Plugin's ClassLoader to do dependency loading pre-plugin initialization
   - Add a slightly more detailed error message to SnapshotArtifact and potentially fix a bug in PDM.kt
   
-## [0.0.9] - 2020-08-7
-### Added
-  - Add a method to `PDMBuilder` that can use the Plugin's ClassLoader to do dependency loading pre-plugin initialization
-  - Add a slightly more detailed error message to SnapshotArtifact and potentially fix a bug in PDM.kt
-    
+
 ## [0.0.10] - 2020-08-7
 ### Fixed
   - Fixed tests failing because they couldn't find Gson classes
