@@ -4,6 +4,7 @@ import me.bristermitten.pdmlibs.http.HTTPService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.net.URL;
 import java.util.Set;
 
 public abstract class Artifact
@@ -40,10 +41,10 @@ public abstract class Artifact
     }
 
     @Nullable
-    public abstract String getJarURL(@NotNull final String baseRepoURL, @NotNull final HTTPService service);
+    public abstract URL getJarURL(@NotNull final String baseRepoURL, @NotNull final HTTPService service);
 
     @Nullable
-    public abstract String getPomURL(@NotNull final String baseRepoURL, @NotNull final HTTPService service);
+    public abstract URL getPomURL(@NotNull final String baseRepoURL, @NotNull final HTTPService service);
 
     @NotNull
     public String getGroupId()

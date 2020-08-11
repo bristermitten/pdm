@@ -18,4 +18,12 @@ public final class Strings
     {
         return string.isEmpty() || BLANK_PATTERN.matcher(string).matches();
     }
+
+    @NotNull
+    public static String escapeRegex(@NotNull final String string)
+    {
+        return string.replace(".", "\\.")
+                .replace("/", "\\/")
+                .replace("$", "\\$");
+    }
 }

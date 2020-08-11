@@ -1,5 +1,6 @@
 package me.bristermitten.pdm;
 
+import me.bristermitten.pdmlibs.config.CacheConfiguration;
 import me.bristermitten.pdmlibs.util.Reflection;
 import org.apache.commons.lang.Validate;
 import org.bukkit.plugin.Plugin;
@@ -10,6 +11,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URLClassLoader;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -20,12 +22,14 @@ public final class PDMBuilder
 {
 
     public static final String DEPENDENCIES_RESOURCE_NAME = "dependencies.json";
+    public static final String PLUGIN_CLASS_LOADER_NAME = "org.bukkit.plugin.java.PluginClassLoader";
     private Function<String, Logger> loggerFactory = Logger::getLogger;
     private InputStream dependenciesResource = null;
     private File rootDirectory = null;
     private URLClassLoader classLoader = null;
     private String applicationName = null;
     private String applicationVersion = null;
+    private CacheConfiguration cacheConfiguration = CacheConfiguration.builder().build();
 
     public PDMBuilder(@NotNull final Plugin plugin)
     {
@@ -39,8 +43,7 @@ public final class PDMBuilder
 
     public PDMBuilder(@NotNull final Class<? extends Plugin> plugin)
     {
-        Validate.isTrue("org.bukkit.plugin.java.PluginClassLoader".equals(plugin.getClassLoader().getClass().getName()),
-            "Plugin must be loaded with a PluginClassLoader");
+        Validate.isTrue(PLUGIN_CLASS_LOADER_NAME.equals(plugin.getClassLoader().getClass().getName()), "Plugin must be loaded with a PluginClassLoader");
         classLoader((URLClassLoader) plugin.getClassLoader());
         PluginDescriptionFile description = Reflection.getFieldValue(classLoader, "description");
         dependenciesResource(classLoader.getResourceAsStream(DEPENDENCIES_RESOURCE_NAME));
@@ -91,6 +94,14 @@ public final class PDMBuilder
         return this;
     }
 
+    public PDMBuilder caching(@NotNull Consumer<CacheConfiguration.Builder> configuration)
+    {
+        final CacheConfiguration.Builder builder = CacheConfiguration.builder();
+        configuration.accept(builder);
+        this.cacheConfiguration = builder.build();
+        return this;
+    }
+
     public PluginDependencyManager build()
     {
         Objects.requireNonNull(loggerFactory, "loggerFactory cannot be null");
@@ -98,7 +109,8 @@ public final class PDMBuilder
         Objects.requireNonNull(classLoader, "classLoader cannot be null");
         Objects.requireNonNull(applicationName, "applicationName cannot be null");
         Objects.requireNonNull(applicationVersion, "applicationVersion cannot be null");
+        Objects.requireNonNull(cacheConfiguration, "cacheConfiguration cannot be null");
 
-        return new PluginDependencyManager(loggerFactory, dependenciesResource, rootDirectory, classLoader, applicationName, applicationVersion);
+        return new PluginDependencyManager(loggerFactory, dependenciesResource, rootDirectory, classLoader, applicationName, applicationVersion, cacheConfiguration);
     }
 }

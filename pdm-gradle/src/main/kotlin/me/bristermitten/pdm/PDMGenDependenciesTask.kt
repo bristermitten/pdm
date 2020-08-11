@@ -32,7 +32,7 @@ class PDMGenDependenciesTask(
 
 	private fun generateProjectState(project: Project): ProjectState
 	{
-		val httpService = HTTPService(project.name, config.version)
+		val httpService = HTTPService(project.name, config.version, config.caching)
 		val repositoryFactory = MavenRepositoryFactory(httpService, DefaultParseProcess(artifactFactory, repositoryManager, httpService))
 		return generateProjectState(project, repositoryFactory)
 	}

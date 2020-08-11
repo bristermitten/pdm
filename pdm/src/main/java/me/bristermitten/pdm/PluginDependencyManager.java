@@ -4,6 +4,7 @@ import com.google.gson.JsonParseException;
 import me.bristermitten.pdm.dependency.JSONDependencies;
 import me.bristermitten.pdm.util.Constants;
 import me.bristermitten.pdmlibs.artifact.Artifact;
+import me.bristermitten.pdmlibs.config.CacheConfiguration;
 import me.bristermitten.pdmlibs.http.HTTPService;
 import me.bristermitten.pdmlibs.repository.Repository;
 import org.bukkit.plugin.Plugin;
@@ -35,33 +36,17 @@ public final class PluginDependencyManager
     @NotNull
     private final HTTPService httpService;
 
-    /**
-     * Create a new PluginDependencyManager for a given Plugin.
-     *
-     * @param managing the Plugin whose Logger, dependencies.json, and other data should be used.
-     * @deprecated Use {@link PDMBuilder#PDMBuilder(Plugin)}
-     */
-    @Deprecated
-    public PluginDependencyManager(@NotNull final Plugin managing)
-    {
-        this(
-                name -> managing.getLogger(),
-                managing.getResource("dependencies.json"),
-                managing.getDataFolder().getParentFile(),
-                (URLClassLoader) managing.getClass().getClassLoader(),
-                managing.getName(),
-                managing.getDescription().getVersion());
-    }
 
     PluginDependencyManager(@NotNull final Function<String, Logger> loggerFactory,
                             @Nullable final InputStream dependenciesResource,
                             @NotNull final File rootDirectory,
                             @NotNull final URLClassLoader classLoader,
                             @NotNull final String applicationName,
-                            @NotNull final String applicationVersion)
+                            @NotNull final String applicationVersion,
+                            @NotNull final CacheConfiguration cacheConfiguration)
     {
         this.logger = loggerFactory.apply(getClass().getName());
-        this.httpService = new HTTPService(applicationName, applicationVersion);
+        this.httpService = new HTTPService(applicationName, applicationVersion, cacheConfiguration);
 
         final PDMSettings settings = new PDMSettings(
                 rootDirectory,

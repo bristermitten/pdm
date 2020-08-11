@@ -1,9 +1,11 @@
 package me.bristermitten.pdmlibs.artifact;
 
 import me.bristermitten.pdmlibs.http.HTTPService;
+import me.bristermitten.pdmlibs.util.URLs;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.net.URL;
 import java.util.Set;
 
 public class ReleaseArtifact extends Artifact
@@ -21,17 +23,17 @@ public class ReleaseArtifact extends Artifact
     }
 
     @Override
-    @NotNull
-    public String getJarURL(@NotNull String baseRepoURL, @NotNull HTTPService service)
+    @Nullable
+    public URL getJarURL(@NotNull String baseRepoURL, @NotNull HTTPService service)
     {
-        return createBaseURL(baseRepoURL) + getArtifactId() + "-" + getVersion() + ".jar";
+        return URLs.parseURL(createBaseURL(baseRepoURL) + getArtifactId() + "-" + getVersion() + ".jar");
     }
 
     @Override
-    @NotNull
-    public String getPomURL(@NotNull String baseRepoURL, @NotNull HTTPService service)
+    @Nullable
+    public URL getPomURL(@NotNull String baseRepoURL, @NotNull HTTPService service)
     {
-        return createBaseURL(baseRepoURL) + getArtifactId() + "-" + getVersion() + ".pom";
+        return URLs.parseURL(createBaseURL(baseRepoURL) + getArtifactId() + "-" + getVersion() + ".pom");
     }
 
 }

@@ -60,5 +60,4 @@ class PDM : Plugin<Project>
 			dependenciesTask.invoke(project)
 		}
 	}
-
 }

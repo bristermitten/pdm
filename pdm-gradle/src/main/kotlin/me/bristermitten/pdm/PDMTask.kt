@@ -29,7 +29,7 @@ class PDMTask(
 			setupBundling(project)
 		}
 
-		val httpService = HTTPService(project.name, config.version)
+		val httpService = HTTPService(project.name, config.version, config.caching)
 		val repositoryFactory = MavenRepositoryFactory(httpService, DefaultParseProcess(artifactFactory, repositoryManager, httpService))
 		val gson = GsonBuilder().registerTypeAdapter(Repository::class.java, RepositoryTypeAdapter(repositoryFactory)).create()
 

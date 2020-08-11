@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
@@ -47,7 +48,7 @@ public class MavenRepository implements Repository
         {
             return true;
         }
-        String pomURL = artifact.getPomURL(baseURL, httpService);
+        final URL pomURL = artifact.getPomURL(baseURL, httpService);
         if (pomURL == null)
         {
             return false;
@@ -71,7 +72,7 @@ public class MavenRepository implements Repository
     @NotNull
     public InputStream fetchJarContent(@NotNull Artifact artifact)
     {
-        return httpService.read(baseURL, artifact);
+        return httpService.readJar(baseURL, artifact);
     }
 
     @Override

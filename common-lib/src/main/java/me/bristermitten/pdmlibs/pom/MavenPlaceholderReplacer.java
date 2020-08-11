@@ -1,9 +1,11 @@
 package me.bristermitten.pdmlibs.pom;
 
+import me.bristermitten.pdmlibs.util.Strings;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,7 +15,9 @@ import java.util.regex.Pattern;
 public class MavenPlaceholderReplacer
 {
 
-    private static final String PATTERN_FORMAT = "\\$\\{%s\\}";
+    private static final String PATTERN_FORMAT = "$\\{%s\\}";
+
+    private static final Logger LOGGER = Logger.getLogger(MavenPlaceholderReplacer.class.getName());
 
     @NotNull
     private final Map<Matcher, String> placeholders = new LinkedHashMap<>();
@@ -23,13 +27,16 @@ public class MavenPlaceholderReplacer
         placeholders.forEach(this::addPlaceholder);
     }
 
-    public void addPlaceholder(@NotNull final String placeholder, @NotNull final String replacement)
+    public void addPlaceholder(@NotNull final String placeholder, @NotNull String replacement)
     {
-
-        String format = String.format(PATTERN_FORMAT, placeholder)
-                .replace(".", "\\."); //sanitize for regex
+        String format = Strings.escapeRegex(String.format(PATTERN_FORMAT, placeholder));
 
         String replace = replace(replacement);
+        if (replace.contains("$"))
+        {
+            LOGGER.fine(() -> replace + " is an invalid placeholder, it will be discarded.");
+            return;
+        }
         this.placeholders.put(Pattern.compile(format).matcher(""), replace);
     }
 
@@ -51,7 +58,7 @@ public class MavenPlaceholderReplacer
             {
                 continue;
             }
-            temp = matcher.replaceFirst(replacement);
+            temp = matcher.replaceAll(replacement);
         }
 
         return temp;

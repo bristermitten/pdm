@@ -1,5 +1,6 @@
 package me.bristermitten.pdmlibs.artifact
 
+import me.bristermitten.pdmlibs.config.CacheConfiguration
 import me.bristermitten.pdmlibs.http.HTTPService
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -22,7 +23,8 @@ class ReleaseArtifactTests
 				null,
 				null
 		)
-		val httpService = HTTPService("PDM-Test-Suite", "N/A")
+
+		val httpService = HTTPService("PDM-Test-Suite", "N/A", CacheConfiguration.builder().build())
 
 		val jarUrl = artifact.getJarURL("https://repo.bristermitten.me/repository/maven-releases/", httpService)
 

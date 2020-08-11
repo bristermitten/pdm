@@ -3,9 +3,11 @@ package me.bristermitten.pdmlibs.artifact;
 import me.bristermitten.pdmlibs.http.HTTPService;
 import me.bristermitten.pdmlibs.pom.PomParser;
 import me.bristermitten.pdmlibs.pom.snapshot.GetLatestSnapshotVersionParseProcess;
+import me.bristermitten.pdmlibs.util.URLs;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.net.URL;
 import java.util.Set;
 
 public class SnapshotArtifact extends Artifact
@@ -23,7 +25,7 @@ public class SnapshotArtifact extends Artifact
 
     @Override
     @Nullable
-    public String getJarURL(@NotNull final String baseRepoURL, @NotNull final HTTPService httpService)
+    public URL getJarURL(@NotNull final String baseRepoURL, @NotNull final HTTPService httpService)
     {
         final String latestSnapshotVersion = getLatestVersion(baseRepoURL, httpService);
         if (latestSnapshotVersion == null)
@@ -31,12 +33,11 @@ public class SnapshotArtifact extends Artifact
             return null;
         }
 
-        return createBaseURL(baseRepoURL) + getArtifactId() + "-" + latestSnapshotVersion + ".jar";
+        return URLs.parseURL(createBaseURL(baseRepoURL) + getArtifactId() + "-" + latestSnapshotVersion + ".jar");
     }
 
     @Override
-    @Nullable
-    public String getPomURL(@NotNull final String baseRepoURL, @NotNull final HTTPService httpService)
+    public @Nullable URL getPomURL(@NotNull final String baseRepoURL, @NotNull final HTTPService httpService)
     {
         final String latestSnapshotVersion = getLatestVersion(baseRepoURL, httpService);
         if (latestSnapshotVersion == null)
@@ -44,14 +45,17 @@ public class SnapshotArtifact extends Artifact
             return null;
         }
 
-        return createBaseURL(baseRepoURL) + getArtifactId() + "-" + latestSnapshotVersion + ".pom";
+        return URLs.parseURL(createBaseURL(baseRepoURL) + getArtifactId() + "-" + latestSnapshotVersion + ".pom");
     }
 
     @Nullable
     private String getLatestVersion(String baseURL, HTTPService httpService)
     {
-        String metadataURL = createBaseURL(baseURL) + "maven-metadata.xml";
-
+        final URL metadataURL = URLs.parseURL(createBaseURL(baseURL) + "maven-metadata.xml");
+        if (metadataURL == null)
+        {
+            return null;
+        }
         if (!httpService.ping(metadataURL))
         {
             return null; //Don't even attempt to parse if the request will fail

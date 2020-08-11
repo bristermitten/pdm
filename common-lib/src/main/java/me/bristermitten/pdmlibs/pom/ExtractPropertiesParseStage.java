@@ -23,7 +23,8 @@ public class ExtractPropertiesParseStage implements ParseStage<MavenPlaceholderR
 
     public ExtractPropertiesParseStage(@NotNull final MavenPlaceholderReplacer replacer)
     {
-        this.replacer = replacer;
+        this();
+        this.replacer.addAllFrom(replacer);
     }
 
     @NotNull
@@ -44,8 +45,7 @@ public class ExtractPropertiesParseStage implements ParseStage<MavenPlaceholderR
         if (artifactId != null)
         {
             replacer.addPlaceholder("project.artifactId", artifactId);
-        }
-        else
+        } else
         {
             throw new IllegalArgumentException("No artifact Id");
         }
@@ -54,8 +54,7 @@ public class ExtractPropertiesParseStage implements ParseStage<MavenPlaceholderR
         if (version != null)
         {
             replacer.addPlaceholder("project.version", version);
-        }
-        else
+        } else
         {
             throw new IllegalArgumentException("No version");
         }

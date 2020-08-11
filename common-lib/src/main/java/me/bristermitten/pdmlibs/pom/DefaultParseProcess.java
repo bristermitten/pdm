@@ -38,6 +38,7 @@ public class DefaultParseProcess implements ParseProcess<Set<Artifact>>
         MavenPlaceholderReplacer placeholderReplacer = new MavenPlaceholderReplacer(Collections.emptyMap());
         final ExtractPropertiesParseStage propertiesParseStage = new ExtractPropertiesParseStage(placeholderReplacer);
 
+        Collections.reverse(parents);
         for (Document parent : parents)
         {
             placeholderReplacer.addAllFrom(propertiesParseStage.parse(parent));
