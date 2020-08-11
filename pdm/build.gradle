@@ -13,8 +13,9 @@ dependencies {
     compileOnly 'org.jetbrains:annotations:19.0.0'
     compileOnly 'org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT'
 
+
     testImplementation 'com.google.code.gson:gson:2.8.0'
-//    testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    testImplementation 'com.google.guava:guava:21.0'
 }
 
 test {
