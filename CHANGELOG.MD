@@ -88,3 +88,12 @@ Basic functionality, buggy
  - Reworded a lot of README.MD
  - The pom parsing process has been reworked to accommodate the parent pom support
  
+## [0.0.13-0.0.15] - 2020-08-11
+ - *Skipped because of Gradle again :/*
+
+## [0.0.16] - 2020-08-11
+### Added
+  - Caching! Everything is now cached, but it can all be manually disabled if necessary.
+### Changed
+  - The placeholder parsing process a little to hopefully fix some bugs
+ 

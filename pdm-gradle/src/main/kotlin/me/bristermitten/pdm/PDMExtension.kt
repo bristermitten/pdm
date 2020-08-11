@@ -1,5 +1,6 @@
 package me.bristermitten.pdm
 
+import groovy.lang.Closure
 import me.bristermitten.pdmlibs.config.CacheConfiguration
 import me.bristermitten.pdmlibs.repository.MavenCentral
 
@@ -98,8 +99,11 @@ open class PDMExtension
 	var caching: CacheConfiguration = CacheConfiguration.builder().build()
 		private set
 
-	protected fun caching(config: CacheConfiguration.Builder.() -> Unit)
+	protected fun caching(config: Closure<CacheConfiguration.Builder>)
 	{
-		this.caching = CacheConfiguration.builder().apply(config).build()
+		val builder = CacheConfiguration.builder()
+		config.delegate = builder
+		config.call(builder)
+		this.caching = builder.build()
 	}
 }
