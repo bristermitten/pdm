@@ -12,6 +12,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.jvm.tasks.Jar
+import java.io.File
 
 class PDMTask(
 		private val config: PDMExtension,
@@ -41,6 +42,7 @@ class PDMTask(
 			val cached = gson.fromJson(cacheFile.reader(), ProjectState::class.java)
 			if (cached == state)
 			{
+				cacheFile.copyTo(File("${project.buildDir}/resources/main/dependencies.json"), false) //just in case it doesn't exist, load the cached one
 				return //If nothing has changed, then nothing needs querying.
 			}
 		}
