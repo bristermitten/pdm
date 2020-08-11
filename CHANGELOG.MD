@@ -82,7 +82,7 @@ Basic functionality, buggy
  - CI with Travis
  - A build status to README.MD
 
-## [0.0.12] - 2020-11-7
+## [0.0.12] - 2020-08-11
 ### Added
  - Some shields to README.MD about the latest versions
  - A JSON schema for `dependencies.json`
