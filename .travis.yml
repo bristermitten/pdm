@@ -10,8 +10,8 @@ cache:
 before_install:
   - echo -e "gradle.publish.key=$APIKEY\ngradle.publish.secret=$APISECRET" > gradle.properties
 
-jobs:
-  include:
-    - stage: deploy
-      script: ./publish-all.sh
-
+deploy:
+  provider: script
+  script: bash publish-all.sh
+  on:
+    tags: true
