@@ -11,6 +11,7 @@ public final class PDMExample extends JavaPlugin
     public void onEnable()
     {
         PluginDependencyManager dependencyManager = new PDMBuilder(this).build();
+
         dependencyManager.loadAllDependencies().thenRun(
                 () -> getLogger().info("All Loaded Asynchronously!")
         );

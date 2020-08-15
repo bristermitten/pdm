@@ -1,5 +1,8 @@
+package me.bristermitten.pdmexample
+
 import me.bristermitten.pdm.PDMBuilder
 import org.bukkit.plugin.java.JavaPlugin
+
 
 class PDMExampleKotlin : JavaPlugin()
 {
