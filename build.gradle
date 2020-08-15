@@ -53,4 +53,9 @@ subprojects {
     dependencies {
         testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
     }
+
+}
+task publishAllToMaven {
+    dependsOn subprojects.find { it.name == 'common-lib' }.tasks.getByName("publish")
+    dependsOn subprojects.find { it.name == 'pdm' }.tasks.getByName("publish")
 }
