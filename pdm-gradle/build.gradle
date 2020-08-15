@@ -27,6 +27,7 @@ dependencies {
     shade 'com.google.code.gson:gson:2.8.6'
     shade 'com.google.guava:guava:21.0'
 }
+
 jar {
     from {
         configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }
@@ -61,11 +62,6 @@ pluginBundle {
             displayName = 'Plugin Dependency Manager'
         }
     }
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    archiveClassifier.set('sources')
-    from sourceSets.main.allSource
 }
 
 artifacts {

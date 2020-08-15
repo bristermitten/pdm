@@ -12,6 +12,22 @@ subprojects {
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
 
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        archiveClassifier.set('javadoc')
+        from javadoc.destinationDir
+    }
+
+    javadoc {
+        if (JavaVersion.current().isJava9Compatible()) {
+            options.addBooleanOption('html5', true)
+        }
+    }
+
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        archiveClassifier.set('sources')
+        from sourceSets.main.allSource
+    }
+
     publishing {
         repositories {
             maven {
@@ -23,6 +39,13 @@ subprojects {
                     username project.hasProperty('mavenUser') ? mavenUser : System.getenv('MAVEN_USER')
                     password project.hasProperty('mavenPassword') ? mavenPassword : System.getenv('MAVEN_PASSWORD')
                 }
+            }
+        }
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+                artifact sourcesJar
+                artifact javadocJar
             }
         }
     }

@@ -9,30 +9,3 @@ dependencies {
 
     testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 }
-
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    archiveClassifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-javadoc {
-    if (JavaVersion.current().isJava9Compatible()) {
-        options.addBooleanOption('html5', true)
-    }
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    archiveClassifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact sourcesJar
-            artifact javadocJar
-            from components.java
-        }
-    }
-}
