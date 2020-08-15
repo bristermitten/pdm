@@ -7,7 +7,7 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
-before_deploy:
+before_script:
   - echo "gradle.publish.key=$APIKEY" >> gradle.properties
   - echo "gradle.publish.secret=$APISECRET" >> gradle.properties
 
