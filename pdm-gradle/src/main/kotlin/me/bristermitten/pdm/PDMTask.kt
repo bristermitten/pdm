@@ -42,7 +42,11 @@ class PDMTask(
 			val cached = gson.fromJson(cacheFile.reader(), ProjectState::class.java)
 			if (cached == state)
 			{
-				cacheFile.copyTo(File("${project.buildDir}/resources/main/dependencies.json"), false) //just in case it doesn't exist, load the cached one
+				val depsFile = File("${project.buildDir}/resources/main/dependencies.json")
+				if (depsFile.exists().not())
+				{
+					cacheFile.copyTo(depsFile, false) //just in case it doesn't exist, load the cached one
+				}
 				return //If nothing has changed, then nothing needs querying.
 			}
 		}
