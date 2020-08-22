@@ -1,11 +1,18 @@
+
 repositories {
     mavenCentral()
 }
+configurations {
+    providedAndTest
+
+    compileOnly.extendsFrom providedAndTest
+    testImplementation.extendsFrom providedAndTest
+}
 
 dependencies {
-    compileOnly 'org.jetbrains:annotations:19.0.0'
-    compileOnly 'com.google.code.gson:gson:2.8.0'
-    compileOnly 'com.google.guava:guava:21.0'
+    providedAndTest 'org.jetbrains:annotations:19.0.0'
+    providedAndTest 'com.google.code.gson:gson:2.8.0'
+    providedAndTest 'com.google.guava:guava:21.0'
 
     testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 }

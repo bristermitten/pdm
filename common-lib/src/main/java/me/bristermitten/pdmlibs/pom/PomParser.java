@@ -18,7 +18,7 @@ public class PomParser
 
     static
     {
-        dbFactory = DocumentBuilderFactory.newInstance();
+        dbFactory = DocumentBuilderFactory.newInstance("com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl", null);
         dbFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
         dbFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
     }

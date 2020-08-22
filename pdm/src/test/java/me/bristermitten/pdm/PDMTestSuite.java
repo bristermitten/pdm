@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
+import java.util.logging.Logger;
 
 /**
  * @author AlexL
@@ -15,6 +16,7 @@ public class PDMTestSuite
     protected final PluginDependencyManager pdm;
     protected final URLClassLoader classLoader;
     protected final File libraryDirectory;
+    protected final Logger logger = Logger.getLogger(getClass().getName());
 
     public PDMTestSuite() throws IOException
     {
@@ -28,6 +30,7 @@ public class PDMTestSuite
                 .classLoader(classLoader)
                 .applicationName("PDM-Test-Suite")
                 .applicationVersion("N/A")
+                .loggerFactory($ -> logger)
                 .build();
 
         pdm.addRepository(

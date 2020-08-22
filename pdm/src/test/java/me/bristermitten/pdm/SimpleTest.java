@@ -58,7 +58,7 @@ class SimpleTest extends PDMTestSuite
                 new ReleaseArtifact(
                         "net.dv8tion",
                         "JDA",
-                        "4.2.0_187"
+                        "4.2.0_189"
                 )
         );
 
@@ -66,6 +66,7 @@ class SimpleTest extends PDMTestSuite
 
         assertDoesNotThrow(() -> {
             classLoader.loadClass("net.dv8tion.jda.api.JDABuilder");
+            classLoader.loadClass("com.fasterxml.jackson.core.TreeNode"); //transitive dependency
         });
 
     }
