@@ -10,7 +10,7 @@ class PDMExampleKotlin : JavaPlugin()
 
 	override fun onEnable()
 	{
-		val dependencyManager = PDMBuilder(this).build() ?: return
+		val dependencyManager = PDMBuilder(this).build() ?: return //Necessary to bypass Intrinsics generation
 		dependencyManager.loadAllDependencies().join()
 	}
 }
