@@ -127,11 +127,7 @@ public class DependencyManager
 
 
         CompletableFuture<File> downloadingFuture = CompletableFuture.supplyAsync(() -> {
-            if (file.exists())
-            {
-                logger.fine(() -> dependency + " seems to already be present. We won't re-download it or any of its transitive dependencies.");
-                return file;
-            }
+
             @Nullable final Repository containingRepo = repositoryManager.firstContaining(dependency);
             if (containingRepo == null)
             {
@@ -142,6 +138,13 @@ public class DependencyManager
 
             downloadTransitiveDependencies(containingRepo, dependency)
                     .forEach(CompletableFuture::join);
+
+            if (file.exists())
+            {
+                logger.fine(() -> dependency + " seems to already be present. We won't re-download it.");
+                return file;
+            }
+
 
             if (!file.exists())
             {
