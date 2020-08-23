@@ -1,5 +1,5 @@
 plugins {
-    id 'me.bristermitten.pdm' version '0.0.18' //change to latest version
+    id 'me.bristermitten.pdm' version '0.0.21' //change to latest version
 }
 
 repositories {
@@ -11,7 +11,7 @@ repositories {
 
 dependencies {
     compileOnly 'org.spigotmc:spigot-api:+'
-    pdm 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.72'
+    pdm 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 }
 
 jar.dependsOn project.tasks.getByName('pdm')
