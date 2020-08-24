@@ -27,6 +27,9 @@ public class MavenRepository implements Repository
     @NotNull
     private final ParseProcess<Set<Artifact>> parseProcess;
 
+    @NotNull
+    private final PomParser pomParser = new PomParser();
+
     public MavenRepository(@NotNull final String baseURL, @NotNull HTTPService httpService, @NotNull ParseProcess<Set<Artifact>> parseProcess)
     {
         this.baseURL = baseURL;
@@ -58,6 +61,7 @@ public class MavenRepository implements Repository
         {
             containingArtifacts.add(artifact);
         }
+
         return contains;
     }
 
@@ -77,7 +81,7 @@ public class MavenRepository implements Repository
 
     @Override
     @NotNull
-    public Set<Artifact> getTransitiveDependencies(@NotNull Artifact artifact)
+    public Set<Artifact> getTransitiveDependencies(@NotNull final Artifact artifact)
     {
         try (@NotNull InputStream pom = httpService.readPom(baseURL, artifact))
         {
@@ -85,19 +89,24 @@ public class MavenRepository implements Repository
             {
                 return Collections.emptySet();
             }
-            try
-            {
-                return new PomParser().parse(parseProcess, pom);
-            }
-            catch (final Exception e)
-            {
-                throw new IllegalArgumentException("Could not parse pom for " + artifact + " at " + artifact.getPomURL(baseURL, httpService), e);
-            }
+            return parse(artifact, pom);
         }
         catch (IOException e)
         {
             e.printStackTrace();
             return Collections.emptySet();
+        }
+    }
+
+    private Set<Artifact> parse(@NotNull final Artifact artifact, @NotNull final InputStream pom)
+    {
+        try
+        {
+            return pomParser.parse(parseProcess, pom);
+        }
+        catch (final Exception e)
+        {
+            throw new IllegalArgumentException("Could not parse pom for " + artifact + " at " + artifact.getPomURL(baseURL, httpService), e);
         }
     }
 
@@ -114,5 +123,13 @@ public class MavenRepository implements Repository
     public int hashCode()
     {
         return Objects.hash(baseURL);
+    }
+
+    @Override
+    public String toString()
+    {
+        return "MavenRepository{" +
+                "baseURL='" + baseURL + '\'' +
+                '}';
     }
 }

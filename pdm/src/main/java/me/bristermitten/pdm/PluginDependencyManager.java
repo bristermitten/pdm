@@ -7,7 +7,6 @@ import me.bristermitten.pdmlibs.artifact.Artifact;
 import me.bristermitten.pdmlibs.config.CacheConfiguration;
 import me.bristermitten.pdmlibs.http.HTTPService;
 import me.bristermitten.pdmlibs.repository.Repository;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,10 +49,7 @@ public final class PluginDependencyManager
         this.logger = loggerFactory.apply(getClass().getName());
         this.httpService = new HTTPService(applicationName, applicationVersion, cacheConfiguration);
 
-        final PDMSettings settings = new PDMSettings(
-                rootDirectory,
-                loggerFactory,
-                classLoader);
+        final PDMSettings settings = new PDMSettings(rootDirectory, loggerFactory, classLoader);
 
         this.manager = new DependencyManager(settings, httpService);
 
@@ -136,7 +132,8 @@ public final class PluginDependencyManager
     @NotNull
     public CompletableFuture<Void> loadAllDependencies()
     {
-        if(requiredDependencies.isEmpty()) {
+        if (requiredDependencies.isEmpty())
+        {
             logger.warning("There were no dependencies to load! This might be intentional, but if not, check your dependencies configuration!");
         }
         return CompletableFuture.allOf(requiredDependencies.stream()
@@ -150,16 +147,15 @@ public final class PluginDependencyManager
      * <p>
      * This method is <b>non blocking</b>, and returns a {@link CompletableFuture}
      * which is completed once all dependencies have been downloaded (if applicable), or failed.
-     * <p>
-     * Because of the non blocking nature, important parts of initialization (that require classes from dependencies) should
-     * typically either block, or
      *
-     * @return a {@link CompletableFuture} that is completed when dependency download finishes.
-     * @since 0.0.30
+     * @return a {@link CompletableFuture} that is completed when dependency downloading finishes.
+     * @since 0.0.22
      */
-    public CompletableFuture<List<File>> downloadAllDependencies() {
-        if(requiredDependencies.isEmpty()) {
-            logger.warning("There were no dependencies to load! This might be intentional, but if not, check your dependencies configuration!");
+    public CompletableFuture<List<File>> downloadAllDependencies()
+    {
+        if (requiredDependencies.isEmpty())
+        {
+            logger.warning("There were no dependencies to download! This might be intentional, but if not, check your dependencies configuration!");
         }
         return CompletableFuture.supplyAsync(
                 () -> requiredDependencies.stream()
