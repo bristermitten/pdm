@@ -14,12 +14,14 @@ import org.jetbrains.annotations.Nullable;
 import java.io.*;
 import java.net.URLClassLoader;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public final class PluginDependencyManager
 {
@@ -140,5 +142,30 @@ public final class PluginDependencyManager
         return CompletableFuture.allOf(requiredDependencies.stream()
                 .map(manager::downloadAndLoad)
                 .toArray(CompletableFuture[]::new));
+    }
+
+    /**
+     * Download (if applicable) all required dependencies
+     * as configured by {@link PluginDependencyManager#addRequiredDependency(Artifact)} and {@link PluginDependencyManager#loadDependenciesFromFile(InputStream)}
+     * <p>
+     * This method is <b>non blocking</b>, and returns a {@link CompletableFuture}
+     * which is completed once all dependencies have been downloaded (if applicable), or failed.
+     * <p>
+     * Because of the non blocking nature, important parts of initialization (that require classes from dependencies) should
+     * typically either block, or
+     *
+     * @return a {@link CompletableFuture} that is completed when dependency download finishes.
+     * @since 0.0.30
+     */
+    public CompletableFuture<List<File>> downloadAllDependencies() {
+        if(requiredDependencies.isEmpty()) {
+            logger.warning("There were no dependencies to load! This might be intentional, but if not, check your dependencies configuration!");
+        }
+        return CompletableFuture.supplyAsync(
+                () -> requiredDependencies.stream()
+                        .map(manager::download)
+                        .map(CompletableFuture::join)
+                        .collect(Collectors.toList())
+        );
     }
 }

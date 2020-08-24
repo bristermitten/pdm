@@ -113,7 +113,7 @@ public class DependencyManager
         return downloaded.thenAccept(loader::loadDependency);
     }
 
-    private CompletableFuture<File> download(Artifact dependency)
+    public CompletableFuture<File> download(Artifact dependency)
     {
         CompletableFuture<File> inProgress = downloadsInProgress.get(dependency);
         if (inProgress != null)
