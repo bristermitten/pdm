@@ -106,3 +106,29 @@ Basic functionality, buggy
    - Gradle Plugin: If a dependencies.json isn't present, it will be copied from a cached version
 ### Added
    - Runtime: If there are no configured dependencies, a warning will be logged 
+
+## [0.0.19] - 2020-08-15
+### Fixed
+   - Gradle Plugin: Now exposes common-lib with the api configuration 
+
+## [0.0.20] - 2020-08-17
+### Fixed
+   - Gradle Plugin: No longer tries to copy from the cached dependencies.json to the latest one if it already exists
+   - The Kotlin Example now includes a workaround for the Intrinsics class problem
+
+## [0.0.21] - 2020-08-22
+### Fixed
+   - PDM: Transitive dependencies now load into the classpath if their "parent" dependency already exists
+
+## [0.0.22] - 2020-08-22
+### Added
+   - PDM: A method to download, but not load all dependencies
+### Fixed
+   - Common Lib: MavenRepository.java now correctly implements toString()
+### Changed
+   - Kotlin 1.4 is now used wherever applicable
+   - Some docs have been slightly reworded 
+   - Small refactor of some internals
+  
+
+ 
