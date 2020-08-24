@@ -1,6 +1,7 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.4.0'
     id 'java-gradle-plugin'
     id 'com.gradle.plugin-publish' version '0.12.0'
 }
@@ -20,7 +21,7 @@ configurations {
 
 dependencies {
     unzip project(':common-lib')
-    shade 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+//    shade 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.0'
     shade 'com.google.code.gson:gson:2.8.6'
     shade 'com.google.guava:guava:21.0'
 }
