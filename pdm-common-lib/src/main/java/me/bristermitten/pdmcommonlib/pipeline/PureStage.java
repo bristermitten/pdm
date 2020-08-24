@@ -1,5 +1,11 @@
 package me.bristermitten.pdmcommonlib.pipeline;
 
+/**
+ * A stage that cannot interact with a context at all, it is simply a transformation from input to output
+ *
+ * @param <I>
+ * @param <O>
+ */
 public interface PureStage<I, O> extends Stage<I, O>
 {
 

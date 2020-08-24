@@ -3,7 +3,7 @@ package me.bristermitten.pdmcommonlib.pipeline
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-class AdditionPipelineTests
+class SimplePipelineTests
 {
 
 	@Test

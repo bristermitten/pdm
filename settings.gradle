@@ -1,7 +1,3 @@
 rootProject.name = 'pdm-core'
-//include 'example'
-//include 'pdm-gradle'
-//include 'pdm'
-//include 'common-lib'
 include 'pdm-common-lib'
 
