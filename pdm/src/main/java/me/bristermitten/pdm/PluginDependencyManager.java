@@ -157,12 +157,15 @@ public final class PluginDependencyManager
      * @return a {@link CompletableFuture} that is completed when dependency download finishes.
      * @since 0.0.30
      */
-    public List<CompletableFuture<File>> downloadAllDependencies() {
+    public CompletableFuture<List<File>> downloadAllDependencies() {
         if(requiredDependencies.isEmpty()) {
             logger.warning("There were no dependencies to load! This might be intentional, but if not, check your dependencies configuration!");
         }
-        return requiredDependencies.stream()
-                .map(manager::download)
-                .collect(Collectors.toList());
+        return CompletableFuture.supplyAsync(
+                () -> requiredDependencies.stream()
+                        .map(manager::download)
+                        .map(CompletableFuture::join)
+                        .collect(Collectors.toList())
+        );
     }
 }
