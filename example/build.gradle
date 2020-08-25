@@ -1,5 +1,5 @@
 plugins {
-    id 'me.bristermitten.pdm' version '0.0.23' //change to latest version
+    id 'me.bristermitten.pdm' version '0.0.24' //change to latest version
     id 'org.jetbrains.kotlin.jvm' version '1.4.0'
 }
 
