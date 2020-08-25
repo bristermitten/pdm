@@ -7,7 +7,7 @@
 
 [![Gradle Plugin Version](https://img.shields.io/maven-metadata/v?color=blue&label=Gradle%20%20Plugin&metadataUrl=https%3A%2F%2Fplugins.gradle.org%2Fm2%2Fme%2Fbristermitten%2Fpdm-gradle%2Fmaven-metadata.xml)](https://plugins.gradle.org/plugin/me.bristermitten.pdm)
 
-![Discord](https://img.shields.io/discord/728307032440176762?color=purple&label=Chat%20%2F%20Support)
+[![Discord](https://img.shields.io/discord/728307032440176762?color=purple&label=Chat%20%2F%20Support)](https://discord.gg/ZtwmaCV)
 
 ![PDM Demo](https://img.bristermitten.me/nMpAG5yZQ2.gif)
 
