@@ -14,9 +14,10 @@ open class PDMExtension
 		protected set
 
 	/**
-	 * The directory name that dependencies should be downloaded to. If null, PDM resolves this as `PluginLibraries`.
+	 * The directory name that dependencies should be downloaded to. If null, PDM resolves this as `plugins/PluginLibraries`.
 	 * Typically this option should be left alone, to create a shared directory for all plugins to use, but it can be changed if necessary.
 	 *
+	 * Base folder is the server root folder (where contains worlds, server.properties and so on).
 	 */
 	var outputDirectory: String? = null
 		protected set

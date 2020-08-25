@@ -47,7 +47,7 @@ public final class PDMBuilder
         classLoader((URLClassLoader) plugin.getClassLoader());
         PluginDescriptionFile description = Reflection.getFieldValue(classLoader, "description");
         dependenciesResource(classLoader.getResourceAsStream(DEPENDENCIES_RESOURCE_NAME));
-        rootDirectory(new File("./plugins"));
+        rootDirectory(new File("./"));
         applicationName(description.getName());
         applicationVersion(description.getVersion());
         loggerFactory(clazz -> Logger.getLogger(description.getName()));

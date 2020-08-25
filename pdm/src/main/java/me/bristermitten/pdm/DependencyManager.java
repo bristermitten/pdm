@@ -33,7 +33,7 @@ import static java.util.stream.Collectors.toList;
 public class DependencyManager
 {
 
-    public static final String PDM_DIRECTORY_NAME = "PluginLibraries";
+    public static final String PDM_DIRECTORY_NAME = "plugins/PluginLibraries";
 
     @NotNull
     private final PDMSettings settings;
