@@ -18,9 +18,9 @@ class PDM : Plugin<Project>
 		plugins.apply("java") //add the Java Plugin if it's not already present
 
 		val pdmConfig = configurations.create("pdm")
-		val compileConfig = configurations.findByName("compile") ?: configurations.findByName("compileClasspath")
+		val compileConfig = configurations.findByName("compileOnly") ?: configurations.findByName("compile")
 		requireNotNull(compileConfig) {
-			"No configuration defined called either 'compile' or 'compileClasspath'. Is the Java plugin present?"
+			"No configuration defined called either 'compileOnly' or 'compile'. Is the Java plugin present?"
 		}
 		compileConfig.extendsFrom(pdmConfig)
 		return pdmConfig
