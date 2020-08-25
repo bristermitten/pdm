@@ -7,5 +7,5 @@ val IGNORED_REPOS = setOf("MavenLocal")
 
 
 val REPOSITORY_URL_MAPPINGS: Map<String, (PDMExtension) -> String> = mapOf(
-        "MavenRepo" to PDMExtension::centralMirror
+		"MavenRepo" to { it.centralMirror }
 )
