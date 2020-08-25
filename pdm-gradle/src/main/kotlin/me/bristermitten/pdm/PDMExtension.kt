@@ -11,7 +11,6 @@ open class PDMExtension
 	 * Which version of PDM should be shaded. If none is provided, the version matching the plugin version is used.
 	 */
 	var version: String = javaClass.classLoader.getResource("version")?.readText()?.trim() ?: "error"
-		protected set
 
 	/**
 	 * The directory name that dependencies should be downloaded to. If null, PDM resolves this as `PluginLibraries`.
@@ -19,7 +18,6 @@ open class PDMExtension
 	 *
 	 */
 	var outputDirectory: String? = null
-		protected set
 
 	/**
 	 * Which Maven Central mirror to use to download dependencies.
@@ -29,7 +27,6 @@ open class PDMExtension
 	 * It is strongly advised **against** setting this to the actual Maven Central URL, as there is some ambiguity in whether this is prohibited or not.
 	 */
 	var centralMirror: String = MavenCentral.DEFAULT_CENTRAL_MIRROR
-		protected set
 
 	/**
 	 * If the plugin should search the configured Maven Repositories to find which is used for a dependency at build time.
@@ -37,14 +34,13 @@ open class PDMExtension
 	 *
 	 */
 	var searchRepositories: Boolean = true
-		protected set
 
 	/**
 	 * Disable the searching of repositories at build type.
 	 *
 	 * @see [searchRepositories]
 	 */
-	protected fun disableRepositorySearching()
+	fun disableRepositorySearching()
 	{
 		searchRepositories = false
 	}
@@ -63,7 +59,7 @@ open class PDMExtension
 	 *
 	 * @see [spigot]
 	 */
-	protected fun disableSpigot()
+	fun disableSpigot()
 	{
 		this.spigot = false
 	}
@@ -81,7 +77,7 @@ open class PDMExtension
 	 * Disable the bundling of the PDM runtime
 	 * @see [bundlePDMRuntime]
 	 */
-	protected fun disableRuntimeBundling()
+	fun disableRuntimeBundling()
 	{
 		this.bundlePDMRuntime = false
 	}
@@ -94,16 +90,21 @@ open class PDMExtension
 	 * This can be disabled if another repository which provides it is added.
 	 */
 	var addPDMRepository: Boolean = true
-		protected set
 
 	var caching: CacheConfiguration = CacheConfiguration.builder().build()
 		private set
 
-	protected fun caching(config: Closure<CacheConfiguration.Builder>)
+	fun caching(config: Closure<CacheConfiguration.Builder>)
 	{
 		val builder = CacheConfiguration.builder()
 		config.delegate = builder
 		config.call(builder)
+		this.caching = builder.build()
+	}
+
+	fun caching(config: CacheConfiguration.Builder.() -> Unit) {
+		val builder = CacheConfiguration.builder()
+		config(builder)
 		this.caching = builder.build()
 	}
 }
