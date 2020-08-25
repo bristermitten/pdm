@@ -11,7 +11,7 @@ repositories {
 }
 
 configurations {
-    unzip { transitive = false }
+    unzip
     shade
     compileOnly {
         extendsFrom unzip
@@ -21,15 +21,15 @@ configurations {
 
 dependencies {
     unzip project(':common-lib')
-//    shade 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.0'
+    shade 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     shade 'com.google.code.gson:gson:2.8.6'
     shade 'com.google.guava:guava:21.0'
 }
 
 jar {
     from {
-        configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }
-        zipTree(configurations.unzip.singleFile)
+        (configurations.shade + configurations.unzip)
+                .collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
 
