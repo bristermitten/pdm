@@ -80,8 +80,15 @@ public class DependencyManager
 
     public void setOutputDirectoryName(@NotNull final String outputDirectoryName)
     {
-        this.pdmDirectory = new File(settings.getRootDirectory(), outputDirectoryName);
-        FileUtil.createDirectoryIfNotPresent(pdmDirectory);
+        try
+        {
+            this.pdmDirectory = new File(settings.getRootDirectory().getCanonicalFile(), outputDirectoryName).getCanonicalFile();
+            FileUtil.createDirectoryIfNotPresent(pdmDirectory);
+        }
+        catch (IOException ex)
+        {
+            throw new RuntimeException(ex);
+        }
     }
 
     public RepositoryManager getRepositoryManager()
