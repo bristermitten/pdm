@@ -1,6 +1,7 @@
 plugins {
     id 'me.bristermitten.pdm' version '0.0.24' //change to latest version
-    id 'org.jetbrains.kotlin.jvm' version '1.4.0'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.72'
+    id "com.github.johnrengelman.shadow" version "6.0.0"
 }
 
 repositories {
@@ -15,4 +16,8 @@ dependencies {
     pdm 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 }
 
-jar.dependsOn project.tasks.getByName('pdm')
+task run {
+    println configurations.compileOnly.extendsFrom
+}
+
+shadowJar.dependsOn project.tasks.getByName('pdm')
