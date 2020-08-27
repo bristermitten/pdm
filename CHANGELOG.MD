@@ -5,9 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 this project does not yet adhere to semantic versioning as it's in very early stages. 
 
 
+
+## [0.0.25] - 2020-08-27
+### Fixed
+   - Global: The Kotlin stdlib should no longer be shaded into every plugin using pdm
+
 ## [0.0.24] - 2020-08-25
 ### Fixed
-   - Gradle Plugin: No longer throws an exception relating to Kotlin property references (seemes to be caused by the update to 1.4)
+   - Gradle Plugin: No longer throws an exception relating to Kotlin property references (seems to be caused by the update to 1.4)
 
 ## [0.0.23] - 2020-08-25
 ### Fixed
