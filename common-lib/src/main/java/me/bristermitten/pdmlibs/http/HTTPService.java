@@ -16,7 +16,7 @@ public class HTTPService
     private static final String USER_AGENT_FORMAT = "PDM/%s; Plugin:%s";
 
     private final String userAgent;
-    private final HTTPCache cache;
+    private final @NotNull HTTPCache cache;
     private final CacheConfiguration cacheConfiguration;
 
     public HTTPService(@NotNull final String managing, @NotNull final String version, CacheConfiguration cacheConfiguration)

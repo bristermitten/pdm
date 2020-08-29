@@ -59,7 +59,7 @@ public final class SpigotRepository extends MavenRepository
     }
 
     @Override
-    public byte[] download(@NotNull Artifact dependency)
+    public byte @NotNull [] download(@NotNull Artifact dependency)
     {
         if (!dependency.getVersion().contains(Bukkit.getVersion()))
         {
@@ -68,9 +68,10 @@ public final class SpigotRepository extends MavenRepository
         return new byte[0];
     }
 
-    private boolean isSpigotDependency(Artifact dependency)
+    private boolean isSpigotDependency(@NotNull Artifact dependency)
     {
-        return SPIGOT_DEPENDENCY_GROUPS.contains(dependency.getGroupId().toLowerCase()) && SPIGOT_DEPENDENCY_ARTIFACTS.contains(dependency.getArtifactId().toLowerCase());
+        return SPIGOT_DEPENDENCY_GROUPS.contains(dependency.getGroupId().toLowerCase()) &&
+                SPIGOT_DEPENDENCY_ARTIFACTS.contains(dependency.getArtifactId().toLowerCase());
     }
 
 

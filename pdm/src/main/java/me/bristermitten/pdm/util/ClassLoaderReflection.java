@@ -1,5 +1,7 @@
 package me.bristermitten.pdm.util;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -21,6 +23,7 @@ public class ClassLoaderReflection
         catch (NoSuchMethodException e)
         {
             addURL = null;
+            e.printStackTrace();
         }
         addUrlMethod = addURL;
     }
@@ -36,7 +39,7 @@ public class ClassLoaderReflection
         {
             addUrlMethod.invoke(classLoader, url);
         }
-        catch (IllegalAccessException | InvocationTargetException e)
+        catch (@NotNull IllegalAccessException | InvocationTargetException e)
         {
             throw new IllegalArgumentException(e);
         }

@@ -14,7 +14,7 @@ import java.util.Collections;
 public class ExtractPropertiesParseStage implements ParseStage<MavenPlaceholderReplacer>
 {
 
-    private final MavenPlaceholderReplacer replacer;
+    private final @NotNull MavenPlaceholderReplacer replacer;
 
     public ExtractPropertiesParseStage()
     {

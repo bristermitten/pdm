@@ -1,5 +1,7 @@
 package me.bristermitten.pdmlibs.util;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.reflect.Field;
 
 /**
@@ -13,7 +15,7 @@ public final class Reflection
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T getFieldValue(Object instance, String name)
+    public static <T> @NotNull T getFieldValue(@NotNull Object instance, @NotNull String name)
     {
         try
         {

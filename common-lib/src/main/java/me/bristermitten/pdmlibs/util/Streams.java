@@ -27,7 +27,7 @@ public final class Streams
     }
 
     @NotNull
-    public static byte[] toByteArray(@NotNull final InputStream stream)
+    public static byte @NotNull [] toByteArray(@NotNull final InputStream stream)
     {
         try (InputStream in = stream)
         {

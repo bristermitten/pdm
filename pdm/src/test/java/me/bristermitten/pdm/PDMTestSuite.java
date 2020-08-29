@@ -1,5 +1,7 @@
 package me.bristermitten.pdm;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -12,8 +14,11 @@ import java.nio.file.Files;
 public class PDMTestSuite
 {
 
+    @NotNull
     protected final PluginDependencyManager pdm;
+    @NotNull
     protected final URLClassLoader classLoader;
+    @NotNull
     protected final File libraryDirectory;
 
     public PDMTestSuite() throws IOException

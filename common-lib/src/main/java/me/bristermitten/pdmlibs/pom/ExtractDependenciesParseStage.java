@@ -4,6 +4,7 @@ import me.bristermitten.pdmlibs.artifact.Artifact;
 import me.bristermitten.pdmlibs.artifact.ArtifactDTO;
 import me.bristermitten.pdmlibs.artifact.ArtifactFactory;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -84,7 +85,7 @@ public class ExtractDependenciesParseStage implements ParseStage<Set<Artifact>>
         return dependencySet;
     }
 
-    public Artifact getDependencyFromXML(Element dependencyElement)
+    public @Nullable Artifact getDependencyFromXML(@NotNull Element dependencyElement)
     {
         final ArtifactDTO artifactDTO = DependencyNotationExtractor.extractFrom(dependencyElement);
         if (artifactDTO == null)

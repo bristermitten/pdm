@@ -6,6 +6,7 @@ import org.apache.commons.lang.Validate;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.InputStream;
@@ -24,11 +25,11 @@ public final class PDMBuilder
     public static final String DEPENDENCIES_RESOURCE_NAME = "dependencies.json";
     public static final String PLUGIN_CLASS_LOADER_NAME = "org.bukkit.plugin.java.PluginClassLoader";
     private Function<String, Logger> loggerFactory = Logger::getLogger;
-    private InputStream dependenciesResource = null;
-    private File rootDirectory = null;
-    private URLClassLoader classLoader = null;
-    private String applicationName = null;
-    private String applicationVersion = null;
+    private @Nullable InputStream dependenciesResource = null;
+    private @Nullable File rootDirectory = null;
+    private @Nullable URLClassLoader classLoader = null;
+    private @Nullable String applicationName = null;
+    private @Nullable String applicationVersion = null;
     private CacheConfiguration cacheConfiguration = CacheConfiguration.builder().build();
 
     public PDMBuilder(@NotNull final Plugin plugin)
@@ -58,43 +59,43 @@ public final class PDMBuilder
 
     }
 
-    public PDMBuilder loggerFactory(@NotNull Function<String, Logger> loggerFactory)
+    public @NotNull PDMBuilder loggerFactory(@NotNull Function<String, Logger> loggerFactory)
     {
         this.loggerFactory = loggerFactory;
         return this;
     }
 
-    public PDMBuilder dependenciesResource(InputStream dependenciesResource)
+    public @NotNull PDMBuilder dependenciesResource(InputStream dependenciesResource)
     {
         this.dependenciesResource = dependenciesResource;
         return this;
     }
 
-    public PDMBuilder rootDirectory(@NotNull File rootDirectory)
+    public @NotNull PDMBuilder rootDirectory(@NotNull File rootDirectory)
     {
         this.rootDirectory = rootDirectory;
         return this;
     }
 
-    public PDMBuilder classLoader(@NotNull URLClassLoader classLoader)
+    public @NotNull PDMBuilder classLoader(@NotNull URLClassLoader classLoader)
     {
         this.classLoader = classLoader;
         return this;
     }
 
-    public PDMBuilder applicationName(@NotNull String applicationName)
+    public @NotNull PDMBuilder applicationName(@NotNull String applicationName)
     {
         this.applicationName = applicationName;
         return this;
     }
 
-    public PDMBuilder applicationVersion(@NotNull String applicationVersion)
+    public @NotNull PDMBuilder applicationVersion(@NotNull String applicationVersion)
     {
         this.applicationVersion = applicationVersion;
         return this;
     }
 
-    public PDMBuilder caching(@NotNull Consumer<CacheConfiguration.Builder> configuration)
+    public @NotNull PDMBuilder caching(@NotNull Consumer<CacheConfiguration.Builder> configuration)
     {
         final CacheConfiguration.Builder builder = CacheConfiguration.builder();
         configuration.accept(builder);

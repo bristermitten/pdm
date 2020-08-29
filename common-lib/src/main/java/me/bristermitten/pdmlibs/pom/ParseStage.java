@@ -1,6 +1,7 @@
 package me.bristermitten.pdmlibs.pom;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Document;
 
 /**
@@ -9,5 +10,5 @@ import org.w3c.dom.Document;
 public interface ParseStage<T>
 {
 
-    T parse(@NotNull final Document document);
+    @Nullable T parse(@NotNull final Document document);
 }

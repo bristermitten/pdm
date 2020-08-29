@@ -49,7 +49,7 @@ public class SnapshotArtifact extends Artifact
     }
 
     @Nullable
-    private String getLatestVersion(String baseURL, HTTPService httpService)
+    private String getLatestVersion(@NotNull String baseURL, @NotNull HTTPService httpService)
     {
         final URL metadataURL = URLs.parseURL(createBaseURL(baseURL) + "maven-metadata.xml");
         if (metadataURL == null)
@@ -66,7 +66,7 @@ public class SnapshotArtifact extends Artifact
         {
             return pomParser.parse(new GetLatestSnapshotVersionParseProcess(), httpService.readFrom(metadataURL));
         }
-        catch (final Exception exception)
+        catch (final @NotNull Exception exception)
         {
             throw new IllegalArgumentException("Error while parsing POM from " + metadataURL, exception);
         }

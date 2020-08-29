@@ -23,7 +23,7 @@ public class MavenRepositoryFactory
         this.parseProcess = parseProcess;
     }
 
-    public Repository create(@NotNull final String baseURL)
+    public @NotNull Repository create(@NotNull final String baseURL)
     {
         return new MavenRepository(baseURL, httpService, parseProcess);
     }

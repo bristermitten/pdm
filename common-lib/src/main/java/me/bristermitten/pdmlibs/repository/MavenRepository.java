@@ -67,7 +67,7 @@ public class MavenRepository implements Repository
 
     @Override
     @NotNull
-    public byte[] download(@NotNull Artifact artifact)
+    public byte @NotNull [] download(@NotNull Artifact artifact)
     {
         return Streams.toByteArray(fetchJarContent(artifact));
     }
@@ -98,13 +98,13 @@ public class MavenRepository implements Repository
         }
     }
 
-    private Set<Artifact> parse(@NotNull final Artifact artifact, @NotNull final InputStream pom)
+    private @NotNull Set<Artifact> parse(@NotNull final Artifact artifact, @NotNull final InputStream pom)
     {
         try
         {
             return pomParser.parse(parseProcess, pom);
         }
-        catch (final Exception e)
+        catch (final @NotNull Exception e)
         {
             throw new IllegalArgumentException("Could not parse pom for " + artifact + " at " + artifact.getPomURL(baseURL, httpService), e);
         }
@@ -126,7 +126,7 @@ public class MavenRepository implements Repository
     }
 
     @Override
-    public String toString()
+    public @NotNull String toString()
     {
         return "MavenRepository{" +
                 "baseURL='" + baseURL + '\'' +

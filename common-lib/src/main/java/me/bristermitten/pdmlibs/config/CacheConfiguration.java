@@ -1,5 +1,7 @@
 package me.bristermitten.pdmlibs.config;
 
+import org.jetbrains.annotations.NotNull;
+
 public final class CacheConfiguration
 {
 
@@ -16,7 +18,7 @@ public final class CacheConfiguration
         this.cacheOtherData = cacheOtherData;
     }
 
-    public static Builder builder()
+    public static @NotNull Builder builder()
     {
         return new Builder();
     }
@@ -49,31 +51,31 @@ public final class CacheConfiguration
         private boolean cacheParsedPoms = true;
         private boolean cacheOtherData = true;
 
-        public Builder disablePomCaching()
+        public @NotNull Builder disablePomCaching()
         {
             cachePoms = false;
             return this;
         }
 
-        public Builder disableJarCaching()
+        public @NotNull Builder disableJarCaching()
         {
             cacheJars = false;
             return this;
         }
 
-        public Builder disableParsedPomCaching()
+        public @NotNull Builder disableParsedPomCaching()
         {
             cacheParsedPoms = false;
             return this;
         }
 
-        public Builder disableOtherDataCaching()
+        public @NotNull Builder disableOtherDataCaching()
         {
             cacheOtherData = false;
             return this;
         }
 
-        public CacheConfiguration build()
+        public @NotNull CacheConfiguration build()
         {
             return new CacheConfiguration(cachePoms, cacheJars, cacheParsedPoms, cacheOtherData);
         }

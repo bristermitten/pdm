@@ -10,6 +10,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 public class PomParser
 {
@@ -23,12 +24,12 @@ public class PomParser
         dbFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
     }
 
-    public <T> T parse(@NotNull final ParseProcess<T> parseProcess, @NotNull final InputStream pomContent)
+    public <T> @NotNull T parse(@NotNull final ParseProcess<T> parseProcess, @NotNull final InputStream pomContent)
     {
 
         final Document document = getDocument(pomContent);
 
-        return parseProcess.parse(document);
+        return Objects.requireNonNull(parseProcess.parse(document), "Parse Process " + parseProcess + " returned null!");
     }
 
     @NotNull
@@ -43,7 +44,7 @@ public class PomParser
 
             return doc;
         }
-        catch (ParserConfigurationException | SAXException | IOException e)
+        catch (@NotNull ParserConfigurationException | SAXException | IOException e)
         {
             throw new IllegalArgumentException(e);
         }

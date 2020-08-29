@@ -81,7 +81,7 @@ public abstract class Artifact
     }
 
     @Override
-    public String toString()
+    public @NotNull String toString()
     {
         return "Artifact{" +
                 "groupId='" + groupId + '\'' +

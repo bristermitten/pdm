@@ -35,7 +35,7 @@ public class RepositoryManager
         return byURL.get(url);
     }
 
-    public synchronized void addRepository(String alias, Repository repository)
+    public synchronized void addRepository(String alias, @NotNull Repository repository)
     {
         if (getByAlias(alias) != null)
         {
@@ -45,7 +45,7 @@ public class RepositoryManager
         byURL.put(repository.getURL(), repository);
     }
 
-    public Collection<Repository> getRepositories()
+    public @NotNull Collection<Repository> getRepositories()
     {
         return Collections.unmodifiableCollection(byAlias.values());
     }

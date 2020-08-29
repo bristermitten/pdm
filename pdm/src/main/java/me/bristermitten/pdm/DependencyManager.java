@@ -38,11 +38,11 @@ public class DependencyManager
     @NotNull
     private final PDMSettings settings;
 
-    private final RepositoryManager repositoryManager;
-    private final MavenRepositoryFactory repositoryFactory;
-    private final DependencyLoader loader;
+    private final @NotNull RepositoryManager repositoryManager;
+    private final @NotNull MavenRepositoryFactory repositoryFactory;
+    private final @NotNull DependencyLoader loader;
     private final ArtifactFactory artifactFactory = new ArtifactFactory();
-    private final HTTPService httpService;
+    private final @NotNull HTTPService httpService;
 
     /**
      * A Map that caches download tasks for artifacts.
@@ -52,15 +52,15 @@ public class DependencyManager
      */
     private final Map<Artifact, CompletableFuture<File>> downloadsInProgress = new ConcurrentHashMap<>();
     private final Logger logger;
-    private final DefaultParseProcess parseProcess;
+    private final @NotNull DefaultParseProcess parseProcess;
     private File pdmDirectory;
 
-    public DependencyManager(@NotNull final PDMSettings settings, HTTPService httpService)
+    public DependencyManager(@NotNull final PDMSettings settings, @NotNull HTTPService httpService)
     {
         this(settings, PDM_DIRECTORY_NAME, httpService);
     }
 
-    public DependencyManager(@NotNull final PDMSettings settings, String outputDirectoryName, HTTPService httpService)
+    public DependencyManager(@NotNull final PDMSettings settings, @NotNull String outputDirectoryName, @NotNull HTTPService httpService)
     {
         this.settings = settings;
         this.logger = settings.getLoggerSupplier().apply(getClass().getName());
@@ -91,7 +91,7 @@ public class DependencyManager
         }
     }
 
-    public RepositoryManager getRepositoryManager()
+    public @NotNull RepositoryManager getRepositoryManager()
     {
         return repositoryManager;
     }
@@ -103,24 +103,24 @@ public class DependencyManager
         );
     }
 
-    public ArtifactFactory getArtifactFactory()
+    public @NotNull ArtifactFactory getArtifactFactory()
     {
         return artifactFactory;
     }
 
-    public MavenRepositoryFactory getRepositoryFactory()
+    public @NotNull MavenRepositoryFactory getRepositoryFactory()
     {
         return repositoryFactory;
     }
 
-    public CompletableFuture<Void> downloadAndLoad(Artifact dependency)
+    public CompletableFuture<Void> downloadAndLoad(@NotNull Artifact dependency)
     {
         CompletableFuture<File> downloaded = download(dependency);
 
         return downloaded.thenAccept(loader::loadDependency);
     }
 
-    public CompletableFuture<File> download(Artifact dependency)
+    public CompletableFuture<File> download(@NotNull Artifact dependency)
     {
         CompletableFuture<File> inProgress = downloadsInProgress.get(dependency);
         if (inProgress != null)
@@ -184,7 +184,7 @@ public class DependencyManager
         return transitiveDependencies.stream().map(this::downloadAndLoad).collect(Collectors.toSet());
     }
 
-    private Collection<Repository> getRepositoriesToSearchFor(Artifact dependency)
+    private Collection<Repository> getRepositoriesToSearchFor(@NotNull Artifact dependency)
     {
         if (dependency.getRepoAlias() != null)
         {

@@ -76,7 +76,7 @@ public final class PluginDependencyManager
         {
             jsonDependencies = Constants.GSON.fromJson(reader, JSONDependencies.class);
         }
-        catch (IOException | JsonParseException e)
+        catch (@NotNull IOException | JsonParseException e)
         {
             logger.log(Level.WARNING, "Could not read dependencies.json", e);
             e.printStackTrace();
@@ -151,7 +151,7 @@ public final class PluginDependencyManager
      * @return a {@link CompletableFuture} that is completed when dependency downloading finishes.
      * @since 0.0.22
      */
-    public CompletableFuture<List<File>> downloadAllDependencies()
+    public @NotNull CompletableFuture<List<File>> downloadAllDependencies()
     {
         if (requiredDependencies.isEmpty())
         {

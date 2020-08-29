@@ -20,7 +20,7 @@ public class DefaultParseProcess implements ParseProcess<Set<Artifact>>
     @NotNull
     private final ArtifactFactory artifactFactory;
 
-    private final ExtractParentsParseStage extractParentsParseStage;
+    private final @NotNull ExtractParentsParseStage extractParentsParseStage;
 
     public DefaultParseProcess(@NotNull final ArtifactFactory artifactFactory,
                                @NotNull final RepositoryManager repositoryManager,

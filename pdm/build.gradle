@@ -16,4 +16,5 @@ dependencies {
 
     testImplementation 'com.google.code.gson:gson:2.8.0'
     testImplementation 'com.google.guava:guava:21.0'
+    testImplementation 'org.jetbrains:annotations:19.0.0'
 }

@@ -14,7 +14,7 @@ public class HTTPCache
 {
 
     private final String userAgent;
-    private final LoadingCache<URL, byte[]> urlCache;
+    private final @NotNull LoadingCache<URL, byte[]> urlCache;
 
     public HTTPCache(String userAgent)
     {
