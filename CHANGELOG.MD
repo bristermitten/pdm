@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 this project does not yet adhere to semantic versioning as it's in very early stages. 
 
 
+## [0.0.26] - 2020-08-30
+### Changed
+   - PDM: The dependency loading process has hopefully been sped up if all dependencies are already downloaded.
 
 ## [0.0.25] - 2020-08-27
 ### Fixed
