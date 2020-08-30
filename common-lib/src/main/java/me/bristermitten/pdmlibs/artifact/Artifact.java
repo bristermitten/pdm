@@ -18,12 +18,10 @@ public abstract class Artifact
     private final String artifactId;
     @NotNull
     private final String version;
-
-    @Nullable
-    private final Set<Artifact> transitiveDependencies;
-
     @Nullable
     private final String repoAlias;
+    @Nullable
+    private Set<Artifact> transitiveDependencies;
 
     protected Artifact(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @Nullable Set<Artifact> transitiveDependencies, @Nullable String repoAlias)
     {
@@ -67,10 +65,10 @@ public abstract class Artifact
     /**
      * Get the transitive dependencies of this artifact.
      * <p>
-     * The return type of this method carries meaning:
+     * There are semantics attached to the returned value:
      * {@code null} implies that the transitive dependencies have not been looked up, and so should be located by the runtime.
-     * An empty set implies that the transitive dependencies <i>have</i> been looked up and are empty. They will be skipped by the runtime.
-     * A set with elements will have those elements downloaded, but no lookup will be done by the runtime.
+     * An empty set implies that the transitive dependencies <i>have</i> been looked up and are empty. That is, the artifact has no transitive dependencies.
+     * A set with elements will have those elements downloaded, without querying the transitive dependencies again.
      *
      * @return the transitive dependencies of this artifact.
      */
@@ -78,6 +76,11 @@ public abstract class Artifact
     public Set<Artifact> getTransitiveDependencies()
     {
         return transitiveDependencies;
+    }
+
+    public void setTransitiveDependencies(@Nullable Set<Artifact> transitiveDependencies)
+    {
+        this.transitiveDependencies = transitiveDependencies;
     }
 
     @Override

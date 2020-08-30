@@ -15,8 +15,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -24,8 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
 
 /*
  * This is definitely a god object, needs cleaning up.
@@ -87,7 +83,7 @@ public class DependencyManager
         }
         catch (IOException ex)
         {
-            throw new RuntimeException(ex);
+            throw new IllegalStateException(ex);
         }
     }
 
@@ -130,16 +126,12 @@ public class DependencyManager
 
         File file = new File(pdmDirectory, dependency.getJarName());
 
-        Collection<Repository> repositoriesToSearch = getRepositoriesToSearchFor(dependency);
-
-
         CompletableFuture<File> downloadingFuture = CompletableFuture.supplyAsync(() -> {
 
-            @Nullable final Repository containingRepo = repositoryManager.firstContaining(dependency);
+            @Nullable final Repository containingRepo = getRepositoryFor(dependency);
             if (containingRepo == null)
             {
-                logger.warning(() -> "No repository found for " + dependency + ", it cannot be downloaded. Other plugins may not function properly. " +
-                        "Repositories Searched: " + repositoriesToSearch.stream().map(Repository::getURL).collect(toList()));
+                logger.warning(() -> "No repository found for " + dependency + ", it cannot be downloaded. Other plugins may not function properly.");
                 return file;
             }
 
@@ -179,25 +171,26 @@ public class DependencyManager
         if (transitiveDependencies == null)
         {
             transitiveDependencies = repository.getTransitiveDependencies(artifact);
+            artifact.setTransitiveDependencies(transitiveDependencies); //To save potential repeated lookups
         }
 
         return transitiveDependencies.stream().map(this::downloadAndLoad).collect(Collectors.toSet());
     }
 
-    private Collection<Repository> getRepositoriesToSearchFor(@NotNull Artifact dependency)
+    private Repository getRepositoryFor(@NotNull final Artifact artifact)
     {
-        if (dependency.getRepoAlias() != null)
+        if (artifact.getRepoAlias() != null)
         {
-            Repository byURL = repositoryManager.getByAlias(dependency.getRepoAlias());
+            Repository byURL = repositoryManager.getByAlias(artifact.getRepoAlias());
             if (byURL == null)
             {
-                logger.warning(() -> "No repository configured for " + dependency.getRepoAlias());
-                return Collections.emptySet();
+                logger.warning(() -> "No repository configured for " + artifact.getRepoAlias());
+                return null;
             }
-            return Collections.singleton(byURL);
+            return byURL;
         } else
         {
-            return repositoryManager.getRepositories();
+            return repositoryManager.firstContaining(artifact);
         }
     }
 
