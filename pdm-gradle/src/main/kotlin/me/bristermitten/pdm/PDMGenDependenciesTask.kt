@@ -13,6 +13,7 @@ import me.bristermitten.pdmlibs.repository.Repository
 import me.bristermitten.pdmlibs.repository.RepositoryManager
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -52,7 +53,7 @@ class PDMGenDependenciesTask(
 		val dependencies = pdmDependency.allDependencies.mapNotNull {
 			val group = it.group ?: return@mapNotNull null
 			val version = it.version ?: return@mapNotNull null
-			ArtifactDTO(group, it.name, version)
+			ArtifactDTO(group, it.name, version, it is ProjectDependency)
 		}.toSet()
 
 		return ProjectState(repositories, dependencies)
@@ -67,7 +68,8 @@ class PDMGenDependenciesTask(
 			artifact.resolvePDMDependency(
 					config.spigot,
 					config.searchRepositories,
-					state.repos
+					state.repos,
+					it.isProject
 			)
 		}.toSet()
 
@@ -96,8 +98,18 @@ class PDMGenDependenciesTask(
 		process(state, project)
 	}
 
-	private fun Artifact.resolvePDMDependency(spigot: Boolean, searchRepositories: Boolean, repositories: Map<String, Repository>): PDMDependency
+	private fun Artifact.resolvePDMDependency(
+			spigot: Boolean,
+			searchRepositories: Boolean,
+			repositories: Map<String, Repository>,
+			isProject: Boolean
+	): PDMDependency
 	{
+		if(isProject && config.projectRepository != null)
+		{
+			return PDMDependency(groupId, artifactId, version, config.projectRepository, null)
+		}
+
 		if (spigot && isSpigotArtifact() || !searchRepositories)
 		{
 			return PDMDependency(groupId, artifactId, version, null, null)
@@ -116,11 +128,12 @@ class PDMGenDependenciesTask(
 		if (containingRepo == null)
 		{
 			LOGGER.error("No repository found for dependency {}", this)
+
 			return PDMDependency(groupId, artifactId, version, null, null)
 		}
 
 		val dependencies = containingRepo.second?.getTransitiveDependencies(this)
-				?.map { it.resolvePDMDependency(spigot, searchRepositories, repositories) }
+				?.map { it.resolvePDMDependency(spigot, searchRepositories, repositories, isProject) }
 				?.toSet()
 
 		return PDMDependency(groupId, artifactId, version, containingRepo.first, dependencies)
