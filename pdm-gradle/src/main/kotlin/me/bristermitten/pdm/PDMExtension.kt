@@ -107,4 +107,11 @@ open class PDMExtension
 		config(builder)
 		this.caching = builder.build()
 	}
+
+	/**
+	 * If you are using a module with the all the dependencies that your project uses inside of it to be downloaded by the PDM.
+	 * You can provide your project maven repository URL that will be usage to resolve the Project dependencies,
+	 * example: `pdm(project(":yourmodule"))`.
+	 */
+	var projectRepository: String? = null
 }
