@@ -28,6 +28,7 @@ class PDMGenDependenciesTask(
 {
 	companion object
 	{
+		const val PROJECT_REPOSITORY_ALIAS = "project"
 		private val LOGGER = LoggerFactory.getLogger(PDMGenDependenciesTask::class.java)
 	}
 
@@ -48,7 +49,11 @@ class PDMGenDependenciesTask(
 				.map {
 					val url = REPOSITORY_URL_MAPPINGS[it.name]?.invoke(config) ?: it.url.toString()
 					it.name to repositoryFactory.create(url)
-				}.toMap()
+				}.toMap().toMutableMap()
+
+		val projectRepository = config.projectRepository
+		if(projectRepository != null)
+			repositories[PROJECT_REPOSITORY_ALIAS] = repositoryFactory.create(projectRepository)
 
 		val dependencies = pdmDependency.allDependencies.mapNotNull {
 			val group = it.group ?: return@mapNotNull null
@@ -107,7 +112,7 @@ class PDMGenDependenciesTask(
 	{
 		if(isProject && config.projectRepository != null)
 		{
-			return PDMDependency(groupId, artifactId, version, config.projectRepository, null)
+			return PDMDependency(groupId, artifactId, version, PROJECT_REPOSITORY_ALIAS, null)
 		}
 
 		if (spigot && isSpigotArtifact() || !searchRepositories)
