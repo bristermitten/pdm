@@ -41,6 +41,11 @@ class PDMGenDependenciesTask(
 
 	fun generateProjectState(project: Project, repositoryFactory: MavenRepositoryFactory): ProjectState
 	{
+		return generateProjectState(project, pdmDependency, repositoryFactory)
+	}
+
+	private fun generateProjectState(project: Project, pdmConfiguration: Configuration, repositoryFactory: MavenRepositoryFactory): ProjectState
+	{
 		val repositories = project.repositories.asSequence()
 				.filterIsInstance<MavenArtifactRepository>()
 				.filter {
@@ -55,13 +60,24 @@ class PDMGenDependenciesTask(
 		if(projectRepository != null)
 			repositories[PROJECT_REPOSITORY_ALIAS] = repositoryFactory.create(projectRepository)
 
-		val dependencies = pdmDependency.allDependencies.mapNotNull {
+		val dependencies = pdmConfiguration.allDependencies.mapNotNull {
 			val group = it.group ?: return@mapNotNull null
 			val version = it.version ?: return@mapNotNull null
 			ArtifactDTO(group, it.name, version, it is ProjectDependency)
 		}.toSet()
 
-		return ProjectState(repositories, dependencies)
+		val submodulesProjectState = project.configurations
+				.filter { it.name == "compile" || it.extendsFrom.any { it.name == "compile" } }
+				.filterNot { it.name.contains("test", ignoreCase = true) }
+				.flatMap { it.allDependencies.toList() }
+				.mapNotNull { (it as? ProjectDependency)?.dependencyProject }
+				.associateWith { it.configurations.findByName(PDM.CONFIGURATION_NAME) }
+				.mapNotNull { (project, pdm) -> pdm?.let { generateProjectState(project, it, repositoryFactory) } }
+				.toList()
+
+		return submodulesProjectState.fold(ProjectState(repositories, dependencies)) { previous, new ->
+			previous + new
+		}
 	}
 
 	private fun process(state: ProjectState, outputDirectory: File)

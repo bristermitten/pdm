@@ -7,3 +7,8 @@ data class ProjectState(
         val repos: Map<String, Repository>,
         val dependencies: Set<ArtifactDTO>
 )
+
+operator fun ProjectState.plus(projectState: ProjectState): ProjectState
+{
+    return ProjectState(repos + projectState.repos, dependencies + projectState.dependencies)
+}

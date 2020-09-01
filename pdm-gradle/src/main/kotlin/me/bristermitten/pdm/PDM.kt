@@ -9,6 +9,9 @@ import java.util.logging.Logger
 
 class PDM : Plugin<Project>
 {
+	companion object {
+		const val CONFIGURATION_NAME = "pdm"
+	}
 	private val artifactFactory = ArtifactFactory()
 
 	private val repositoryManager = RepositoryManager(Logger.getLogger(javaClass.name))
@@ -17,7 +20,7 @@ class PDM : Plugin<Project>
 	{
 		plugins.apply("java") //add the Java Plugin if it's not already present
 
-		val pdmConfig = configurations.create("pdm")
+		val pdmConfig = configurations.create(CONFIGURATION_NAME)
 		val compileConfig = configurations.findByName("compileOnly")
 		requireNotNull(compileConfig) {
 			"No 'compileOnly' configuration defined. Is the Java plugin present?"
