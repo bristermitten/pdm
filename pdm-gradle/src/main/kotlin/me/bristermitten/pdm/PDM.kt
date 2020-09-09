@@ -5,6 +5,8 @@ import me.bristermitten.pdmlibs.repository.RepositoryManager
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.ExternalModuleDependency
+import org.gradle.util.ConfigureUtil
 import java.util.logging.Logger
 
 class PDM : Plugin<Project>
@@ -39,7 +41,9 @@ class PDM : Plugin<Project>
 				it.setUrl(PDM_REPO_URL)
 			}
 		}
-		val dependency = project.dependencies.add(pdmInternal.name, "me.bristermitten:pdm:${extension.version}")
+		val dependency = project.dependencies.add(pdmInternal.name, "me.bristermitten:pdm:${extension.version}") as ExternalModuleDependency
+		dependency.exclude(mapOf("module" to "kotlin-stdlib"))
+
 		implementation?.dependencies?.add(dependency)
 
 		pdmInternal.dependencies.add(dependency)
