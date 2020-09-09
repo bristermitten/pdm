@@ -62,5 +62,12 @@ class PDM : Plugin<Project>
 		project.task("pdmGenDependencies").doLast {
 			dependenciesTask.invoke(project)
 		}
+
+		project.task("pdmInvalidateCache").doLast {
+			val cache = project.buildDir.resolve("tmp").resolve("pdm").resolve("cache")
+
+			if(cache.exists())
+				cache.deleteRecursively()
+		}
 	}
 }

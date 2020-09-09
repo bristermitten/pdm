@@ -3,6 +3,7 @@ package me.bristermitten.pdm
 import com.google.gson.Gson
 import me.bristermitten.pdm.json.ArtifactDTO
 import me.bristermitten.pdm.json.DependenciesConfiguration
+import me.bristermitten.pdm.json.ExcludeRule
 import me.bristermitten.pdm.json.PDMDependency
 import me.bristermitten.pdmlibs.artifact.Artifact
 import me.bristermitten.pdmlibs.artifact.ArtifactFactory
@@ -13,6 +14,8 @@ import me.bristermitten.pdmlibs.repository.Repository
 import me.bristermitten.pdmlibs.repository.RepositoryManager
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.ExternalModuleDependency
+import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.slf4j.LoggerFactory
@@ -63,7 +66,8 @@ class PDMGenDependenciesTask(
 		val dependencies = pdmConfiguration.allDependencies.mapNotNull {
 			val group = it.group ?: return@mapNotNull null
 			val version = it.version ?: return@mapNotNull null
-			ArtifactDTO(group, it.name, version, it is ProjectDependency)
+			val exclusions = (it as? ModuleDependency)?.excludeRules?.map { ExcludeRule(it.group, it.module) } ?: emptyList()
+			ArtifactDTO(group, it.name, version, it is ProjectDependency, exclusions)
 		}.toSet()
 
 		val submodulesProjectState = project.configurations
@@ -90,7 +94,8 @@ class PDMGenDependenciesTask(
 					config.spigot,
 					config.searchRepositories,
 					state.repos,
-					it.isProject
+					it.isProject,
+					it.exclusions
 			)
 		}.toSet()
 
@@ -123,7 +128,8 @@ class PDMGenDependenciesTask(
 			spigot: Boolean,
 			searchRepositories: Boolean,
 			repositories: Map<String, Repository>,
-			isProject: Boolean
+			isProject: Boolean,
+			excludeRules: List<ExcludeRule>
 	): PDMDependency
 	{
 		if(isProject && config.projectRepository != null)
@@ -154,7 +160,8 @@ class PDMGenDependenciesTask(
 		}
 
 		val dependencies = containingRepo.second?.getTransitiveDependencies(this)
-				?.map { it.resolvePDMDependency(spigot, searchRepositories, repositories, isProject) }
+				?.filterNot { excludeRules.any { rule -> rule.match(it) } }
+				?.map { it.resolvePDMDependency(spigot, searchRepositories, repositories, isProject, excludeRules) }
 				?.toSet()
 
 		return PDMDependency(groupId, artifactId, version, containingRepo.first, dependencies)
