@@ -37,8 +37,10 @@ class PDM : Plugin<Project>
 		val implementation = configurations.findByName("implementation")
 		if (extension.addPDMRepository)
 		{
-			repositories.maven {
-				it.setUrl(PDM_REPO_URL)
+			PDM_REPO_URLS.forEach { url ->
+				repositories.maven {
+					it.setUrl(url)
+				}
 			}
 		}
 		val dependency = project.dependencies.add(pdmInternal.name, "me.bristermitten:pdm:${extension.version}") as ExternalModuleDependency
