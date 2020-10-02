@@ -19,19 +19,25 @@ import java.util.logging.Logger;
 /**
  * @author AlexL
  */
+@SuppressWarnings("UnusedReturnValue")
 public final class PDMBuilder
 {
 
     public static final String DEPENDENCIES_RESOURCE_NAME = "dependencies.json";
     public static final String PLUGIN_CLASS_LOADER_NAME = "org.bukkit.plugin.java.PluginClassLoader";
     private Function<String, Logger> loggerFactory = Logger::getLogger;
-    private @Nullable InputStream dependenciesResource = null;
-    private @Nullable File rootDirectory = null;
-    private @Nullable URLClassLoader classLoader = null;
-    private @Nullable String applicationName = null;
-    private @Nullable String applicationVersion = null;
+    @Nullable private InputStream dependenciesResource = null;
+    @Nullable private File rootDirectory = null;
+    @Nullable private URLClassLoader classLoader = null;
+    @Nullable private String applicationName = null;
+    @Nullable private String applicationVersion = null;
     private CacheConfiguration cacheConfiguration = CacheConfiguration.builder().build();
 
+    /**
+     * @deprecated Use one of the static factory methods; the direct replacement for this method is {@link #builder(Plugin)}.
+     * @param plugin Plugin implementation instance
+     */
+    @Deprecated
     public PDMBuilder(@NotNull final Plugin plugin)
     {
         loggerFactory(clazz -> plugin.getLogger());
@@ -42,6 +48,11 @@ public final class PDMBuilder
         applicationVersion(plugin.getDescription().getVersion());
     }
 
+    /**
+     * @deprecated Use one of the static factory methods; the direct replacement for this method is {@link #builder(Class)}
+     * @param plugin Plugin implementation class
+     */
+    @Deprecated
     public PDMBuilder(@NotNull final Class<? extends Plugin> plugin)
     {
         Validate.isTrue(PLUGIN_CLASS_LOADER_NAME.equals(plugin.getClassLoader().getClass().getName()), "Plugin must be loaded with a PluginClassLoader");
@@ -54,48 +65,103 @@ public final class PDMBuilder
         loggerFactory(clazz -> Logger.getLogger(description.getName()));
     }
 
+    /**
+     * @deprecated Do not construct an instance of this class manually.
+     */
+    @Deprecated
     public PDMBuilder()
     {
 
     }
 
-    public @NotNull PDMBuilder loggerFactory(@NotNull Function<String, Logger> loggerFactory)
+    @NotNull
+    public static PDMBuilder builder() {
+        return new PDMBuilder();
+    }
+
+    @NotNull
+    public static PDMBuilder builder(@NotNull final Plugin plugin) {
+        return new PDMBuilder()
+                .loggerFactory(clazz -> plugin.getLogger())
+                .dependenciesResource(plugin.getResource(DEPENDENCIES_RESOURCE_NAME))
+                .rootDirectory(plugin.getDataFolder().getParentFile())
+                .classLoader((URLClassLoader) plugin.getClass().getClassLoader())
+                .applicationName(plugin.getName())
+                .applicationVersion(plugin.getDescription().getVersion());
+    }
+
+    @NotNull
+    public static PDMBuilder builder(@NotNull final Class<? extends Plugin> plugin) {
+        Validate.isTrue(PLUGIN_CLASS_LOADER_NAME.equals(plugin.getClassLoader().getClass().getName()), "Plugin must be loaded with a PluginClassLoader");
+
+        final URLClassLoader classLoader = (URLClassLoader) plugin.getClassLoader();
+        final PluginDescriptionFile description = Reflection.getFieldValue(classLoader, "description");
+
+        return builder()
+                .classLoader((URLClassLoader) plugin.getClassLoader())
+                .dependenciesResource(classLoader.getResourceAsStream(DEPENDENCIES_RESOURCE_NAME))
+                .rootDirectory(new File("./plugins"))
+                .applicationName(description.getName())
+                .applicationVersion(description.getVersion())
+                .loggerFactory(clazz -> Logger.getLogger(description.getName()));
+    }
+
+    @NotNull
+    public static PluginDependencyManager of(@NotNull final Plugin plugin) {
+        return builder(plugin)
+                .build();
+    }
+
+    @NotNull
+    public static PluginDependencyManager of(@NotNull final Class<? extends Plugin> plugin) {
+        return builder(plugin)
+                .build();
+    }
+
+    @NotNull
+    public PDMBuilder loggerFactory(@NotNull final Function<String, Logger> loggerFactory)
     {
         this.loggerFactory = loggerFactory;
         return this;
     }
 
-    public @NotNull PDMBuilder dependenciesResource(InputStream dependenciesResource)
+    @NotNull
+    public PDMBuilder dependenciesResource(@NotNull final InputStream dependenciesResource)
     {
         this.dependenciesResource = dependenciesResource;
         return this;
     }
 
-    public @NotNull PDMBuilder rootDirectory(@NotNull File rootDirectory)
+    @NotNull
+    public PDMBuilder rootDirectory(@NotNull final File rootDirectory)
     {
         this.rootDirectory = rootDirectory;
         return this;
     }
 
-    public @NotNull PDMBuilder classLoader(@NotNull URLClassLoader classLoader)
+    @NotNull
+    public PDMBuilder classLoader(@NotNull URLClassLoader classLoader)
     {
         this.classLoader = classLoader;
         return this;
     }
 
-    public @NotNull PDMBuilder applicationName(@NotNull String applicationName)
+    @NotNull
+    public PDMBuilder applicationName(@NotNull String applicationName)
     {
         this.applicationName = applicationName;
         return this;
     }
 
-    public @NotNull PDMBuilder applicationVersion(@NotNull String applicationVersion)
+    @NotNull
+    public PDMBuilder applicationVersion(@NotNull String applicationVersion)
     {
         this.applicationVersion = applicationVersion;
         return this;
     }
 
-    public @NotNull PDMBuilder caching(@NotNull Consumer<CacheConfiguration.Builder> configuration)
+    @NotNull
+    public PDMBuilder caching(@NotNull Consumer<CacheConfiguration.Builder> configuration)
     {
         final CacheConfiguration.Builder builder = CacheConfiguration.builder();
         configuration.accept(builder);

@@ -1,7 +1,7 @@
 package me.bristermitten.pdm;
 
 import me.bristermitten.pdm.repository.SpigotRepository;
-import me.bristermitten.pdm.util.FileUtil;
+import me.bristermitten.pdm.util.FileUtils;
 import me.bristermitten.pdmlibs.artifact.Artifact;
 import me.bristermitten.pdmlibs.artifact.ArtifactFactory;
 import me.bristermitten.pdmlibs.http.HTTPService;
@@ -31,14 +31,13 @@ public class DependencyManager
 
     public static final String PDM_DIRECTORY_NAME = "PluginLibraries";
 
-    @NotNull
-    private final PDMSettings settings;
+    @NotNull private final PDMSettings settings;
 
-    private final @NotNull RepositoryManager repositoryManager;
-    private final @NotNull MavenRepositoryFactory repositoryFactory;
-    private final @NotNull DependencyLoader loader;
+    @NotNull private final RepositoryManager repositoryManager;
+    @NotNull private final MavenRepositoryFactory repositoryFactory;
+    @NotNull private final DependencyLoader loader;
     private final ArtifactFactory artifactFactory = new ArtifactFactory();
-    private final @NotNull HTTPService httpService;
+    @NotNull private final HTTPService httpService;
 
     /**
      * A Map that caches download tasks for artifacts.
@@ -48,15 +47,16 @@ public class DependencyManager
      */
     private final Map<Artifact, CompletableFuture<File>> downloadsInProgress = new ConcurrentHashMap<>();
     private final Logger logger;
-    private final @NotNull DefaultParseProcess parseProcess;
+    @NotNull private final DefaultParseProcess parseProcess;
     private File pdmDirectory;
 
-    public DependencyManager(@NotNull final PDMSettings settings, @NotNull HTTPService httpService)
+    public DependencyManager(@NotNull final PDMSettings settings, @NotNull final HTTPService httpService)
     {
         this(settings, PDM_DIRECTORY_NAME, httpService);
     }
 
-    public DependencyManager(@NotNull final PDMSettings settings, @NotNull String outputDirectoryName, @NotNull HTTPService httpService)
+    public DependencyManager(@NotNull final PDMSettings settings, @NotNull final String outputDirectoryName,
+                             @NotNull final HTTPService httpService)
     {
         this.settings = settings;
         this.logger = settings.getLoggerSupplier().apply(getClass().getName());
@@ -64,7 +64,6 @@ public class DependencyManager
         this.httpService = httpService;
 
         this.repositoryManager = new RepositoryManager(settings.getLoggerSupplier().apply(RepositoryManager.class.getName()));
-
 
         this.parseProcess = new DefaultParseProcess(artifactFactory, repositoryManager, httpService);
         this.repositoryFactory = new MavenRepositoryFactory(httpService, parseProcess);
@@ -79,15 +78,16 @@ public class DependencyManager
         try
         {
             this.pdmDirectory = new File(settings.getRootDirectory().getCanonicalFile(), outputDirectoryName).getCanonicalFile();
-            FileUtil.createDirectoryIfNotPresent(pdmDirectory);
+            FileUtils.createDirectoryIfNotPresent(pdmDirectory);
         }
-        catch (IOException ex)
+        catch (IOException exception)
         {
-            throw new IllegalStateException(ex);
+            throw new IllegalStateException(exception);
         }
     }
 
-    public @NotNull RepositoryManager getRepositoryManager()
+    @NotNull
+    public RepositoryManager getRepositoryManager()
     {
         return repositoryManager;
     }
@@ -99,36 +99,38 @@ public class DependencyManager
         );
     }
 
-    public @NotNull ArtifactFactory getArtifactFactory()
+    @NotNull
+    public ArtifactFactory getArtifactFactory()
     {
         return artifactFactory;
     }
 
-    public @NotNull MavenRepositoryFactory getRepositoryFactory()
+    @NotNull
+    public MavenRepositoryFactory getRepositoryFactory()
     {
         return repositoryFactory;
     }
 
-    public CompletableFuture<Void> downloadAndLoad(@NotNull Artifact dependency)
+    @NotNull
+    public CompletableFuture<Void> downloadAndLoad(@NotNull final Artifact dependency)
     {
-        CompletableFuture<File> downloaded = download(dependency);
-
-        return downloaded.thenAccept(loader::loadDependency);
+        return download(dependency).thenAccept(loader::loadDependency);
     }
 
-    public CompletableFuture<File> download(@NotNull Artifact dependency)
+    @NotNull
+    public CompletableFuture<File> download(@NotNull final Artifact dependency)
     {
-        CompletableFuture<File> inProgress = downloadsInProgress.get(dependency);
+        final CompletableFuture<File> inProgress = downloadsInProgress.get(dependency);
+
         if (inProgress != null)
         {
             return inProgress;
         }
 
-        File file = new File(pdmDirectory, dependency.getJarName());
-
-        CompletableFuture<File> downloadingFuture = CompletableFuture.supplyAsync(() -> {
-
+        final File file = new File(pdmDirectory, dependency.getJarName());
+        final CompletableFuture<File> downloadingFuture = CompletableFuture.supplyAsync(() -> {
             @Nullable final Repository containingRepo = getRepositoryFor(dependency);
+
             if (containingRepo == null)
             {
                 logger.warning(() -> "No repository found for " + dependency + ", it cannot be downloaded. Other plugins may not function properly.");
@@ -152,8 +154,8 @@ public class DependencyManager
             }
 
             return file;
-        }).exceptionally(t -> {
-            logger.log(Level.SEVERE, t, () -> "Could not download " + dependency);
+        }).exceptionally(throwable -> {
+            logger.log(Level.SEVERE, throwable, () -> "Could not download " + dependency);
             downloadsInProgress.remove(dependency);
             return file;
         });
@@ -164,24 +166,31 @@ public class DependencyManager
         return downloadingFuture;
     }
 
+    @NotNull
     private Set<CompletableFuture<Void>> downloadTransitiveDependencies(@NotNull final Repository repository, @NotNull final Artifact artifact)
     {
         logger.fine(() -> "Downloading Transitive Dependencies for " + artifact);
+
         Set<Artifact> transitiveDependencies = artifact.getTransitiveDependencies();
+
         if (transitiveDependencies == null)
         {
             transitiveDependencies = repository.getTransitiveDependencies(artifact);
             artifact.setTransitiveDependencies(transitiveDependencies); //To save potential repeated lookups
         }
 
-        return transitiveDependencies.stream().map(this::downloadAndLoad).collect(Collectors.toSet());
+        return transitiveDependencies.stream()
+                .map(this::downloadAndLoad)
+                .collect(Collectors.toSet());
     }
 
+    @Nullable
     private Repository getRepositoryFor(@NotNull final Artifact artifact)
     {
         if (artifact.getRepoAlias() != null)
         {
-            Repository byURL = repositoryManager.getByAlias(artifact.getRepoAlias());
+            final Repository byURL = repositoryManager.getByAlias(artifact.getRepoAlias());
+
             if (byURL == null)
             {
                 logger.warning(() -> "No repository configured for " + artifact.getRepoAlias());
@@ -196,14 +205,14 @@ public class DependencyManager
 
     private void writeToFile(@NotNull final InputStream data, @NotNull final File file)
     {
-        FileUtil.createDirectoryIfNotPresent(pdmDirectory);
+        FileUtils.createDirectoryIfNotPresent(pdmDirectory);
         try
         {
-            FileUtil.writeFrom(file, data);
+            FileUtils.writeFrom(file, data);
         }
-        catch (IOException e)
+        catch (IOException exception)
         {
-            logger.log(Level.SEVERE, e, () -> "Could not copy file for " + file);
+            logger.log(Level.SEVERE, exception, () -> "Could not copy file for " + file);
         }
     }
 }

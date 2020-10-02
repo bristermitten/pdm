@@ -34,21 +34,14 @@ public final class PluginDependencyManager
     @NotNull
     private final Logger logger;
 
-    @NotNull
-    private final HTTPService httpService;
-
-
-    PluginDependencyManager(@NotNull final Function<String, Logger> loggerFactory,
-                            @Nullable final InputStream dependenciesResource,
-                            @NotNull final File rootDirectory,
-                            @NotNull final URLClassLoader classLoader,
-                            @NotNull final String applicationName,
-                            @NotNull final String applicationVersion,
+    PluginDependencyManager(@NotNull final Function<String, Logger> loggerFactory, @Nullable final InputStream dependenciesResource,
+                            @NotNull final File rootDirectory, @NotNull final URLClassLoader classLoader,
+                            @NotNull final String applicationName, @NotNull final String applicationVersion,
                             @NotNull final CacheConfiguration cacheConfiguration)
     {
         this.logger = loggerFactory.apply(getClass().getName());
-        this.httpService = new HTTPService(applicationName, applicationVersion, cacheConfiguration);
 
+        final HTTPService httpService = new HTTPService(applicationName, applicationVersion, cacheConfiguration);
         final PDMSettings settings = new PDMSettings(rootDirectory, loggerFactory, classLoader);
 
         this.manager = new DependencyManager(settings, httpService);
@@ -72,14 +65,15 @@ public final class PluginDependencyManager
     private void loadDependenciesFromFile(@NotNull final InputStream dependenciesResource)
     {
         final JSONDependencies jsonDependencies;
-        try (Reader reader = new InputStreamReader(dependenciesResource))
+
+        try (final Reader reader = new InputStreamReader(dependenciesResource))
         {
             jsonDependencies = Constants.GSON.fromJson(reader, JSONDependencies.class);
         }
-        catch (@NotNull IOException | JsonParseException e)
+        catch (IOException | JsonParseException exception)
         {
-            logger.log(Level.WARNING, "Could not read dependencies.json", e);
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Could not read dependencies.json", exception);
+            exception.printStackTrace();
             return;
         }
 
@@ -88,22 +82,23 @@ public final class PluginDependencyManager
             logger.log(Level.WARNING, "jsonDependencies was null - Invalid JSON?");
             return;
         }
-        final Map<String, String> repositories = jsonDependencies.getRepositories();
-        if (repositories != null)
-        {
-            repositories.forEach((alias, repo) -> {
-                final Repository existing = manager.getRepositoryManager().getByAlias(alias);
-                if (existing != null)
-                {
-                    logger.fine(() -> "Will not redefine repository " + alias);
-                    return;
-                }
-                final Repository repository = manager.getRepositoryFactory().create(repo);
-                manager.getRepositoryManager().addRepository(alias, repository);
 
-                logger.fine(() -> "Made new repository named " + alias);
-            });
-        }
+        final Map<String, String> repositories = jsonDependencies.getRepositories();
+
+        repositories.forEach((alias, repo) -> {
+            final Repository existing = manager.getRepositoryManager().getByAlias(alias);
+
+            if (existing != null)
+            {
+                logger.fine(() -> "Will not redefine repository " + alias);
+                return;
+            }
+
+            final Repository repository = manager.getRepositoryFactory().create(repo);
+            manager.getRepositoryManager().addRepository(alias, repository);
+
+            logger.fine(() -> "Made new repository named " + alias);
+        });
 
         jsonDependencies.getDependencies().forEach(dto -> {
             final Artifact dependency = manager.getArtifactFactory().toArtifact(dto);
@@ -136,6 +131,7 @@ public final class PluginDependencyManager
         {
             logger.warning("There were no dependencies to load! This might be intentional, but if not, check your dependencies configuration!");
         }
+
         return CompletableFuture.allOf(requiredDependencies.stream()
                 .map(manager::downloadAndLoad)
                 .toArray(CompletableFuture[]::new));
@@ -151,12 +147,14 @@ public final class PluginDependencyManager
      * @return a {@link CompletableFuture} that is completed when dependency downloading finishes.
      * @since 0.0.22
      */
-    public @NotNull CompletableFuture<List<File>> downloadAllDependencies()
+    @NotNull
+    public CompletableFuture<List<File>> downloadAllDependencies()
     {
         if (requiredDependencies.isEmpty())
         {
             logger.warning("There were no dependencies to download! This might be intentional, but if not, check your dependencies configuration!");
         }
+
         return CompletableFuture.supplyAsync(
                 () -> requiredDependencies.stream()
                         .map(manager::download)

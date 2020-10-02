@@ -9,11 +9,12 @@ import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
-public final class FileUtil
+public final class FileUtils
 {
 
-    private FileUtil()
+    private FileUtils()
     {
+        throw new AssertionError("This class cannot be instantiated.");
     }
 
     /**

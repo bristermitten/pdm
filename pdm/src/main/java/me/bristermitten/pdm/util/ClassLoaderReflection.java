@@ -10,38 +10,39 @@ import java.net.URLClassLoader;
 public class ClassLoaderReflection
 {
 
-    private static final Method addUrlMethod;
+    private static final Method ADD_URL_METHOD;
 
     static
     {
-        Method addURL;
+        final Method addURL;
+
         try
         {
             addURL = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
             addURL.setAccessible(true);
         }
-        catch (NoSuchMethodException e)
+        catch (NoSuchMethodException exception)
         {
-            addURL = null;
-            e.printStackTrace();
+            throw new AssertionError(exception);
         }
-        addUrlMethod = addURL;
+
+        ADD_URL_METHOD = addURL;
     }
 
     private ClassLoaderReflection()
     {
-
+        throw new AssertionError("This class cannot be instantiated.");
     }
 
-    public static void addURL(URLClassLoader classLoader, URL url)
+    public static void addURL(@NotNull final URLClassLoader classLoader, @NotNull final URL url)
     {
         try
         {
-            addUrlMethod.invoke(classLoader, url);
+            ADD_URL_METHOD.invoke(classLoader, url);
         }
-        catch (@NotNull IllegalAccessException | InvocationTargetException e)
+        catch (IllegalAccessException | InvocationTargetException exception)
         {
-            throw new IllegalArgumentException(e);
+            throw new IllegalArgumentException(exception);
         }
     }
 }
