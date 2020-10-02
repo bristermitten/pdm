@@ -36,6 +36,7 @@ public class DependencyLoader
         {
             return;
         }
+
         if (loaded.contains(file))
         {
             return;
@@ -46,9 +47,9 @@ public class DependencyLoader
             ClassLoaderReflection.addURL(classLoader, file.toURI().toURL());
             loaded.add(file);
         }
-        catch (MalformedURLException e)
+        catch (MalformedURLException exception)
         {
-            logger.log(Level.SEVERE, e, () -> "Could not load dependency from file " + file);
+            logger.log(Level.SEVERE, exception, () -> "Could not load dependency from file " + file);
         }
     }
 }
