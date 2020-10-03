@@ -75,12 +75,14 @@ public final class PDMBuilder
     }
 
     @NotNull
-    public static PDMBuilder builder() {
+    public static PDMBuilder builder()
+    {
         return new PDMBuilder();
     }
 
     @NotNull
-    public static PDMBuilder builder(@NotNull final Plugin plugin) {
+    public static PDMBuilder builder(@NotNull final Plugin plugin)
+    {
         return new PDMBuilder()
                 .loggerFactory(clazz -> plugin.getLogger())
                 .dependenciesResource(plugin.getResource(DEPENDENCIES_RESOURCE_NAME))
@@ -91,7 +93,8 @@ public final class PDMBuilder
     }
 
     @NotNull
-    public static PDMBuilder builder(@NotNull final Class<? extends Plugin> plugin) {
+    public static PDMBuilder builder(@NotNull final Class<? extends Plugin> plugin)
+    {
         Validate.isTrue(PLUGIN_CLASS_LOADER_NAME.equals(plugin.getClassLoader().getClass().getName()), "Plugin must be loaded with a PluginClassLoader");
 
         final URLClassLoader classLoader = (URLClassLoader) plugin.getClassLoader();
@@ -107,13 +110,15 @@ public final class PDMBuilder
     }
 
     @NotNull
-    public static PluginDependencyManager of(@NotNull final Plugin plugin) {
+    public static PluginDependencyManager of(@NotNull final Plugin plugin)
+    {
         return builder(plugin)
                 .build();
     }
 
     @NotNull
-    public static PluginDependencyManager of(@NotNull final Class<? extends Plugin> plugin) {
+    public static PluginDependencyManager of(@NotNull final Class<? extends Plugin> plugin)
+    {
         return builder(plugin)
                 .build();
     }
