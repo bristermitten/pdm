@@ -30,33 +30,38 @@ public class MavenRepository implements Repository
     @NotNull
     private final PomParser pomParser = new PomParser();
 
-    public MavenRepository(@NotNull final String baseURL, @NotNull HTTPService httpService, @NotNull ParseProcess<Set<Artifact>> parseProcess)
+    public MavenRepository(@NotNull final String baseURL, @NotNull final HTTPService httpService,
+                           @NotNull final ParseProcess<Set<Artifact>> parseProcess)
     {
         this.baseURL = baseURL;
         this.httpService = httpService;
         this.parseProcess = parseProcess;
     }
 
-    @Override
     @NotNull
+    @Override
     public String getURL()
     {
         return baseURL;
     }
 
     @Override
-    public boolean contains(@NotNull Artifact artifact)
+    public boolean contains(@NotNull final Artifact artifact)
     {
         if (containingArtifacts.contains(artifact))
         {
             return true;
         }
+
         final URL pomURL = artifact.getPomURL(baseURL, httpService);
+
         if (pomURL == null)
         {
             return false;
         }
-        boolean contains = httpService.ping(pomURL);
+
+        final boolean contains = httpService.ping(pomURL);
+
         if (contains)
         {
             containingArtifacts.add(artifact);
@@ -65,25 +70,25 @@ public class MavenRepository implements Repository
         return contains;
     }
 
-    @Override
     @NotNull
-    public byte @NotNull [] download(@NotNull Artifact artifact)
+    @Override
+    public byte @NotNull [] download(@NotNull final Artifact artifact)
     {
         return Streams.toByteArray(fetchJarContent(artifact));
     }
 
-    @Override
     @NotNull
-    public InputStream fetchJarContent(@NotNull Artifact artifact)
+    @Override
+    public InputStream fetchJarContent(@NotNull final Artifact artifact)
     {
         return httpService.readJar(baseURL, artifact);
     }
 
-    @Override
     @NotNull
+    @Override
     public Set<Artifact> getTransitiveDependencies(@NotNull final Artifact artifact)
     {
-        try (@NotNull InputStream pom = httpService.readPom(baseURL, artifact))
+        try (final InputStream pom = httpService.readPom(baseURL, artifact))
         {
             if (pom.available() == 0)
             {
@@ -91,27 +96,28 @@ public class MavenRepository implements Repository
             }
             return parse(artifact, pom);
         }
-        catch (IOException e)
+        catch (IOException exception)
         {
-            e.printStackTrace();
+            exception.printStackTrace();
             return Collections.emptySet();
         }
     }
 
-    private @NotNull Set<Artifact> parse(@NotNull final Artifact artifact, @NotNull final InputStream pom)
+    @NotNull
+    private Set<Artifact> parse(@NotNull final Artifact artifact, @NotNull final InputStream pom)
     {
         try
         {
             return pomParser.parse(parseProcess, pom);
         }
-        catch (final @NotNull Exception e)
+        catch (Exception exception)
         {
-            throw new IllegalArgumentException("Could not parse pom for " + artifact + " at " + artifact.getPomURL(baseURL, httpService), e);
+            throw new IllegalArgumentException("Could not parse pom for " + artifact + " at " + artifact.getPomURL(baseURL, httpService), exception);
         }
     }
 
     @Override
-    public boolean equals(Object o)
+    public boolean equals(final Object o)
     {
         if (this == o) return true;
         if (!(o instanceof MavenRepository)) return false;
@@ -125,8 +131,9 @@ public class MavenRepository implements Repository
         return Objects.hash(baseURL);
     }
 
+    @NotNull
     @Override
-    public @NotNull String toString()
+    public String toString()
     {
         return "MavenRepository{" +
                 "baseURL='" + baseURL + '\'' +

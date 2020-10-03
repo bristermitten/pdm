@@ -12,24 +12,26 @@ public final class Reflection
 
     private Reflection()
     {
+
     }
 
+    @NotNull
     @SuppressWarnings("unchecked")
-    public static <T> @NotNull T getFieldValue(@NotNull Object instance, @NotNull String name)
+    public static <T> T getFieldValue(@NotNull final Object instance, @NotNull final String name)
     {
         try
         {
-            Field field = instance.getClass().getDeclaredField(name);
+            final Field field = instance.getClass().getDeclaredField(name);
             field.setAccessible(true);
             return (T) field.get(instance);
         }
-        catch (NoSuchFieldException e)
+        catch (NoSuchFieldException exception)
         {
-            throw new RuntimeException("Field could not be found", e);
+            throw new RuntimeException("Field could not be found", exception);
         }
-        catch (IllegalAccessException e)
+        catch (IllegalAccessException exception)
         {
-            throw new AssertionError("Field could not be accessed after setting accessible = true", e);
+            throw new AssertionError("Field could not be accessed after setting accessible = true", exception);
         }
     }
 

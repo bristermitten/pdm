@@ -16,11 +16,12 @@ public class JitpackLatestSnapshotParseStage implements ParseStage<@Nullable Str
 
     private static final String JITPACK_JAR_NAME_FORMAT = "-%s-%s";
 
-    @Override
     @Nullable
+    @Override
     public String parse(@NotNull Document document)
     {
         final Node versioning = document.getElementsByTagName("versioning").item(0);
+
         if (!(versioning instanceof Element))
         {
             return null;
@@ -28,25 +29,26 @@ public class JitpackLatestSnapshotParseStage implements ParseStage<@Nullable Str
 
         final Element versioningElement = (Element) versioning;
         final Node snapshot = versioningElement.getElementsByTagName("snapshot").item(0);
+
         if (!(snapshot instanceof Element))
         {
             return null;
         }
 
         final Element snapshotElement = (Element) snapshot;
+        final Node buildNumber = snapshotElement.getElementsByTagName("buildNumber").item(0);
 
-        Node buildNumber = snapshotElement.getElementsByTagName("buildNumber").item(0);
         if (buildNumber == null)
         {
             return null;
         }
 
-        Node timestamp = snapshotElement.getElementsByTagName("timestamp").item(0);
+        final Node timestamp = snapshotElement.getElementsByTagName("timestamp").item(0);
+
         if (timestamp == null)
         {
             return null;
         }
-
 
         return String.format(JITPACK_JAR_NAME_FORMAT, timestamp.getTextContent(), buildNumber.getTextContent());
     }

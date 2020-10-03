@@ -20,10 +20,10 @@ public class DefaultParseProcess implements ParseProcess<Set<Artifact>>
     @NotNull
     private final ArtifactFactory artifactFactory;
 
-    private final @NotNull ExtractParentsParseStage extractParentsParseStage;
+    @NotNull
+    private final ExtractParentsParseStage extractParentsParseStage;
 
-    public DefaultParseProcess(@NotNull final ArtifactFactory artifactFactory,
-                               @NotNull final RepositoryManager repositoryManager,
+    public DefaultParseProcess(@NotNull final ArtifactFactory artifactFactory, @NotNull final RepositoryManager repositoryManager,
                                @NotNull final HTTPService httpService)
     {
         this.artifactFactory = artifactFactory;
@@ -35,20 +35,19 @@ public class DefaultParseProcess implements ParseProcess<Set<Artifact>>
     public Set<Artifact> parse(@NotNull Document document)
     {
         final List<Document> parents = extractParentsParseStage.parse(document);
-        MavenPlaceholderReplacer placeholderReplacer = new MavenPlaceholderReplacer(Collections.emptyMap());
+        final MavenPlaceholderReplacer placeholderReplacer = new MavenPlaceholderReplacer(Collections.emptyMap());
         final ExtractPropertiesParseStage propertiesParseStage = new ExtractPropertiesParseStage(placeholderReplacer);
 
         Collections.reverse(parents);
-        for (Document parent : parents)
+
+        for (final Document parent : parents)
         {
             placeholderReplacer.addAllFrom(propertiesParseStage.parse(parent));
         }
 
         final MavenPlaceholderReplacer placeholders = propertiesParseStage.parse(document);
-
         final ParseStage<Set<Artifact>> dependenciesParseStage = new ExtractDependenciesParseStage(this.artifactFactory, placeholders);
 
         return dependenciesParseStage.parse(document);
     }
-
 }

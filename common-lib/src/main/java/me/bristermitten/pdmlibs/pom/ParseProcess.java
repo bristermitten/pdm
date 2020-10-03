@@ -11,5 +11,6 @@ import org.w3c.dom.Document;
 public interface ParseProcess<T>
 {
 
-    @Nullable T parse(@NotNull final Document document);
+    @Nullable
+    T parse(@NotNull final Document document);
 }

@@ -21,6 +21,7 @@ public class DependencyNotationExtractor
         final String groupId = element.getElementsByTagName("groupId").item(0).getTextContent();
         final String artifactId = element.getElementsByTagName("artifactId").item(0).getTextContent();
         final NodeList versionNodeList = element.getElementsByTagName("version");
+
         if (versionNodeList == null || versionNodeList.getLength() == 0)
         {
             return null;

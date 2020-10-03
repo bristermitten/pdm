@@ -17,13 +17,14 @@ public class MavenRepositoryFactory
     private final ParseProcess<Set<Artifact>> parseProcess;
 
 
-    public MavenRepositoryFactory(@NotNull HTTPService httpService, @NotNull final ParseProcess<Set<Artifact>> parseProcess)
+    public MavenRepositoryFactory(@NotNull final HTTPService httpService, @NotNull final ParseProcess<Set<Artifact>> parseProcess)
     {
         this.httpService = httpService;
         this.parseProcess = parseProcess;
     }
 
-    public @NotNull Repository create(@NotNull final String baseURL)
+    @NotNull
+    public Repository create(@NotNull final String baseURL)
     {
         return new MavenRepository(baseURL, httpService, parseProcess);
     }

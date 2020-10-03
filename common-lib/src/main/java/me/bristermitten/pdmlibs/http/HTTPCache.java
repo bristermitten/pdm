@@ -14,7 +14,7 @@ public class HTTPCache
 {
 
     private final String userAgent;
-    private final @NotNull LoadingCache<URL, byte[]> urlCache;
+    @NotNull private final LoadingCache<URL, byte @NotNull []> urlCache;
 
     public HTTPCache(String userAgent)
     {
@@ -25,7 +25,7 @@ public class HTTPCache
 
 
     @NotNull
-    public byte[] fetch(@NotNull final URL url)
+    public byte @NotNull [] fetch(@NotNull final URL url)
     {
         return urlCache.getUnchecked(url);
     }

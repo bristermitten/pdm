@@ -23,7 +23,9 @@ public abstract class Artifact
     @Nullable
     private Set<Artifact> transitiveDependencies;
 
-    protected Artifact(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @Nullable Set<Artifact> transitiveDependencies, @Nullable String repoAlias)
+    protected Artifact(@NotNull final String groupId, @NotNull final String artifactId,
+                       @NotNull final String version, @Nullable final Set<Artifact> transitiveDependencies,
+                       @Nullable final String repoAlias)
     {
         this.groupId = groupId;
         this.artifactId = artifactId;
@@ -78,13 +80,14 @@ public abstract class Artifact
         return transitiveDependencies;
     }
 
-    public void setTransitiveDependencies(@Nullable Set<Artifact> transitiveDependencies)
+    public void setTransitiveDependencies(@Nullable final Set<Artifact> transitiveDependencies)
     {
         this.transitiveDependencies = transitiveDependencies;
     }
 
+    @NotNull
     @Override
-    public @NotNull String toString()
+    public String toString()
     {
         return "Artifact{" +
                 "groupId='" + groupId + '\'' +
@@ -101,7 +104,7 @@ public abstract class Artifact
     }
 
     @NotNull
-    private String addSlashIfNecessary(@NotNull final String concatTo)
+    private static String addSlashIfNecessary(@NotNull final String concatTo)
     {
         if (concatTo.endsWith("/"))
         {
@@ -120,6 +123,7 @@ public abstract class Artifact
         );
     }
 
+    @NotNull
     public String getJarName()
     {
         return String.format(JAR_NAME_FORMAT, artifactId, version);
