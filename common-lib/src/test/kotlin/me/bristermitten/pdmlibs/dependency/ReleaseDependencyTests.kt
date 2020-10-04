@@ -1,4 +1,4 @@
-package me.bristermitten.pdmlibs.artifact
+package me.bristermitten.pdmlibs.dependency
 
 import me.bristermitten.pdmlibs.config.CacheConfiguration
 import me.bristermitten.pdmlibs.http.HTTPService
@@ -9,19 +9,20 @@ import org.junit.jupiter.api.Test
 /**
  * @author AlexL
  */
-class ReleaseArtifactTests
+class ReleaseDependencyTests
 {
 
 	@Test
 	fun `Test Processing of Sonatype Nexus Release Artifact`()
 	{
-		val artifactFactory = ArtifactFactory()
+		val artifactFactory = DependencyFactory()
 		val artifact = artifactFactory.toArtifact(
 				"me.bristermitten",
 				"common-lib",
 				"0.0.2",
 				null,
-				null
+				null,
+				mapOf("me.bristermitten.common-lib" to "me.bristermitten.pdmlibs.libs.common-lib")
 		)
 
 		val httpService = HTTPService("PDM-Test-Suite", "N/A", CacheConfiguration.builder().build())

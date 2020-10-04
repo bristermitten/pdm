@@ -1,4 +1,4 @@
-package me.bristermitten.pdmlibs.artifact
+package me.bristermitten.pdmlibs.dependency
 
 import me.bristermitten.pdmlibs.config.CacheConfiguration
 import me.bristermitten.pdmlibs.http.HTTPService
@@ -9,18 +9,19 @@ import org.junit.jupiter.api.Test
 /**
  * @author AlexL
  */
-class SnapshotArtifactTests
+class SnapshotDependencyTests
 {
     @Test
     fun `Test Processing of Jitpack Snapshot Artifact`()
     {
-        val artifactFactory = ArtifactFactory()
+        val artifactFactory = DependencyFactory()
         val artifact = artifactFactory.toArtifact(
                 "com.github.JohnnyJayJay",
                 "compatre",
                 "master-SNAPSHOT",
                 null,
-                null
+                null,
+                mapOf("com.github.johnnyjayjay.compatre" to "me.bristermitten.pdmlibs.libs.compatre")
         )
         val httpService = HTTPService("PDM-Test-Suite", "N/A", CacheConfiguration.builder().build())
 
@@ -32,13 +33,14 @@ class SnapshotArtifactTests
     @Test
     fun `Test Processing of Sonatype Nexus Snapshot Artifact`()
     {
-        val artifactFactory = ArtifactFactory()
+        val artifactFactory = DependencyFactory()
         val artifact = artifactFactory.toArtifact(
                 "me.bristermitten",
                 "fluency",
                 "1.1-SNAPSHOT",
                 null,
-                null
+                null,
+                mapOf("me.bristermitten.fluency" to "me.bristermitten.pdmlibs.libs.fluency")
         )
         val httpService = HTTPService("PDM-Test-Suite", "N/A", CacheConfiguration.builder().build())
 

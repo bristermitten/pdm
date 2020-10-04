@@ -1,6 +1,6 @@
 package me.bristermitten.pdm.dependency;
 
-import me.bristermitten.pdmlibs.artifact.ArtifactDTO;
+import me.bristermitten.pdmlibs.dependency.DependencyDTO;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,12 +13,12 @@ public class JSONDependencies
     @NotNull
     private final Map<String, String> repositories;
     @NotNull
-    private final Set<ArtifactDTO> dependencies;
+    private final Set<DependencyDTO> dependencies;
 
     @Nullable
     private final String dependenciesDirectory;
 
-    public JSONDependencies(@NotNull final Map<String, String> repositories, @NotNull final Set<ArtifactDTO> dependencies,
+    public JSONDependencies(@NotNull final Map<String, String> repositories, @NotNull final Set<DependencyDTO> dependencies,
                             @Nullable final String dependenciesDirectory)
     {
         this.repositories = repositories;
@@ -33,7 +33,7 @@ public class JSONDependencies
     }
 
     @NotNull
-    public Set<ArtifactDTO> getDependencies()
+    public Set<DependencyDTO> getDependencies()
     {
         return dependencies;
     }

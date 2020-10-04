@@ -1,6 +1,6 @@
 package me.bristermitten.pdm;
 
-import me.bristermitten.pdmlibs.artifact.ReleaseArtifact;
+import me.bristermitten.pdmlibs.dependency.ReleaseDependency;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -18,7 +18,7 @@ class SimpleTest extends PDMTestSuite
     void simplePDMTest()
     {
         pdm.addRequiredDependency(
-                new ReleaseArtifact(
+                new ReleaseDependency(
                         "org.jetbrains.kotlin",
                         "kotlin-stdlib-jdk8",
                         "1.3.72"
@@ -36,7 +36,7 @@ class SimpleTest extends PDMTestSuite
     void simplePDMTest2()
     {
         pdm.addRequiredDependency(
-                new ReleaseArtifact(
+                new ReleaseDependency(
                         "com.zaxxer",
                         "HikariCP",
                         "3.4.5"
@@ -55,7 +55,7 @@ class SimpleTest extends PDMTestSuite
     {
         pdm.addRepository("bintray", "https://jcenter.bintray.com");
         pdm.addRequiredDependency(
-                new ReleaseArtifact(
+                new ReleaseDependency(
                         "net.dv8tion",
                         "JDA",
                         "4.2.0_187"

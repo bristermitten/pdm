@@ -1,4 +1,4 @@
-package me.bristermitten.pdmlibs.artifact;
+package me.bristermitten.pdmlibs.dependency;
 
 import me.bristermitten.pdmlibs.http.HTTPService;
 import me.bristermitten.pdmlibs.pom.PomParser;
@@ -8,26 +8,31 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.URL;
+import java.util.Map;
 import java.util.Set;
 
-public class SnapshotArtifact extends Artifact
+public class SnapshotDependency extends Dependency
 {
 
-    public SnapshotArtifact(@NotNull String groupId, @NotNull String artifactId, @NotNull String version)
+    public SnapshotDependency(@NotNull final String groupId, @NotNull final String artifactId,
+                              @NotNull final String version)
     {
-        super(groupId, artifactId, version, null, null);
+        super(groupId, artifactId, version, null, null, null);
     }
 
-    public SnapshotArtifact(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @Nullable String repoBaseURL, @Nullable Set<Artifact> transitive)
+    public SnapshotDependency(@NotNull final String groupId, @NotNull final String artifactId,
+                              @NotNull final String version, @Nullable final String repoBaseURL,
+                              @Nullable final Set<Dependency> transitive, @Nullable final Map<String, String> relocations)
     {
-        super(groupId, artifactId, version, transitive, repoBaseURL);
+        super(groupId, artifactId, version, transitive, repoBaseURL, relocations);
     }
 
-    @Override
     @Nullable
+    @Override
     public URL getJarURL(@NotNull final String baseRepoURL, @NotNull final HTTPService httpService)
     {
         final String latestSnapshotVersion = getLatestVersion(baseRepoURL, httpService);
+
         if (latestSnapshotVersion == null)
         {
             return null;
@@ -40,6 +45,7 @@ public class SnapshotArtifact extends Artifact
     public @Nullable URL getPomURL(@NotNull final String baseRepoURL, @NotNull final HTTPService httpService)
     {
         final String latestSnapshotVersion = getLatestVersion(baseRepoURL, httpService);
+
         if (latestSnapshotVersion == null)
         {
             return null;
@@ -52,16 +58,19 @@ public class SnapshotArtifact extends Artifact
     private String getLatestVersion(@NotNull String baseURL, @NotNull HTTPService httpService)
     {
         final URL metadataURL = URLs.parseURL(createBaseURL(baseURL) + "maven-metadata.xml");
+
         if (metadataURL == null)
         {
             return null;
         }
+
         if (!httpService.ping(metadataURL))
         {
             return null; //Don't even attempt to parse if the request will fail
         }
 
-        PomParser pomParser = new PomParser();
+        final PomParser pomParser = new PomParser();
+
         try
         {
             return pomParser.parse(new GetLatestSnapshotVersionParseProcess(), httpService.readFrom(metadataURL));

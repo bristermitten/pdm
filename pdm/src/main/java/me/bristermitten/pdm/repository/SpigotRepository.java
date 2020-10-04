@@ -1,7 +1,7 @@
 package me.bristermitten.pdm.repository;
 
 import com.google.common.collect.ImmutableSet;
-import me.bristermitten.pdmlibs.artifact.Artifact;
+import me.bristermitten.pdmlibs.dependency.Dependency;
 import me.bristermitten.pdmlibs.http.HTTPService;
 import me.bristermitten.pdmlibs.pom.ParseProcess;
 import me.bristermitten.pdmlibs.repository.MavenRepository;
@@ -9,7 +9,9 @@ import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public final class SpigotRepository extends MavenRepository
@@ -35,7 +37,7 @@ public final class SpigotRepository extends MavenRepository
             ).build();
     private static final Logger LOGGER = Logger.getLogger("SpigotRepository");
 
-    public SpigotRepository(@NotNull final HTTPService httpService, @NotNull final ParseProcess<Set<Artifact>> parseProcess)
+    public SpigotRepository(@NotNull final HTTPService httpService, @NotNull final ParseProcess<Set<Dependency>> parseProcess)
     {
         super(SPIGOT_ALIAS, httpService, parseProcess);
     }
@@ -43,20 +45,20 @@ public final class SpigotRepository extends MavenRepository
 
     @NotNull
     @Override
-    public Set<Artifact> getTransitiveDependencies(@NotNull final Artifact dependency)
+    public Set<Dependency> getTransitiveDependencies(@NotNull final Dependency dependency)
     {
         return Collections.emptySet();
     }
 
     @Override
-    public boolean contains(@NotNull final Artifact artifact)
+    public boolean contains(@NotNull final Dependency dependency)
     {
-        return isSpigotDependency(artifact);
+        return isSpigotDependency(dependency);
     }
 
     @NotNull
     @Override
-    public byte @NotNull [] download(@NotNull final Artifact dependency)
+    public byte @NotNull [] download(@NotNull final Dependency dependency)
     {
         final String version = Bukkit.getVersion();
 
@@ -68,7 +70,7 @@ public final class SpigotRepository extends MavenRepository
         return new byte[0];
     }
 
-    private boolean isSpigotDependency(@NotNull final Artifact dependency)
+    private boolean isSpigotDependency(@NotNull final Dependency dependency)
     {
         return SPIGOT_DEPENDENCY_GROUPS.contains(dependency.getGroupId().toLowerCase()) &&
                 SPIGOT_DEPENDENCY_ARTIFACTS.contains(dependency.getArtifactId().toLowerCase());

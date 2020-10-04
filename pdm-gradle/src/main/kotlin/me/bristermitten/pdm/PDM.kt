@@ -1,12 +1,11 @@
 package me.bristermitten.pdm
 
-import me.bristermitten.pdmlibs.artifact.ArtifactFactory
+import me.bristermitten.pdmlibs.dependency.DependencyFactory
 import me.bristermitten.pdmlibs.repository.RepositoryManager
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ExternalModuleDependency
-import org.gradle.util.ConfigureUtil
 import java.util.logging.Logger
 
 class PDM : Plugin<Project>
@@ -14,7 +13,7 @@ class PDM : Plugin<Project>
 	companion object {
 		const val CONFIGURATION_NAME = "pdm"
 	}
-	private val artifactFactory = ArtifactFactory()
+	private val artifactFactory = DependencyFactory()
 
 	private val repositoryManager = RepositoryManager(Logger.getLogger(javaClass.name))
 

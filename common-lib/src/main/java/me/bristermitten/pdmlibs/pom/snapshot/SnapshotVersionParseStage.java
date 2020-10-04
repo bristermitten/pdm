@@ -14,19 +14,21 @@ import org.w3c.dom.NodeList;
 public class SnapshotVersionParseStage implements ParseStage<@Nullable String>
 {
 
-    @Override
     @Nullable
-    public String parse(@NotNull Document document)
+    @Override
+    public String parse(@NotNull final Document document)
     {
-        Element versioning = (Element) document.getElementsByTagName("versioning").item(0);
+        final Element versioning = (Element) document.getElementsByTagName("versioning").item(0);
+        final NodeList versions = versioning.getElementsByTagName("snapshotVersions");
+        final Element snapshotVersions = (Element) versions.item(0);
 
-        NodeList versions = versioning.getElementsByTagName("snapshotVersions");
-        Element snapshotVersions = (Element) versions.item(0);
         if (snapshotVersions == null)
         {
             return null;
         }
-        NodeList snapshotVersion = snapshotVersions.getElementsByTagName("snapshotVersion");
+
+        final NodeList snapshotVersion = snapshotVersions.getElementsByTagName("snapshotVersion");
+
         if (snapshotVersion == null)
         {
             return null;
@@ -34,14 +36,16 @@ public class SnapshotVersionParseStage implements ParseStage<@Nullable String>
 
         for (int j = 0; j < snapshotVersion.getLength(); j++)
         {
-            Element snapshotItem = (Element) snapshotVersion.item(j);
-            String extension = snapshotItem.getElementsByTagName("extension").item(0).getTextContent();
-            Node classifier = snapshotItem.getElementsByTagName("classifier").item(0);
+            final Element snapshotItem = (Element) snapshotVersion.item(j);
+            final String extension = snapshotItem.getElementsByTagName("extension").item(0).getTextContent();
+            final Node classifier = snapshotItem.getElementsByTagName("classifier").item(0);
+
             if (extension.equals("jar") && classifier == null)
             {
                 return snapshotItem.getElementsByTagName("value").item(0).getTextContent();
             }
         }
+
         return null;
     }
 }

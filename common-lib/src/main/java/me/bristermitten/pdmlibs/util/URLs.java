@@ -24,16 +24,18 @@ public final class URLs
     {
         try
         {
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("User-Agent", userAgent);
             connection.connect();
+
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK)
             {
                 return null;
             }
+
             return connection;
         }
-        catch (IOException e)
+        catch (IOException exception)
         {
             return null;
         }
@@ -46,7 +48,7 @@ public final class URLs
         {
             return Streams.toByteArray(inputStream);
         }
-        catch (IOException e)
+        catch (IOException exception)
         {
             return new byte[0];
         }
@@ -55,7 +57,8 @@ public final class URLs
     @NotNull
     public static InputStream read(@NotNull final URL url, @NotNull final String userAgent)
     {
-        URLConnection connection = URLs.prepareConnection(url, userAgent);
+        final URLConnection connection = URLs.prepareConnection(url, userAgent);
+
         if (connection == null)
         {
             return Streams.createEmptyStream();
@@ -77,7 +80,7 @@ public final class URLs
         {
             return new URL(url);
         }
-        catch (MalformedURLException e)
+        catch (MalformedURLException exception)
         {
             return null;
         }

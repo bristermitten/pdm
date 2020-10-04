@@ -1,7 +1,7 @@
 package me.bristermitten.pdmlibs.pom
 
-import me.bristermitten.pdmlibs.artifact.ArtifactFactory
 import me.bristermitten.pdmlibs.config.CacheConfiguration
+import me.bristermitten.pdmlibs.dependency.DependencyFactory
 import me.bristermitten.pdmlibs.http.HTTPService
 import me.bristermitten.pdmlibs.repository.RepositoryManager
 import org.intellij.lang.annotations.Language
@@ -24,7 +24,7 @@ class DefaultParseProcessTest
 		val repositoryManager = RepositoryManager(logger)
 		val httpService = HTTPService("PDM-Test-Suite", "N/A", CacheConfiguration.builder().build())
 
-		val defaultParseProcess = DefaultParseProcess(ArtifactFactory(), repositoryManager, httpService)
+		val defaultParseProcess = DefaultParseProcess(DependencyFactory(), repositoryManager, httpService)
 
 		val results = PomParser().parse(defaultParseProcess, pom)
 

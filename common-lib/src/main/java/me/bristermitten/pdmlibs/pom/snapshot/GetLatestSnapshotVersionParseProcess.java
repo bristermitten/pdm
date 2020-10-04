@@ -15,22 +15,24 @@ public class GetLatestSnapshotVersionParseProcess implements ParseProcess<@Nulla
     private final SnapshotVersionParseStage snapshotVersionParseStage = new SnapshotVersionParseStage();
     private final JitpackLatestSnapshotParseStage jitpackLatestSnapshotParseStage = new JitpackLatestSnapshotParseStage();
 
-    @NotNull
+    @Nullable
     @Override
-    public @Nullable String parse(@NotNull Document document)
+    public String parse(@NotNull Document document)
     {
         final String latest = latestElementParseStage.parse(document);
+
         if (latest != null)
         {
             return latest;
         }
 
         final String latestSnapshotVersion = snapshotVersionParseStage.parse(document);
+
         if (latestSnapshotVersion != null)
         {
             return latestSnapshotVersion;
         }
-        final String jitpackSnapshot = jitpackLatestSnapshotParseStage.parse(document);
-        return jitpackSnapshot;
+
+        return jitpackLatestSnapshotParseStage.parse(document);
     }
 }

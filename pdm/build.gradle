@@ -11,6 +11,10 @@ repositories {
 
 dependencies {
     api project(':common-lib')
+    implementation('me.lucko:jar-relocator:1.4') {
+//        exclude group: 'org.ow2.asm', module: 'asm-commons'
+//        exclude group: 'org.ow2.asm', module: 'asm'
+    }
     compileOnly 'org.jetbrains:annotations:19.0.0'
     compileOnly 'org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT'
 
