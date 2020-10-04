@@ -1,4 +1,4 @@
-package me.bristermitten.pdmlibs.artifact;
+package me.bristermitten.pdmlibs.dependency;
 
 import me.bristermitten.pdmlibs.http.HTTPService;
 import me.bristermitten.pdmlibs.util.URLs;
@@ -6,22 +6,23 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.URL;
+import java.util.Map;
 import java.util.Set;
 
-public class ReleaseArtifact extends Artifact
+public class ReleaseDependency extends Dependency
 {
 
-    public ReleaseArtifact(@NotNull final String groupId, @NotNull final String artifactId,
-                           @NotNull final String version)
+    public ReleaseDependency(@NotNull final String groupId, @NotNull final String artifactId,
+                             @NotNull final String version)
     {
-        super(groupId, artifactId, version, null, null);
+        super(groupId, artifactId, version, null, null, null);
     }
 
-    public ReleaseArtifact(@NotNull final String groupId, @NotNull final String artifactId,
-                           @NotNull final String version, @Nullable final String repoBaseURL,
-                           @Nullable final Set<Artifact> transitive)
+    public ReleaseDependency(@NotNull final String groupId, @NotNull final String artifactId,
+                             @NotNull final String version, @Nullable final String repoBaseURL,
+                             @Nullable final Set<Dependency> transitive, @Nullable final Map<String, String> relocations)
     {
-        super(groupId, artifactId, version, transitive, repoBaseURL);
+        super(groupId, artifactId, version, transitive, repoBaseURL, relocations);
     }
 
     @Nullable

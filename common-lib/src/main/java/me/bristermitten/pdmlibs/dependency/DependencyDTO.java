@@ -1,12 +1,13 @@
-package me.bristermitten.pdmlibs.artifact;
+package me.bristermitten.pdmlibs.dependency;
 
 import com.google.gson.annotations.SerializedName;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
 import java.util.Set;
 
-public class ArtifactDTO
+public class DependencyDTO
 {
 
     @NotNull
@@ -21,17 +22,21 @@ public class ArtifactDTO
     private final String repositoryAlias;
 
     @Nullable
-    private final Set<ArtifactDTO> transitive;
+    private final Set<DependencyDTO> transitive;
 
-    public ArtifactDTO(@NotNull final String groupId, @NotNull final String artifactId,
-                       @NotNull final String version, @Nullable final String sourceRepository,
-                       @Nullable final Set<ArtifactDTO> transitive)
+    @Nullable
+    private final Map<String, String> relocations;
+
+    public DependencyDTO(@NotNull final String groupId, @NotNull final String artifactId,
+                         @NotNull final String version, @Nullable final String sourceRepository,
+                         @Nullable final Set<DependencyDTO> transitive, @Nullable final Map<String, String> relocations)
     {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
         this.repositoryAlias = sourceRepository;
         this.transitive = transitive;
+        this.relocations = relocations;
     }
 
     @NotNull
@@ -59,8 +64,13 @@ public class ArtifactDTO
     }
 
     @Nullable
-    public Set<ArtifactDTO> getTransitive()
+    public Set<DependencyDTO> getTransitive()
     {
         return transitive;
+    }
+
+    @Nullable
+    public Map<String, String> getRelocations() {
+        return relocations;
     }
 }

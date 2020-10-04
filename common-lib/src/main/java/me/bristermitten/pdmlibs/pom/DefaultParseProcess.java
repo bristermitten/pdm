@@ -1,7 +1,7 @@
 package me.bristermitten.pdmlibs.pom;
 
-import me.bristermitten.pdmlibs.artifact.Artifact;
-import me.bristermitten.pdmlibs.artifact.ArtifactFactory;
+import me.bristermitten.pdmlibs.dependency.Dependency;
+import me.bristermitten.pdmlibs.dependency.DependencyFactory;
 import me.bristermitten.pdmlibs.http.HTTPService;
 import me.bristermitten.pdmlibs.repository.RepositoryManager;
 import org.jetbrains.annotations.NotNull;
@@ -14,25 +14,25 @@ import java.util.Set;
 /**
  * @author AlexL
  */
-public class DefaultParseProcess implements ParseProcess<Set<Artifact>>
+public class DefaultParseProcess implements ParseProcess<Set<Dependency>>
 {
 
     @NotNull
-    private final ArtifactFactory artifactFactory;
+    private final DependencyFactory dependencyFactory;
 
     @NotNull
     private final ExtractParentsParseStage extractParentsParseStage;
 
-    public DefaultParseProcess(@NotNull final ArtifactFactory artifactFactory, @NotNull final RepositoryManager repositoryManager,
+    public DefaultParseProcess(@NotNull final DependencyFactory dependencyFactory, @NotNull final RepositoryManager repositoryManager,
                                @NotNull final HTTPService httpService)
     {
-        this.artifactFactory = artifactFactory;
-        extractParentsParseStage = new ExtractParentsParseStage(artifactFactory, repositoryManager, httpService);
+        this.dependencyFactory = dependencyFactory;
+        extractParentsParseStage = new ExtractParentsParseStage(dependencyFactory, repositoryManager, httpService);
     }
 
     @NotNull
     @Override
-    public Set<Artifact> parse(@NotNull Document document)
+    public Set<Dependency> parse(@NotNull Document document)
     {
         final List<Document> parents = extractParentsParseStage.parse(document);
         final MavenPlaceholderReplacer placeholderReplacer = new MavenPlaceholderReplacer(Collections.emptyMap());
@@ -46,7 +46,7 @@ public class DefaultParseProcess implements ParseProcess<Set<Artifact>>
         }
 
         final MavenPlaceholderReplacer placeholders = propertiesParseStage.parse(document);
-        final ParseStage<Set<Artifact>> dependenciesParseStage = new ExtractDependenciesParseStage(this.artifactFactory, placeholders);
+        final ParseStage<Set<Dependency>> dependenciesParseStage = new ExtractDependenciesParseStage(this.dependencyFactory, placeholders);
 
         return dependenciesParseStage.parse(document);
     }

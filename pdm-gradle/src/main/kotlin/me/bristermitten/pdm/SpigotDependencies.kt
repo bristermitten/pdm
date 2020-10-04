@@ -1,6 +1,6 @@
 package me.bristermitten.pdm
 
-import me.bristermitten.pdmlibs.artifact.Artifact
+import me.bristermitten.pdmlibs.dependency.Dependency
 
 private val SPIGOT_GROUP_IDS = setOf(
 		"net.minecraft",
@@ -23,7 +23,7 @@ private val SPIGOT_ARTIFACT_IDS = setOf(
  *
  * This is determined by comparing the group and artifact id with a given table (which includes NMS, Bukkit, CraftBukkit, and Paper too)
  */
-fun Artifact.isSpigotArtifact(): Boolean
+fun Dependency.isSpigotArtifact(): Boolean
 {
 	return groupId in SPIGOT_GROUP_IDS && artifactId in SPIGOT_ARTIFACT_IDS
 }

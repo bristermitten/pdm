@@ -1,6 +1,6 @@
 package me.bristermitten.pdmlibs.pom;
 
-import me.bristermitten.pdmlibs.artifact.ArtifactDTO;
+import me.bristermitten.pdmlibs.dependency.DependencyDTO;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Element;
@@ -15,7 +15,7 @@ public class DependencyNotationExtractor
     }
 
     @Nullable
-    public static ArtifactDTO extractFrom(@NotNull final Element element)
+    public static DependencyDTO extractFrom(@NotNull final Element element)
     {
 
         final String groupId = element.getElementsByTagName("groupId").item(0).getTextContent();
@@ -29,6 +29,6 @@ public class DependencyNotationExtractor
 
         final String version = versionNodeList.item(0).getTextContent();
 
-        return new ArtifactDTO(groupId, artifactId, version, null, null);
+        return new DependencyDTO(groupId, artifactId, version, null, null, null);
     }
 }

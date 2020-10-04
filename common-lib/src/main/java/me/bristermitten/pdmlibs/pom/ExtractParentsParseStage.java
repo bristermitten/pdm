@@ -1,8 +1,8 @@
 package me.bristermitten.pdmlibs.pom;
 
-import me.bristermitten.pdmlibs.artifact.Artifact;
-import me.bristermitten.pdmlibs.artifact.ArtifactDTO;
-import me.bristermitten.pdmlibs.artifact.ArtifactFactory;
+import me.bristermitten.pdmlibs.dependency.Dependency;
+import me.bristermitten.pdmlibs.dependency.DependencyDTO;
+import me.bristermitten.pdmlibs.dependency.DependencyFactory;
 import me.bristermitten.pdmlibs.http.HTTPService;
 import me.bristermitten.pdmlibs.repository.Repository;
 import me.bristermitten.pdmlibs.repository.RepositoryManager;
@@ -20,14 +20,14 @@ import java.util.List;
 public class ExtractParentsParseStage implements ParseStage<@NotNull List<Document>>, ParseProcess<@NotNull List<Document>>
 {
 
-    private final ArtifactFactory artifactFactory;
+    private final DependencyFactory dependencyFactory;
     private final RepositoryManager repositoryManager;
     private final HTTPService httpService;
 
-    public ExtractParentsParseStage(@NotNull final ArtifactFactory artifactFactory, @NotNull final RepositoryManager repositoryManager,
+    public ExtractParentsParseStage(@NotNull final DependencyFactory dependencyFactory, @NotNull final RepositoryManager repositoryManager,
                                     @NotNull final HTTPService httpService)
     {
-        this.artifactFactory = artifactFactory;
+        this.dependencyFactory = dependencyFactory;
         this.repositoryManager = repositoryManager;
         this.httpService = httpService;
     }
@@ -59,9 +59,9 @@ public class ExtractParentsParseStage implements ParseStage<@NotNull List<Docume
             return null;
         }
 
-        final ArtifactDTO parentDTO = DependencyNotationExtractor.extractFrom((Element) parent);
-        final Artifact artifact = artifactFactory.toArtifact(parentDTO);
-        final Repository containingRepo = repositoryManager.firstContaining(artifact);
+        final DependencyDTO parentDTO = DependencyNotationExtractor.extractFrom((Element) parent);
+        final Dependency dependency = dependencyFactory.toArtifact(parentDTO);
+        final Repository containingRepo = repositoryManager.firstContaining(dependency);
 
         if (containingRepo == null)
         {
@@ -69,7 +69,7 @@ public class ExtractParentsParseStage implements ParseStage<@NotNull List<Docume
             return null;
         }
 
-        try (final InputStream inputStream = httpService.readPom(containingRepo.getURL(), artifact))
+        try (final InputStream inputStream = httpService.readPom(containingRepo.getURL(), dependency))
         {
             return new PomParser().getDocument(inputStream);
         }

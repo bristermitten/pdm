@@ -1,9 +1,9 @@
 package me.bristermitten.pdmlibs.pom;
 
 import com.google.common.collect.Sets;
-import me.bristermitten.pdmlibs.artifact.Artifact;
-import me.bristermitten.pdmlibs.artifact.ArtifactDTO;
-import me.bristermitten.pdmlibs.artifact.ArtifactFactory;
+import me.bristermitten.pdmlibs.dependency.Dependency;
+import me.bristermitten.pdmlibs.dependency.DependencyDTO;
+import me.bristermitten.pdmlibs.dependency.DependencyFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Document;
@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * @author AlexL
  */
-public class ExtractDependenciesParseStage implements ParseStage<Set<Artifact>>
+public class ExtractDependenciesParseStage implements ParseStage<Set<Dependency>>
 {
 
     private static final Set<String> DEFAULT_SCOPES_TO_DROP = Sets.newHashSet(
@@ -27,7 +27,7 @@ public class ExtractDependenciesParseStage implements ParseStage<Set<Artifact>>
     );
 
     @NotNull
-    private final ArtifactFactory artifactFactory;
+    private final DependencyFactory dependencyFactory;
 
     @NotNull
     private final Set<String> ignoredScopes;
@@ -35,24 +35,24 @@ public class ExtractDependenciesParseStage implements ParseStage<Set<Artifact>>
     @NotNull
     private final MavenPlaceholderReplacer placeholderReplacer;
 
-    public ExtractDependenciesParseStage(@NotNull final ArtifactFactory artifactFactory, @NotNull final MavenPlaceholderReplacer placeholders)
+    public ExtractDependenciesParseStage(@NotNull final DependencyFactory dependencyFactory, @NotNull final MavenPlaceholderReplacer placeholders)
     {
-        this(artifactFactory, DEFAULT_SCOPES_TO_DROP, placeholders);
+        this(dependencyFactory, DEFAULT_SCOPES_TO_DROP, placeholders);
     }
 
-    public ExtractDependenciesParseStage(@NotNull final ArtifactFactory artifactFactory, @NotNull final Set<String> ignoredScopes,
+    public ExtractDependenciesParseStage(@NotNull final DependencyFactory dependencyFactory, @NotNull final Set<String> ignoredScopes,
                                          @NotNull final MavenPlaceholderReplacer placeholders)
     {
-        this.artifactFactory = artifactFactory;
+        this.dependencyFactory = dependencyFactory;
         this.ignoredScopes = ignoredScopes;
         this.placeholderReplacer = placeholders;
     }
 
     @NotNull
     @Override
-    public Set<Artifact> parse(@NotNull final Document document)
+    public Set<Dependency> parse(@NotNull final Document document)
     {
-        final Set<Artifact> dependencySet = new LinkedHashSet<>();
+        final Set<Dependency> dependencySet = new LinkedHashSet<>();
         final NodeList dependenciesNodeList = document.getElementsByTagName("dependencies");
         final Element dependenciesElement = (Element) dependenciesNodeList.item(0);
 
@@ -74,7 +74,7 @@ public class ExtractDependenciesParseStage implements ParseStage<Set<Artifact>>
 
             if (node instanceof Element)
             {
-                final Artifact parsed = getDependencyFromXML((Element) node);
+                final Dependency parsed = getDependencyFromXML((Element) node);
 
                 if (parsed != null)
                 {
@@ -87,18 +87,18 @@ public class ExtractDependenciesParseStage implements ParseStage<Set<Artifact>>
     }
 
     @Nullable
-    public Artifact getDependencyFromXML(@NotNull final Element dependencyElement)
+    public Dependency getDependencyFromXML(@NotNull final Element dependencyElement)
     {
-        final ArtifactDTO artifactDTO = DependencyNotationExtractor.extractFrom(dependencyElement);
+        final DependencyDTO dependencyDTO = DependencyNotationExtractor.extractFrom(dependencyElement);
 
-        if (artifactDTO == null)
+        if (dependencyDTO == null)
         {
             return null;
         }
 
-        final String groupId = placeholderReplacer.replace(artifactDTO.getGroupId());
-        final String artifactId = placeholderReplacer.replace(artifactDTO.getArtifactId());
-        final String version = placeholderReplacer.replace(artifactDTO.getVersion());
+        final String groupId = placeholderReplacer.replace(dependencyDTO.getGroupId());
+        final String artifactId = placeholderReplacer.replace(dependencyDTO.getArtifactId());
+        final String version = placeholderReplacer.replace(dependencyDTO.getVersion());
         final NodeList scopeList = dependencyElement.getElementsByTagName("scope");
 
         if (scopeList != null && scopeList.getLength() > 0)
@@ -127,6 +127,6 @@ public class ExtractDependenciesParseStage implements ParseStage<Set<Artifact>>
             }
         }
 
-        return artifactFactory.toArtifact(groupId, artifactId, version, null, null);
+        return dependencyFactory.toArtifact(groupId, artifactId, version, null, null, null);
     }
 }

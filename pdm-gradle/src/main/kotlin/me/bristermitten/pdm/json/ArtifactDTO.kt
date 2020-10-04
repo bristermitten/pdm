@@ -1,6 +1,6 @@
 package me.bristermitten.pdm.json
 
-import me.bristermitten.pdmlibs.artifact.Artifact
+import me.bristermitten.pdmlibs.dependency.Dependency
 
 data class ArtifactDTO(
         val group: String,
@@ -12,14 +12,14 @@ data class ArtifactDTO(
 
 data class ExcludeRule(val group: String?, val module: String?)
 {
-    fun match(artifact: Artifact): Boolean
+    fun match(dependency: Dependency): Boolean
     {
         return if(group != null && module != null) {
-            artifact.groupId.equals(group, ignoreCase = true) && artifact.artifactId.equals(module, ignoreCase = true)
+            dependency.groupId.equals(group, ignoreCase = true) && dependency.artifactId.equals(module, ignoreCase = true)
         } else if(group != null) {
-            artifact.groupId.equals(group, ignoreCase = true)
+            dependency.groupId.equals(group, ignoreCase = true)
         } else {
-            artifact.artifactId.equals(module, ignoreCase = true)
+            dependency.artifactId.equals(module, ignoreCase = true)
         }
     }
 }

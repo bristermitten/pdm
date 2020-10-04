@@ -3,8 +3,8 @@ package me.bristermitten.pdm;
 import com.google.gson.JsonParseException;
 import me.bristermitten.pdm.dependency.JSONDependencies;
 import me.bristermitten.pdm.util.Constants;
-import me.bristermitten.pdmlibs.artifact.Artifact;
 import me.bristermitten.pdmlibs.config.CacheConfiguration;
+import me.bristermitten.pdmlibs.dependency.Dependency;
 import me.bristermitten.pdmlibs.http.HTTPService;
 import me.bristermitten.pdmlibs.repository.Repository;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +29,7 @@ public final class PluginDependencyManager
     private final DependencyManager manager;
 
     @NotNull
-    private final Set<Artifact> requiredDependencies = new HashSet<>();
+    private final Set<Dependency> requiredDependencies = new HashSet<>();
 
     @NotNull
     private final Logger logger;
@@ -52,7 +52,7 @@ public final class PluginDependencyManager
         }
     }
 
-    public void addRequiredDependency(@NotNull final Artifact dependency)
+    public void addRequiredDependency(@NotNull final Dependency dependency)
     {
         requiredDependencies.add(dependency);
     }
@@ -101,7 +101,7 @@ public final class PluginDependencyManager
         });
 
         jsonDependencies.getDependencies().forEach(dto -> {
-            final Artifact dependency = manager.getArtifactFactory().toArtifact(dto);
+            final Dependency dependency = manager.getArtifactFactory().toArtifact(dto);
             addRequiredDependency(dependency);
         });
 
@@ -113,7 +113,7 @@ public final class PluginDependencyManager
 
     /**
      * Download (if applicable) and load all required dependencies
-     * as configured by {@link PluginDependencyManager#addRequiredDependency(Artifact)} and {@link PluginDependencyManager#loadDependenciesFromFile(InputStream)}
+     * as configured by {@link PluginDependencyManager#addRequiredDependency(Dependency)} and {@link PluginDependencyManager#loadDependenciesFromFile(InputStream)}
      * <p>
      * This method is <b>non blocking</b>, and returns a {@link CompletableFuture}
      * which is completed once all dependencies have been downloaded (if applicable), loaded into the classpath, or failed.
@@ -132,14 +132,16 @@ public final class PluginDependencyManager
             logger.warning("There were no dependencies to load! This might be intentional, but if not, check your dependencies configuration!");
         }
 
-        return CompletableFuture.allOf(requiredDependencies.stream()
-                .map(manager::downloadAndLoad)
-                .toArray(CompletableFuture[]::new));
+        //todo: i've got no idea if this will work
+        return manager.downloadAndLoadPDMDependencies()
+                .thenCombine(CompletableFuture.allOf(requiredDependencies.stream()
+                        .map(manager::downloadAndRelocateAndLoad)
+                        .toArray(CompletableFuture[]::new)), (v1, v2) -> v1);
     }
 
     /**
      * Download (if applicable) all required dependencies
-     * as configured by {@link PluginDependencyManager#addRequiredDependency(Artifact)} and {@link PluginDependencyManager#loadDependenciesFromFile(InputStream)}
+     * as configured by {@link PluginDependencyManager#addRequiredDependency(Dependency)} and {@link PluginDependencyManager#loadDependenciesFromFile(InputStream)}
      * <p>
      * This method is <b>non blocking</b>, and returns a {@link CompletableFuture}
      * which is completed once all dependencies have been downloaded (if applicable), or failed.
@@ -157,7 +159,7 @@ public final class PluginDependencyManager
 
         return CompletableFuture.supplyAsync(
                 () -> requiredDependencies.stream()
-                        .map(manager::download)
+                        .map(manager::downloadAndRelocate)
                         .map(CompletableFuture::join)
                         .collect(Collectors.toList())
         );

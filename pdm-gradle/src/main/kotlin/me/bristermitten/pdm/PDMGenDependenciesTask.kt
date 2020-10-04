@@ -5,8 +5,8 @@ import me.bristermitten.pdm.json.ArtifactDTO
 import me.bristermitten.pdm.json.DependenciesConfiguration
 import me.bristermitten.pdm.json.ExcludeRule
 import me.bristermitten.pdm.json.PDMDependency
-import me.bristermitten.pdmlibs.artifact.Artifact
-import me.bristermitten.pdmlibs.artifact.ArtifactFactory
+import me.bristermitten.pdmlibs.dependency.Dependency
+import me.bristermitten.pdmlibs.dependency.DependencyFactory
 import me.bristermitten.pdmlibs.http.HTTPService
 import me.bristermitten.pdmlibs.pom.DefaultParseProcess
 import me.bristermitten.pdmlibs.repository.MavenRepositoryFactory
@@ -14,7 +14,6 @@ import me.bristermitten.pdmlibs.repository.Repository
 import me.bristermitten.pdmlibs.repository.RepositoryManager
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.ExternalModuleDependency
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
@@ -22,10 +21,10 @@ import org.slf4j.LoggerFactory
 import java.io.File
 
 class PDMGenDependenciesTask(
-		private val artifactFactory: ArtifactFactory,
+		private val dependencyFactory: DependencyFactory,
 		private val pdmDependency: Configuration,
 		private val config: PDMExtension,
-        private val repositoryManager: RepositoryManager,
+		private val repositoryManager: RepositoryManager,
 		private val gson: Gson = Gson()
 ) : (Project) -> Unit
 {
@@ -38,7 +37,7 @@ class PDMGenDependenciesTask(
 	private fun generateProjectState(project: Project): ProjectState
 	{
 		val httpService = HTTPService(project.name, config.version, config.caching)
-		val repositoryFactory = MavenRepositoryFactory(httpService, DefaultParseProcess(artifactFactory, repositoryManager, httpService))
+		val repositoryFactory = MavenRepositoryFactory(httpService, DefaultParseProcess(dependencyFactory, repositoryManager, httpService))
 		return generateProjectState(project, repositoryFactory)
 	}
 
@@ -88,7 +87,7 @@ class PDMGenDependenciesTask(
 	{
 		val artifacts = state.dependencies.map {
 
-			val artifact = artifactFactory.toArtifact(it.group, it.artifact, it.version, null, null)
+			val artifact = dependencyFactory.toArtifact(it.group, it.artifact, it.version, null, null, null)
 
 			artifact.resolvePDMDependency(
 					config.spigot,
@@ -124,7 +123,7 @@ class PDMGenDependenciesTask(
 		process(state, project)
 	}
 
-	private fun Artifact.resolvePDMDependency(
+	private fun Dependency.resolvePDMDependency(
 			spigot: Boolean,
 			searchRepositories: Boolean,
 			repositories: Map<String, Repository>,

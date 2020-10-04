@@ -1,6 +1,6 @@
 package me.bristermitten.pdmlibs.repository;
 
-import me.bristermitten.pdmlibs.artifact.Artifact;
+import me.bristermitten.pdmlibs.dependency.Dependency;
 import me.bristermitten.pdmlibs.http.HTTPService;
 import me.bristermitten.pdmlibs.pom.ParseProcess;
 import org.jetbrains.annotations.NotNull;
@@ -14,10 +14,10 @@ public class MavenRepositoryFactory
     private final HTTPService httpService;
 
     @NotNull
-    private final ParseProcess<Set<Artifact>> parseProcess;
+    private final ParseProcess<Set<Dependency>> parseProcess;
 
 
-    public MavenRepositoryFactory(@NotNull final HTTPService httpService, @NotNull final ParseProcess<Set<Artifact>> parseProcess)
+    public MavenRepositoryFactory(@NotNull final HTTPService httpService, @NotNull final ParseProcess<Set<Dependency>> parseProcess)
     {
         this.httpService = httpService;
         this.parseProcess = parseProcess;

@@ -1,7 +1,7 @@
 package me.bristermitten.pdmlibs.http;
 
-import me.bristermitten.pdmlibs.artifact.Artifact;
 import me.bristermitten.pdmlibs.config.CacheConfiguration;
+import me.bristermitten.pdmlibs.dependency.Dependency;
 import me.bristermitten.pdmlibs.util.Streams;
 import me.bristermitten.pdmlibs.util.URLs;
 import org.jetbrains.annotations.NotNull;
@@ -53,9 +53,9 @@ public class HTTPService
     }
 
     @NotNull
-    public InputStream readJar(@NotNull final String repoURL, @NotNull final Artifact artifact)
+    public InputStream readJar(@NotNull final String repoURL, @NotNull final Dependency dependency)
     {
-        final URL jarURL = artifact.getJarURL(repoURL, this);
+        final URL jarURL = dependency.getJarURL(repoURL, this);
 
         if (jarURL == null)
         {
@@ -66,9 +66,9 @@ public class HTTPService
     }
 
     @NotNull
-    public InputStream readPom(@NotNull final String repoURL, @NotNull final Artifact artifact)
+    public InputStream readPom(@NotNull final String repoURL, @NotNull final Dependency dependency)
     {
-        final URL pomURL = artifact.getPomURL(repoURL, this);
+        final URL pomURL = dependency.getPomURL(repoURL, this);
 
         if (pomURL == null)
         {

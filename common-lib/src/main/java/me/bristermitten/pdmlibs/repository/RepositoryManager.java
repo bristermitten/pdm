@@ -1,6 +1,6 @@
 package me.bristermitten.pdmlibs.repository;
 
-import me.bristermitten.pdmlibs.artifact.Artifact;
+import me.bristermitten.pdmlibs.dependency.Dependency;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,29 +53,29 @@ public class RepositoryManager
     }
 
     @Nullable
-    public Repository firstContaining(@NotNull final Artifact artifact)
+    public Repository firstContaining(@NotNull final Dependency dependency)
     {
-        if (artifact.getRepoAlias() != null)
+        if (dependency.getRepoAlias() != null)
         {
-            final Repository configuredRepo = getByAlias(artifact.getRepoAlias());
+            final Repository configuredRepo = getByAlias(dependency.getRepoAlias());
 
             if (configuredRepo != null)
             {
-                if (configuredRepo.contains(artifact))
+                if (configuredRepo.contains(dependency))
                 {
                     return configuredRepo;
                 }
 
-                logger.warning(() -> "Despite being the configured repository, repo " + configuredRepo + " did not contain artifact " + artifact);
+                logger.warning(() -> "Despite being the configured repository, repo " + configuredRepo + " did not contain artifact " + dependency);
             }
             if (configuredRepo == null)
             {
-                logger.warning(() -> "There was no configured repository with the alias " + artifact.getRepoAlias());
+                logger.warning(() -> "There was no configured repository with the alias " + dependency.getRepoAlias());
             }
         }
 
         return byURL.values().stream()
-                .filter(repo -> repo.contains(artifact))
+                .filter(repo -> repo.contains(dependency))
                 .findFirst().orElse(null);
     }
 }
