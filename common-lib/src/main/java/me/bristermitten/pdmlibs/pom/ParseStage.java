@@ -10,5 +10,6 @@ import org.w3c.dom.Document;
 public interface ParseStage<T>
 {
 
-    @Nullable T parse(@NotNull final Document document);
+    @Nullable
+    T parse(@NotNull final Document document);
 }

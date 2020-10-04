@@ -11,29 +11,30 @@ import java.util.Set;
 public class ReleaseArtifact extends Artifact
 {
 
-
-    public ReleaseArtifact(@NotNull String groupId, @NotNull String artifactId, @NotNull String version)
+    public ReleaseArtifact(@NotNull final String groupId, @NotNull final String artifactId,
+                           @NotNull final String version)
     {
         super(groupId, artifactId, version, null, null);
     }
 
-    public ReleaseArtifact(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @Nullable String repoBaseURL, @Nullable Set<Artifact> transitive)
+    public ReleaseArtifact(@NotNull final String groupId, @NotNull final String artifactId,
+                           @NotNull final String version, @Nullable final String repoBaseURL,
+                           @Nullable final Set<Artifact> transitive)
     {
         super(groupId, artifactId, version, transitive, repoBaseURL);
     }
 
-    @Override
     @Nullable
-    public URL getJarURL(@NotNull String baseRepoURL, @NotNull HTTPService service)
+    @Override
+    public URL getJarURL(@NotNull final String baseRepoURL, @NotNull final HTTPService service)
     {
         return URLs.parseURL(createBaseURL(baseRepoURL) + getArtifactId() + "-" + getVersion() + ".jar");
     }
 
-    @Override
     @Nullable
-    public URL getPomURL(@NotNull String baseRepoURL, @NotNull HTTPService service)
+    @Override
+    public URL getPomURL(@NotNull final String baseRepoURL, @NotNull final HTTPService service)
     {
         return URLs.parseURL(createBaseURL(baseRepoURL) + getArtifactId() + "-" + getVersion() + ".pom");
     }
-
 }

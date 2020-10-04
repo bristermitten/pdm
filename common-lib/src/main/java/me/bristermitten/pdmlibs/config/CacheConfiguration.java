@@ -10,7 +10,8 @@ public final class CacheConfiguration
     private final boolean cacheParsedPoms;
     private final boolean cacheOtherData;
 
-    public CacheConfiguration(boolean cachePoms, boolean cacheJars, boolean cacheParsedPoms, boolean cacheOtherData)
+    private CacheConfiguration(final boolean cachePoms, final boolean cacheJars,
+                               final boolean cacheParsedPoms, final boolean cacheOtherData)
     {
         this.cachePoms = cachePoms;
         this.cacheJars = cacheJars;
@@ -18,9 +19,16 @@ public final class CacheConfiguration
         this.cacheOtherData = cacheOtherData;
     }
 
-    public static @NotNull Builder builder()
+    @NotNull
+    public static Builder builder()
     {
         return new Builder();
+    }
+
+    @NotNull
+    public static CacheConfiguration of(final boolean cachePoms, final boolean cacheJars,
+                                        final boolean cacheParsedPoms, final boolean cacheOtherData) {
+        return new CacheConfiguration(cachePoms, cacheJars, cacheParsedPoms, cacheOtherData);
     }
 
     public boolean cachePoms()
@@ -51,31 +59,36 @@ public final class CacheConfiguration
         private boolean cacheParsedPoms = true;
         private boolean cacheOtherData = true;
 
-        public @NotNull Builder disablePomCaching()
+        @NotNull
+        public Builder disablePomCaching()
         {
             cachePoms = false;
             return this;
         }
 
-        public @NotNull Builder disableJarCaching()
+        @NotNull
+        public Builder disableJarCaching()
         {
             cacheJars = false;
             return this;
         }
 
-        public @NotNull Builder disableParsedPomCaching()
+        @NotNull
+        public Builder disableParsedPomCaching()
         {
             cacheParsedPoms = false;
             return this;
         }
 
-        public @NotNull Builder disableOtherDataCaching()
+        @NotNull
+        public Builder disableOtherDataCaching()
         {
             cacheOtherData = false;
             return this;
         }
 
-        public @NotNull CacheConfiguration build()
+        @NotNull
+        public CacheConfiguration build()
         {
             return new CacheConfiguration(cachePoms, cacheJars, cacheParsedPoms, cacheOtherData);
         }

@@ -13,11 +13,12 @@ import org.w3c.dom.Node;
 public class LatestElementParseStage implements ParseStage<@Nullable String>
 {
 
-    @Override
     @Nullable
-    public String parse(@NotNull Document document)
+    @Override
+    public String parse(@NotNull final Document document)
     {
         final Node versioning = document.getElementsByTagName("versioning").item(0);
+
         if (!(versioning instanceof Element))
         {
             return null;
@@ -25,6 +26,7 @@ public class LatestElementParseStage implements ParseStage<@Nullable String>
 
         final Element versioningElement = (Element) versioning;
         final Node latestElement = versioningElement.getElementsByTagName("latest").item(0);
+
         if (!(latestElement instanceof Element))
         {
             return null;

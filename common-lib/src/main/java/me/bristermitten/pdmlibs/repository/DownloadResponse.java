@@ -6,7 +6,7 @@ public class DownloadResponse
     private final boolean success;
     private final byte[] content;
 
-    public DownloadResponse(boolean success, byte[] content)
+    public DownloadResponse(final boolean success, final byte[] content)
     {
         this.success = success;
         this.content = content;

@@ -15,18 +15,17 @@ import java.util.Objects;
 public class PomParser
 {
 
-    private static final DocumentBuilderFactory dbFactory;
+    private static final DocumentBuilderFactory DB_FACTORY;
 
     static
     {
-        dbFactory = DocumentBuilderFactory.newInstance();
-        dbFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-        dbFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        DB_FACTORY = DocumentBuilderFactory.newInstance();
+        DB_FACTORY.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        DB_FACTORY.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
     }
 
     public <T> @NotNull T parse(@NotNull final ParseProcess<T> parseProcess, @NotNull final InputStream pomContent)
     {
-
         final Document document = getDocument(pomContent);
 
         return Objects.requireNonNull(parseProcess.parse(document), "Parse Process " + parseProcess + " returned null!");
@@ -37,16 +36,16 @@ public class PomParser
     {
         try
         {
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            final DocumentBuilder dBuilder = DB_FACTORY.newDocumentBuilder();
+            final Document doc = dBuilder.parse(pomContent);
 
-            Document doc = dBuilder.parse(pomContent);
             doc.normalizeDocument();
 
             return doc;
         }
-        catch (@NotNull ParserConfigurationException | SAXException | IOException e)
+        catch (ParserConfigurationException | SAXException | IOException exception)
         {
-            throw new IllegalArgumentException(e);
+            throw new IllegalArgumentException(exception);
         }
     }
 }

@@ -29,14 +29,15 @@ public class MavenPlaceholderReplacer
 
     public void addPlaceholder(@NotNull final String placeholder, @NotNull String replacement)
     {
-        String format = Strings.escapeRegex(String.format(PATTERN_FORMAT, placeholder));
+        final String format = Strings.escapeRegex(String.format(PATTERN_FORMAT, placeholder));
+        final String replace = replace(replacement);
 
-        String replace = replace(replacement);
         if (replace.contains("$"))
         {
             LOGGER.fine(() -> replace + " is an invalid placeholder, it will be discarded.");
             return;
         }
+
         this.placeholders.put(Pattern.compile(format).matcher(""), replace);
     }
 
@@ -49,15 +50,18 @@ public class MavenPlaceholderReplacer
     public String replace(@NotNull final String value)
     {
         String temp = value;
+
         for (Map.Entry<Matcher, String> entry : placeholders.entrySet())
         {
-            Matcher matcher = entry.getKey();
+            final Matcher matcher = entry.getKey();
             matcher.reset(temp);
-            String replacement = entry.getValue();
+            final String replacement = entry.getValue();
+
             if (replacement == null)
             {
                 continue;
             }
+
             temp = matcher.replaceAll(replacement);
         }
 

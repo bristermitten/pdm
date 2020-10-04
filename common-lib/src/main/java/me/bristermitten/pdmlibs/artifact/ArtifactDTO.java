@@ -23,7 +23,9 @@ public class ArtifactDTO
     @Nullable
     private final Set<ArtifactDTO> transitive;
 
-    public ArtifactDTO(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @Nullable String sourceRepository, @Nullable Set<ArtifactDTO> transitive)
+    public ArtifactDTO(@NotNull final String groupId, @NotNull final String artifactId,
+                       @NotNull final String version, @Nullable final String sourceRepository,
+                       @Nullable final Set<ArtifactDTO> transitive)
     {
         this.groupId = groupId;
         this.artifactId = artifactId;
