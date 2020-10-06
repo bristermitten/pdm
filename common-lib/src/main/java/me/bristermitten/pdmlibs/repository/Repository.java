@@ -30,7 +30,7 @@ public interface Repository
      * @return an array containing the bytes of the downloaded jar, or an empty array if downloading failed.
      */
     @NotNull
-    byte[] download(@NotNull final Artifact artifact);
+    byte @NotNull [] download(@NotNull final Artifact artifact);
 
     /**
      * Get the Jar content of a given Artifact.

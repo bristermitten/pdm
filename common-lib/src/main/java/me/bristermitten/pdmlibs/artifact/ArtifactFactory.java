@@ -38,13 +38,10 @@ public class ArtifactFactory
     }
 
     @NotNull
-    public Artifact toArtifact(@NotNull final String group,
-                               @NotNull final String artifact,
-                               @NotNull final String version,
-                               @Nullable final String repoAlias,
+    public Artifact toArtifact(@NotNull final String group, @NotNull final String artifact,
+                               @NotNull final String version, @Nullable final String repoAlias,
                                @Nullable final Set<Artifact> transitive)
     {
-
         if (version.endsWith(SNAPSHOT_SUFFIX))
         {
             return new SnapshotArtifact(group, artifact, version, repoAlias, transitive);

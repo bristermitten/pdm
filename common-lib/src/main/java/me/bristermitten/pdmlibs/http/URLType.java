@@ -7,13 +7,14 @@ import java.util.function.Predicate;
 
 public enum URLType
 {
+
     JAR(CacheConfiguration::cacheJars),
     POM(CacheConfiguration::cachePoms),
     OTHER(CacheConfiguration::cacheOtherData);
 
     private final Predicate<CacheConfiguration> allowedCheck;
 
-    URLType(Predicate<CacheConfiguration> allowedCheck)
+    URLType(@NotNull final Predicate<CacheConfiguration> allowedCheck)
     {
         this.allowedCheck = allowedCheck;
     }
@@ -22,5 +23,4 @@ public enum URLType
     {
         return allowedCheck.test(configuration);
     }
-
 }

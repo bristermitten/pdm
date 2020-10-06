@@ -16,10 +16,11 @@ public class HTTPService
     private static final String USER_AGENT_FORMAT = "PDM/%s; Plugin:%s";
 
     private final String userAgent;
-    private final @NotNull HTTPCache cache;
+    @NotNull private final HTTPCache cache;
     private final CacheConfiguration cacheConfiguration;
 
-    public HTTPService(@NotNull final String managing, @NotNull final String version, CacheConfiguration cacheConfiguration)
+    public HTTPService(@NotNull final String managing, @NotNull final String version,
+                       @NotNull final CacheConfiguration cacheConfiguration)
     {
         this.cacheConfiguration = cacheConfiguration;
         this.userAgent = String.format(USER_AGENT_FORMAT, version, managing);
@@ -54,22 +55,26 @@ public class HTTPService
     @NotNull
     public InputStream readJar(@NotNull final String repoURL, @NotNull final Artifact artifact)
     {
-        URL jarURL = artifact.getJarURL(repoURL, this);
+        final URL jarURL = artifact.getJarURL(repoURL, this);
+
         if (jarURL == null)
         {
             return new ByteArrayInputStream(new byte[0]);
         }
+
         return readFrom(jarURL, URLType.JAR);
     }
 
     @NotNull
     public InputStream readPom(@NotNull final String repoURL, @NotNull final Artifact artifact)
     {
-        URL pomURL = artifact.getPomURL(repoURL, this);
+        final URL pomURL = artifact.getPomURL(repoURL, this);
+
         if (pomURL == null)
         {
             return Streams.createEmptyStream();
         }
+
         return readFrom(pomURL, URLType.POM);
     }
 }

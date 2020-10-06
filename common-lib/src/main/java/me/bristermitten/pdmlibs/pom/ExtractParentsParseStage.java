@@ -20,13 +20,12 @@ import java.util.List;
 public class ExtractParentsParseStage implements ParseStage<@NotNull List<Document>>, ParseProcess<@NotNull List<Document>>
 {
 
-
     private final ArtifactFactory artifactFactory;
-
     private final RepositoryManager repositoryManager;
     private final HTTPService httpService;
 
-    public ExtractParentsParseStage(ArtifactFactory artifactFactory, RepositoryManager repositoryManager, HTTPService httpService)
+    public ExtractParentsParseStage(@NotNull final ArtifactFactory artifactFactory, @NotNull final RepositoryManager repositoryManager,
+                                    @NotNull final HTTPService httpService)
     {
         this.artifactFactory = artifactFactory;
         this.repositoryManager = repositoryManager;
@@ -35,7 +34,7 @@ public class ExtractParentsParseStage implements ParseStage<@NotNull List<Docume
 
     @NotNull
     @Override
-    public List<Document> parse(@NotNull Document document)
+    public List<Document> parse(@NotNull final Document document)
     {
         final List<Document> parentTree = new LinkedList<>();
 
@@ -50,10 +49,11 @@ public class ExtractParentsParseStage implements ParseStage<@NotNull List<Docume
     }
 
     @Nullable
-    private Document loadParent(@NotNull Document document)
+    private Document loadParent(@NotNull final Document document)
     {
 
         final Node parent = document.getElementsByTagName("parent").item(0);
+
         if (!(parent instanceof Element))
         {
             return null;
@@ -61,8 +61,8 @@ public class ExtractParentsParseStage implements ParseStage<@NotNull List<Docume
 
         final ArtifactDTO parentDTO = DependencyNotationExtractor.extractFrom((Element) parent);
         final Artifact artifact = artifactFactory.toArtifact(parentDTO);
-
         final Repository containingRepo = repositoryManager.firstContaining(artifact);
+
         if (containingRepo == null)
         {
             //TODO log a warning?
@@ -73,9 +73,9 @@ public class ExtractParentsParseStage implements ParseStage<@NotNull List<Docume
         {
             return new PomParser().getDocument(inputStream);
         }
-        catch (IOException e)
+        catch (IOException exception)
         {
-            e.printStackTrace();
+            exception.printStackTrace();
             return null;
         }
     }
