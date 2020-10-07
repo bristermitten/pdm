@@ -110,4 +110,4 @@ dependencies {
 jar.dependsOn project.tasks.getByName('pdm') //Always run the pdm task when we build. Alternatively, just run [gradle pdm build]
 ```
 
-A full example can be found [here](/example)
+A full example can be found [here](/example).
