@@ -50,7 +50,7 @@ Create a new `PluginDependencyManager` with `PDMBuilder`, and call `PluginDepend
 
 For example: 
 ```java
-PluginDependencyManager dependencyManager = PDMBuilder.builder(this).build();
+PluginDependencyManager dependencyManager = PluginDependencyManager.of(this);
 CompletableFuture<Void> onLoad = dependencyManager.loadAllDependencies();
 //loadAllDependencies is async, the returned future is completed when downloading and loading completes
 onLoad.thenRun(() -> System.out.println("Everything is loaded!"));
