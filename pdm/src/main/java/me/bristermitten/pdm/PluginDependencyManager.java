@@ -7,16 +7,18 @@ import me.bristermitten.pdmlibs.artifact.Artifact;
 import me.bristermitten.pdmlibs.config.CacheConfiguration;
 import me.bristermitten.pdmlibs.http.HTTPService;
 import me.bristermitten.pdmlibs.repository.Repository;
+import me.bristermitten.pdmlibs.util.Reflection;
+import org.apache.commons.lang.Validate;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.net.URLClassLoader;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -161,5 +163,142 @@ public final class PluginDependencyManager
                         .map(CompletableFuture::join)
                         .collect(Collectors.toList())
         );
+    }
+
+    @NotNull
+    public static Builder builder()
+    {
+        return new Builder();
+    }
+
+    @NotNull
+    public static Builder builder(@NotNull final Plugin plugin)
+    {
+        return new Builder()
+                .loggerFactory(clazz -> plugin.getLogger())
+                .dependenciesResource(plugin.getResource(Builder.DEPENDENCIES_RESOURCE_NAME))
+                .rootDirectory(plugin.getDataFolder().getParentFile())
+                .classLoader((URLClassLoader) plugin.getClass().getClassLoader())
+                .applicationName(plugin.getName())
+                .applicationVersion(plugin.getDescription().getVersion());
+    }
+
+    @NotNull
+    public static Builder builder(@NotNull final Class<? extends Plugin> plugin)
+    {
+        Validate.isTrue(Builder.PLUGIN_CLASS_LOADER_NAME.equals(plugin.getClassLoader().getClass().getName()), "Plugin must be loaded with a PluginClassLoader");
+
+        final URLClassLoader classLoader = (URLClassLoader) plugin.getClassLoader();
+        final PluginDescriptionFile description = Reflection.getFieldValue(classLoader, "description");
+
+        return builder()
+                .classLoader((URLClassLoader) plugin.getClassLoader())
+                .dependenciesResource(classLoader.getResourceAsStream(Builder.DEPENDENCIES_RESOURCE_NAME))
+                .rootDirectory(new File("./plugins"))
+                .applicationName(description.getName())
+                .applicationVersion(description.getVersion())
+                .loggerFactory(clazz -> Logger.getLogger(description.getName()));
+    }
+
+    @NotNull
+    public static PluginDependencyManager of(@NotNull final Plugin plugin)
+    {
+        return builder(plugin)
+                .build();
+    }
+
+    @NotNull
+    public static PluginDependencyManager of(@NotNull final Class<? extends Plugin> plugin)
+    {
+        return builder(plugin)
+                .build();
+    }
+
+    /**
+     * @author AlexL
+     */
+    @SuppressWarnings("UnusedReturnValue")
+    public static final class Builder
+    {
+
+        public static final String DEPENDENCIES_RESOURCE_NAME = "dependencies.json";
+        public static final String PLUGIN_CLASS_LOADER_NAME = "org.bukkit.plugin.java.PluginClassLoader";
+
+        private Function<String, Logger> loggerFactory = Logger::getLogger;
+        @Nullable private InputStream dependenciesResource = null;
+        @Nullable private File rootDirectory = null;
+        @Nullable private URLClassLoader classLoader = null;
+        @Nullable private String applicationName = null;
+        @Nullable private String applicationVersion = null;
+        private CacheConfiguration cacheConfiguration = CacheConfiguration.builder().build();
+
+        private Builder()
+        {
+
+        }
+
+        @NotNull
+        public Builder loggerFactory(@NotNull final Function<String, Logger> loggerFactory)
+        {
+            this.loggerFactory = loggerFactory;
+            return this;
+        }
+
+        @NotNull
+        public Builder dependenciesResource(@NotNull final InputStream dependenciesResource)
+        {
+            this.dependenciesResource = dependenciesResource;
+            return this;
+        }
+
+        @NotNull
+        public Builder rootDirectory(@NotNull final File rootDirectory)
+        {
+            this.rootDirectory = rootDirectory;
+            return this;
+        }
+
+        @NotNull
+        public Builder classLoader(@NotNull URLClassLoader classLoader)
+        {
+            this.classLoader = classLoader;
+            return this;
+        }
+
+        @NotNull
+        public Builder applicationName(@NotNull String applicationName)
+        {
+            this.applicationName = applicationName;
+            return this;
+        }
+    
+        @NotNull
+        public Builder applicationVersion(@NotNull String applicationVersion)
+        {
+            this.applicationVersion = applicationVersion;
+            return this;
+        }
+
+        @NotNull
+        public Builder caching(@NotNull Consumer<CacheConfiguration.Builder> configuration)
+        {
+            final CacheConfiguration.Builder builder = CacheConfiguration.builder();
+            configuration.accept(builder);
+            this.cacheConfiguration = builder.build();
+            return this;
+        }
+
+        @NotNull
+        public PluginDependencyManager build()
+        {
+            Objects.requireNonNull(loggerFactory, "loggerFactory cannot be null");
+            Objects.requireNonNull(rootDirectory, "rootDirectory cannot be null");
+            Objects.requireNonNull(classLoader, "classLoader cannot be null");
+            Objects.requireNonNull(applicationName, "applicationName cannot be null");
+            Objects.requireNonNull(applicationVersion, "applicationVersion cannot be null");
+            Objects.requireNonNull(cacheConfiguration, "cacheConfiguration cannot be null");
+
+            return new PluginDependencyManager(loggerFactory, dependenciesResource, rootDirectory, classLoader, applicationName, applicationVersion, cacheConfiguration);
+        }
     }
 }

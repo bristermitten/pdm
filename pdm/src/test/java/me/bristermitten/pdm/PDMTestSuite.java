@@ -28,7 +28,7 @@ public class PDMTestSuite
         libraryDirectory = Files.createTempDirectory("PDM").toFile();
         //        libraryDirectory.deleteOnExit();
 
-        pdm = new PDMBuilder()
+        pdm = PluginDependencyManager.builder()
                 .rootDirectory(libraryDirectory)
                 .classLoader(classLoader)
                 .applicationName("PDM-Test-Suite")

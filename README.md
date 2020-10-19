@@ -50,7 +50,7 @@ Create a new `PluginDependencyManager` with `PDMBuilder`, and call `PluginDepend
 
 For example: 
 ```java
-PluginDependencyManager dependencyManager = new PDMBuilder(this).build();
+PluginDependencyManager dependencyManager = PluginDependencyManager.of(this);
 CompletableFuture<Void> onLoad = dependencyManager.loadAllDependencies();
 //loadAllDependencies is async, the returned future is completed when downloading and loading completes
 onLoad.thenRun(() -> System.out.println("Everything is loaded!"));
@@ -99,15 +99,15 @@ This is a basic example of the usage:
 
 ```gradle
 plugins {
-  id "me.bristermitten.pdm" version "0.0.11" //Replace with the latest version 
+  id "me.bristermitten.pdm" version "0.0.28" //Replace with the latest version 
 }
 
 dependencies {
-    compileOnly 'org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT'
-    pdm 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.72' //This will be added to the dependencies.json
+    compileOnly "org.spigotmc:spigot-api:1.16.3-R0.1-SNAPSHOT"
+    pdm "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.72" //This will be added to the dependencies.json
 }
 
-jar.dependsOn project.tasks.getByName('pdm') //Always run the pdm task when we build. Alternatively, just run [gradle pdm build]
+jar.dependsOn project.tasks.getByName("pdm") //Always run the pdm task when we build. Alternatively, just run [gradle pdm build]
 ```
 
 A full example can be found [here](/example).
