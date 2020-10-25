@@ -3,7 +3,7 @@ subprojects {
     apply plugin: 'maven-publish'
 
     group 'me.bristermitten'
-    version '0.0.28'
+    version '0.0.29'
 
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
