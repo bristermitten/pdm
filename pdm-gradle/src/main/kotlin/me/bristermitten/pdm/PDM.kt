@@ -6,15 +6,17 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ExternalModuleDependency
-import org.gradle.util.ConfigureUtil
 import java.util.logging.Logger
 
 class PDM : Plugin<Project>
 {
-	companion object {
+	companion object
+	{
 		const val CONFIGURATION_NAME = "pdm"
 	}
+
 	private val artifactFactory = ArtifactFactory()
+	private lateinit var projectState: PDMProjectState
 
 	private val repositoryManager = RepositoryManager(Logger.getLogger(javaClass.name))
 
@@ -54,6 +56,7 @@ class PDM : Plugin<Project>
 
 	override fun apply(project: Project)
 	{
+		projectState = PDMProjectState(project.buildDir.resolve("tmp").resolve("pdm").resolve("cache"))
 		val extension = project.extensions.create("pdm", PDMExtension::class.java)
 		val pdmConfiguration = project.createPDMConfiguration()
 
@@ -69,11 +72,6 @@ class PDM : Plugin<Project>
 			dependenciesTask.invoke(project)
 		}
 
-		project.task("pdmInvalidateCache").doLast {
-			val cache = project.buildDir.resolve("tmp").resolve("pdm").resolve("cache")
-
-			if(cache.exists())
-				cache.deleteRecursively()
-		}
+		project.tasks.register("pdmInvalidateCache", PDMInvalidateCacheTask::class.java, projectState)
 	}
 }
