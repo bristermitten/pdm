@@ -31,13 +31,18 @@ public class DependencyManager
 
     public static final String PDM_DIRECTORY_NAME = "PluginLibraries";
 
-    @NotNull private final PDMSettings settings;
+    @NotNull
+    private final PDMSettings settings;
 
-    @NotNull private final RepositoryManager repositoryManager;
-    @NotNull private final MavenRepositoryFactory repositoryFactory;
-    @NotNull private final DependencyLoader loader;
+    @NotNull
+    private final RepositoryManager repositoryManager;
+    @NotNull
+    private final MavenRepositoryFactory repositoryFactory;
+    @NotNull
+    private final DependencyLoader loader;
     private final ArtifactFactory artifactFactory = new ArtifactFactory();
-    @NotNull private final HTTPService httpService;
+    @NotNull
+    private final HTTPService httpService;
 
     /**
      * A Map that caches download tasks for artifacts.
@@ -47,7 +52,8 @@ public class DependencyManager
      */
     private final Map<Artifact, CompletableFuture<File>> downloadsInProgress = new ConcurrentHashMap<>();
     private final Logger logger;
-    @NotNull private final DefaultParseProcess parseProcess;
+    @NotNull
+    private final DefaultParseProcess parseProcess;
     private File pdmDirectory;
 
     public DependencyManager(@NotNull final PDMSettings settings, @NotNull final HTTPService httpService)
@@ -153,6 +159,7 @@ public class DependencyManager
                 writeToFile(jarContent, file);
             }
 
+            logger.fine(() -> "Downloaded artifact " + dependency);
             return file;
         }).exceptionally(throwable -> {
             logger.log(Level.SEVERE, throwable, () -> "Could not download " + dependency);

@@ -69,4 +69,24 @@ class SimpleTest extends PDMTestSuite
         });
 
     }
+
+    @Test
+    void simplePDMTest4()
+    {
+        pdm.addRepository("bintray", "https://jcenter.bintray.com");
+        pdm.addRequiredDependency(
+                new ReleaseArtifact(
+                        "com.github.twitch4j",
+                        "twitch4j",
+                        "1.1.3"
+                )
+        );
+
+        pdm.loadAllDependencies().join();
+
+        assertDoesNotThrow(() -> {
+            classLoader.loadClass("ch.qos.logback.classic.Logger");
+        });
+
+    }
 }
