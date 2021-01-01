@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 this project does not yet adhere to semantic versioning as it's in very early stages. 
 
+## [0.0.30] - 2021-01-01
+### Changed:
+   - PDM: Minor code cleanup
+### Fixed:
+   - Runtime: PDM should no longer give a reflection warning when being used on Java 9+ (See #30)
+
+## [0.0.29] - 2020-10-25
+### Added:
+   - Gradle Plugin: A new PDM maven repository provided by [Glare](https://github.com/darbyjack)
+   - Gradle Plugin: Added a new task to clean the PDM cache
+### Changed:
+   - PDM: Lots of cleanup
+   - Runtime: API now uses `PluginDependencyManager` instead of `PDMBuilder`
+
+## [0.0.28] - 2020-09-09
+### Added:
+   - Gradle Plugin: Can now properly handle exclusions for transitive dependencies
+
+## [0.0.27] - 2020-09-01
+### Added:
+   - Gradle Plugin: Can now properly handle pdm dependencies in submodules
 
 ## [0.0.26] - 2020-08-30
 ### Changed
