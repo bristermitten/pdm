@@ -46,7 +46,7 @@ Declaration can be done programmatically or via JSON file:
 
 **Programmatically (Java)**:
 
-Create a new `PluginDependencyManager` with `PDMBuilder`, and call `PluginDependencyManager#loadAllDependencies`
+Create a new `PluginDependencyManager` with `PluginDependencyManager#of(Plugin)`, and call `PluginDependencyManager#loadAllDependencies`
 
 For example: 
 ```java
