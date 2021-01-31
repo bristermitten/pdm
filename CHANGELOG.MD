@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 this project does not yet adhere to semantic versioning as it's in very early stages. 
 
+### Terminology
+   - PDM: The `common-lib` module that is used everywhere in the project
+   - Runtime: The `pdm` module
+   - Gradle Plugin: The `pdm-gradle` module
+   - Example: The `example` module
+   - Global: Changes that apply everywhere
+   - Readme: `README.MD`
+
+## [0.0.31] - 2021-01-31
+### Added
+   - PDM: Maven Repositories will now cache an artifact's transitive dependencies to reduce repeated lookups in some situations
+   - Example: Some basic documentation has been added to the example module
+   - PDM: Artifact now defines an equals and hashCode implementation, so can be safely used in any hash based data structure
+### Changed
+   - Example: PDMExample now targets the latest PDM api
+   - Readme: Code examples now also target the latest API
+   - PDM: Some messy code in SpigotRepository.java has been cleaned up
+   - PDM: Minor spacing and annotation tweaks to Repository classes
+### Fixed
+   - Gradle Plugin: No longer throws a StackOverflowError when dealing with recursive transitive dependencies (eg adventure-api / adventure-bom)
+### Credits
+   - Yakovliam: Minor tweaks and bug reports
+
 ## [0.0.30] - 2021-01-01
 ### Changed:
    - PDM: Minor code cleanup
