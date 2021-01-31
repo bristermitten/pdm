@@ -26,6 +26,7 @@ public final class SpigotRepository extends MavenRepository
                     "org.bukkit",
                     "com.destroystokyo.paper"
             ).build();
+
     @Unmodifiable
     private static final Set<String> SPIGOT_DEPENDENCY_ARTIFACTS = new ImmutableSet.Builder<String>()
             .add(
@@ -43,7 +44,6 @@ public final class SpigotRepository extends MavenRepository
     {
         super(SPIGOT_ALIAS, httpService, parseProcess);
     }
-
 
     @NotNull
     @Override
