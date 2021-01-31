@@ -1,5 +1,6 @@
 package me.bristermitten.pdm.repository;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSet;
 import me.bristermitten.pdmlibs.artifact.Artifact;
 import me.bristermitten.pdmlibs.http.HTTPService;
@@ -54,7 +55,6 @@ public final class SpigotRepository extends MavenRepository
         return isSpigotDependency(artifact);
     }
 
-    @NotNull
     @Override
     public byte @NotNull [] download(@NotNull final Artifact dependency)
     {
@@ -89,6 +89,6 @@ public final class SpigotRepository extends MavenRepository
     @Override
     public int hashCode()
     {
-        return Objects.hash(super.hashCode(), LOGGER);
+        return Objects.hashCode(super.hashCode(), LOGGER);
     }
 }

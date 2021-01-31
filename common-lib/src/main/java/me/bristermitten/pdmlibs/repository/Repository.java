@@ -29,7 +29,6 @@ public interface Repository
      * @param artifact the Artifact to download
      * @return an array containing the bytes of the downloaded jar, or an empty array if downloading failed.
      */
-    @NotNull
     byte @NotNull [] download(@NotNull final Artifact artifact);
 
     /**
