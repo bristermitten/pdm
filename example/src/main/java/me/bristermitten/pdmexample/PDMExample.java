@@ -10,10 +10,8 @@ public final class PDMExample extends JavaPlugin
     @Override
     public void onEnable()
     {
-        PluginDependencyManager dependencyManager = new PDMBuilder(this).build();
-
+        PluginDependencyManager dependencyManager = PluginDependencyManager.of(this);
         dependencyManager.loadAllDependencies().thenRun(
-                () -> getLogger().info("All Loaded Asynchronously!")
-        );
+                () -> getLogger().info("All Loaded Asynchronously!"));
     }
 }
