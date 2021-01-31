@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.URL;
+import java.util.Objects;
 import java.util.Set;
 
 public abstract class Artifact
@@ -127,5 +128,20 @@ public abstract class Artifact
     public String getJarName()
     {
         return String.format(JAR_NAME_FORMAT, artifactId, version);
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (!(o instanceof Artifact)) return false;
+        Artifact artifact = (Artifact) o;
+        return getGroupId().equals(artifact.getGroupId()) && getArtifactId().equals(artifact.getArtifactId()) && getVersion().equals(artifact.getVersion()) && Objects.equals(getRepoAlias(), artifact.getRepoAlias()) && Objects.equals(getTransitiveDependencies(), artifact.getTransitiveDependencies());
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(getGroupId(), getArtifactId(), getVersion(), getRepoAlias(), getTransitiveDependencies());
     }
 }
