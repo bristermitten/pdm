@@ -1,6 +1,5 @@
 package me.bristermitten.pdm.repository;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSet;
 import me.bristermitten.pdmlibs.artifact.Artifact;
 import me.bristermitten.pdmlibs.http.HTTPService;
@@ -10,7 +9,8 @@ import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public final class SpigotRepository extends MavenRepository
@@ -18,14 +18,16 @@ public final class SpigotRepository extends MavenRepository
 
     public static final String SPIGOT_ALIAS = "spigot-repo";
 
-    @Unmodifiable private static final Set<String> SPIGOT_DEPENDENCY_GROUPS = new ImmutableSet.Builder<String>()
+    @Unmodifiable
+    private static final Set<String> SPIGOT_DEPENDENCY_GROUPS = new ImmutableSet.Builder<String>()
             .add(
                     "net.minecraft",
                     "org.spigotmc",
                     "org.bukkit",
                     "com.destroystokyo.paper"
             ).build();
-    @Unmodifiable private static final Set<String> SPIGOT_DEPENDENCY_ARTIFACTS = new ImmutableSet.Builder<String>()
+    @Unmodifiable
+    private static final Set<String> SPIGOT_DEPENDENCY_ARTIFACTS = new ImmutableSet.Builder<String>()
             .add(
                     "server",
                     "spigot",
@@ -34,6 +36,7 @@ public final class SpigotRepository extends MavenRepository
                     "craftbukkit",
                     "paper-api"
             ).build();
+
     private static final Logger LOGGER = Logger.getLogger("SpigotRepository");
 
     public SpigotRepository(@NotNull final HTTPService httpService, @NotNull final ParseProcess<Set<Artifact>> parseProcess)
@@ -78,17 +81,18 @@ public final class SpigotRepository extends MavenRepository
     @Override
     public boolean equals(Object o)
     {
-        if (this == o) return true;
-        if (!(o instanceof SpigotRepository)) return false;
-        if (!super.equals(o)) return false;
-        SpigotRepository that = (SpigotRepository) o;
-        //todo: what the fuck is this?
-        return LOGGER.equals(that.LOGGER);
+        /*
+        Because SpigotRepository has no internal state, this is totally fine
+         */
+        return o instanceof SpigotRepository;
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(super.hashCode(), LOGGER);
+        /*
+        This is fine too, but every SpigotRepository will now have the same hashcode
+         */
+        return SPIGOT_ALIAS.hashCode();
     }
 }
