@@ -30,6 +30,9 @@ public class MavenRepository implements Repository
     @NotNull
     private final PomParser pomParser = new PomParser();
 
+    @NotNull
+    private final RepositoryCache repositoryCache = new RepositoryCache();
+
     public MavenRepository(@NotNull final String baseURL, @NotNull final HTTPService httpService,
                            @NotNull final ParseProcess<Set<Artifact>> parseProcess)
     {
@@ -70,7 +73,6 @@ public class MavenRepository implements Repository
         return contains;
     }
 
-    @NotNull
     @Override
     public byte @NotNull [] download(@NotNull final Artifact artifact)
     {
@@ -88,13 +90,19 @@ public class MavenRepository implements Repository
     @Override
     public Set<Artifact> getTransitiveDependencies(@NotNull final Artifact artifact)
     {
-        try (final InputStream pom = httpService.readPom(baseURL, artifact))
+        final Set<Artifact> transitives = repositoryCache.getTransitives(artifact);
+        if (transitives != null) {
+            return transitives;
+        }
+        try (final InputStream pomInput = httpService.readPom(baseURL, artifact))
         {
-            if (pom.available() == 0)
+            if (pomInput.available() == 0)
             {
                 return Collections.emptySet();
             }
-            return parse(artifact, pom);
+            final Set<Artifact> parsedTransitiveDependencies = parse(artifact, pomInput);
+            repositoryCache.add(artifact, parsedTransitiveDependencies);
+            return parsedTransitiveDependencies;
         }
         catch (IOException exception)
         {
