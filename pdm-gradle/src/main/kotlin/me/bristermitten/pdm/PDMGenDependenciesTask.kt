@@ -129,7 +129,8 @@ class PDMGenDependenciesTask(
 			searchRepositories: Boolean,
 			repositories: Map<String, Repository>,
 			isProject: Boolean,
-			excludeRules: List<ExcludeRule>
+			excludeRules: List<ExcludeRule>,
+			resolved: MutableSet<Artifact> = mutableSetOf()
 	): PDMDependency
 	{
 		if(isProject && config.projectRepository != null)
@@ -160,8 +161,11 @@ class PDMGenDependenciesTask(
 		}
 
 		val dependencies = containingRepo.second?.getTransitiveDependencies(this)
+				?.asSequence()
 				?.filterNot { excludeRules.any { rule -> rule.match(it) } }
-				?.map { it.resolvePDMDependency(spigot, searchRepositories, repositories, isProject, excludeRules) }
+				?.filterNot { it in resolved }
+				?.onEach { resolved.add(it) }
+				?.map { it.resolvePDMDependency(spigot, searchRepositories, repositories, isProject, excludeRules, resolved) }
 				?.toSet()
 
 		return PDMDependency(groupId, artifactId, version, containingRepo.first, dependencies)
