@@ -24,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unused") // some API methods in here we don't want to be told off for
 public final class PluginDependencyManager
 {
 
@@ -165,12 +166,25 @@ public final class PluginDependencyManager
         );
     }
 
+    /**
+     * Create a new empty builder for {@link PluginDependencyManager} with no
+     * configuration
+     *
+     * @return empty builder
+     */
     @NotNull
     public static Builder builder()
     {
         return new Builder();
     }
 
+    /**
+     * Create a new builder for {@link PluginDependencyManager} with configuration
+     * from the given Bukkit (Spigot) plugin instance
+     *
+     * @param plugin the plugin instance
+     * @return a builder with configuration from the plugin
+     */
     @NotNull
     public static Builder builder(@NotNull final Plugin plugin)
     {
@@ -183,6 +197,13 @@ public final class PluginDependencyManager
                 .applicationVersion(plugin.getDescription().getVersion());
     }
 
+    /**
+     * Create a new builder for {@link PluginDependencyManager} with configuration
+     * from the given Bukkit (Spigot) plugin class
+     *
+     * @param plugin the plugin class
+     * @return a builder with configuration from the plugin
+     */
     @NotNull
     public static Builder builder(@NotNull final Class<? extends Plugin> plugin)
     {
@@ -200,6 +221,38 @@ public final class PluginDependencyManager
                 .loggerFactory(clazz -> Logger.getLogger(description.getName()));
     }
 
+    /**
+     * Create a new builder for {@link PluginDependencyManager} with configuration
+     * from the given BungeeCord plugin instance
+     *
+     * @param plugin the plugin instance
+     * @return a builder with configuration from the plugin
+     */
+    @NotNull
+    public static Builder builder(@NotNull final net.md_5.bungee.api.plugin.Plugin plugin)
+    {
+        return new Builder()
+                .applicationName(plugin.getDescription().getName())
+                .applicationVersion(plugin.getDescription().getVersion())
+                .classLoader((URLClassLoader) plugin.getClass().getClassLoader())
+                .rootDirectory(plugin.getDataFolder().getParentFile())
+                .dependenciesResource(plugin.getResourceAsStream(Builder.DEPENDENCIES_RESOURCE_NAME))
+                .loggerFactory(clazz -> plugin.getLogger());
+    }
+
+    /**
+     * Creates a new instance of the {@link PluginDependencyManager} from the given
+     * Bukkit (Spigot) plugin instance.
+     *
+     * Example usage:
+     * <code>
+     *     PluginDependencyManager dependencyManager = PluginDependencyManager.of(this);
+     *     dependencyManager.loadAllDependencies();
+     * </code>
+     *
+     * @param plugin the plugin instance
+     * @return instance of {@link PluginDependencyManager} from the plugin
+     */
     @NotNull
     public static PluginDependencyManager of(@NotNull final Plugin plugin)
     {
@@ -207,8 +260,41 @@ public final class PluginDependencyManager
                 .build();
     }
 
+    /**
+     * Creates a new instance of the {@link PluginDependencyManager} from the given
+     * Bukkit (Spigot) plugin class.
+     *
+     * Example usage:
+     * <code>
+     *     PluginDependencyManager dependencyManager = PluginDependencyManager.of(MyPluginClass.class);
+     *     dependencyManager.loadAllDependencies();
+     * </code>
+     *
+     * @param plugin the plugin class
+     * @return instance of {@link PluginDependencyManager} from the plugin class
+     */
     @NotNull
     public static PluginDependencyManager of(@NotNull final Class<? extends Plugin> plugin)
+    {
+        return builder(plugin)
+                .build();
+    }
+
+    /**
+     * Creates a new instance of the {@link PluginDependencyManager} from the given
+     * BungeeCord plugin class.
+     *
+     * Example usage:
+     * <code>
+     *     PluginDependencyManager dependencyManager = PluginDependencyManager.of(this);
+     *     dependencyManager.loadAllDependencies();
+     * </code>
+     *
+     * @param plugin the plugin instance
+     * @return instance of {@link PluginDependencyManager} from the plugin class
+     */
+    @NotNull
+    public static PluginDependencyManager of(@NotNull final net.md_5.bungee.api.plugin.Plugin plugin)
     {
         return builder(plugin)
                 .build();
