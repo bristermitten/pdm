@@ -14,6 +14,7 @@ import java.io.*;
 import java.net.URLClassLoader;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -33,9 +34,12 @@ public final class PluginDependencyManager
     @NotNull
     private final Logger logger;
 
-    PluginDependencyManager(@NotNull final Function<String, Logger> loggerFactory, @Nullable final InputStream dependenciesResource,
-                            @NotNull final File rootDirectory, @NotNull final URLClassLoader classLoader,
-                            @NotNull final String applicationName, @NotNull final String applicationVersion,
+    PluginDependencyManager(@NotNull final Function<String, Logger> loggerFactory,
+                            @Nullable final InputStream dependenciesResource,
+                            @NotNull final File rootDirectory,
+                            @NotNull final URLClassLoader classLoader,
+                            @NotNull final String applicationName,
+                            @NotNull final String applicationVersion,
                             @NotNull final CacheConfiguration cacheConfiguration)
     {
         this.logger = loggerFactory.apply(getClass().getName());
@@ -63,11 +67,23 @@ public final class PluginDependencyManager
         return new Builder();
     }
 
+    /**
+     * Add a dependency that should be downloaded and loaded into the classpath
+     *
+     * @param dependency The dependency to add to the required dependencies
+     */
     public void addRequiredDependency(@NotNull final Artifact dependency)
     {
         requiredDependencies.add(dependency);
     }
 
+    /**
+     * Add a new Repository url that will be queried when searching for dependencies
+     * This should be a standard Maven Repository.
+     *
+     * @param alias         A <b>unique</b> alias for this Repository.
+     * @param repositoryUrl the root url of the Repository
+     */
     public void addRepository(@NotNull final String alias, @NotNull final String repositoryUrl)
     {
         manager.getRepositoryManager().addRepository(alias, manager.getRepositoryFactory().create(repositoryUrl));
@@ -76,7 +92,6 @@ public final class PluginDependencyManager
     private void loadDependenciesFromFile(@NotNull final InputStream dependenciesResource)
     {
         final JSONDependencies jsonDependencies;
-
         try (final Reader reader = new InputStreamReader(dependenciesResource))
         {
             jsonDependencies = Constants.GSON.fromJson(reader, JSONDependencies.class);
@@ -130,7 +145,7 @@ public final class PluginDependencyManager
      * which is completed once all dependencies have been downloaded (if applicable), loaded into the classpath, or failed.
      * <p>
      * Because of the non blocking nature, important parts of initialization (that require classes from dependencies) should
-     * typically either block, or
+     * typically either block, or use a callback such as {@link CompletableFuture#whenComplete(BiConsumer)}
      *
      * @return a {@link CompletableFuture} that is completed when dependency loading finishes.
      * @since 0.0.1
@@ -142,7 +157,7 @@ public final class PluginDependencyManager
         {
             logger.warning("There were no dependencies to load! This might be intentional, but if not, check your dependencies configuration!");
         }
-
+        //Each dependency is loaded concurrently
         return CompletableFuture.allOf(requiredDependencies.stream()
                 .map(manager::downloadAndLoad)
                 .toArray(CompletableFuture[]::new));
