@@ -11,7 +11,19 @@ this project does not yet adhere to semantic versioning as it's in very early st
    - Example: The `example` module
    - Global: Changes that apply everywhere
    - Readme: `README.MD`
-
+## [0.0.33] - 2021-02-15
+### Added
+   - Runtime: A bit of documentation has been added to `PluginDependencyManager` and other classes
+### Fixed
+   - Runtime: Spigot and BungeeCord specific methods (i.e `of(Plugin)`) have been moved to their own classes 
+     (`SpigotDependencyManager` and `BungeeDependencyManager` respectively) to avoid potential conflicts.
+     This has the nice side-effect of making PDM now effectively platform agnostic, 
+     however some transitive dependencies of Spigot (commons-text and guava) are required.
+## [0.0.32] - 2021-02-04
+### Added
+   - Runtime: Convenience method for making a PluginDependencyManager on BungeeCord
+### Credits
+   - BomBardyGamer: Adding BungeeCord methods
 ## [0.0.31] - 2021-01-31
 ### Added
    - PDM: Maven Repositories will now cache an artifact's transitive dependencies to reduce repeated lookups in some situations
