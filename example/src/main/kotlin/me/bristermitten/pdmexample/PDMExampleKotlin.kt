@@ -1,6 +1,6 @@
 package me.bristermitten.pdmexample
 
-import me.bristermitten.pdm.PluginDependencyManager
+import me.bristermitten.pdm.SpigotDependencyManager
 import org.bukkit.plugin.java.JavaPlugin
 
 class PDMExampleKotlin : JavaPlugin()
@@ -14,7 +14,7 @@ class PDMExampleKotlin : JavaPlugin()
 		Alternatively, make a Java bootstrap class that calls PDM, or use any of Kotlin's null safety operators
 		which should also avoid this issue
 		 */
-		PluginDependencyManager.of(this) //Create a new PluginDependencyManager with data from the JavaPlugin
+		SpigotDependencyManager.of(this) //Create a new PluginDependencyManager with data from the JavaPlugin
 			.loadAllDependencies() //Reads dependencies.json and starts downloading / loading all dependencies async
 			.join() //Block until all dependencies are downloaded - in production a callback is advised to avoid lag
 	}

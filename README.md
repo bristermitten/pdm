@@ -46,11 +46,11 @@ Declaration can be done programmatically or via JSON file:
 
 **Programmatically (Java)**:
 
-Create a new `PluginDependencyManager` with `PluginDependencyManager#of(Plugin)`, and call `PluginDependencyManager#loadAllDependencies`
+Create a new `PluginDependencyManager` with `SpigotDependencyManager.of(Plugin)`, and call `PluginDependencyManager#loadAllDependencies`
 
 For example: 
 ```java
-PluginDependencyManager dependencyManager = PluginDependencyManager.of(this);
+PluginDependencyManager dependencyManager = SpigotDependencyManager.of(this);
 CompletableFuture<Void> onLoad = dependencyManager.loadAllDependencies();
 //loadAllDependencies is async, the returned future is completed when downloading and loading completes
 onLoad.thenRun(() -> System.out.println("Everything is loaded!"));

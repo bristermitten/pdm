@@ -1,15 +1,17 @@
 package me.bristermitten.pdmexample;
 
 import me.bristermitten.pdm.PluginDependencyManager;
+import me.bristermitten.pdm.SpigotDependencyManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class PDMExample extends JavaPlugin
 {
+
     @Override
     public void onEnable()
     {
         //Create a new PluginDependencyManager with data from the JavaPlugin
-        PluginDependencyManager dependencyManager = PluginDependencyManager.of(this);
+        PluginDependencyManager dependencyManager = SpigotDependencyManager.of(this);
 
         dependencyManager
                 .loadAllDependencies() //Reads dependencies.json and starts downloading / loading all dependencies async
