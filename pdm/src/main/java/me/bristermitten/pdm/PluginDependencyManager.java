@@ -7,10 +7,6 @@ import me.bristermitten.pdmlibs.artifact.Artifact;
 import me.bristermitten.pdmlibs.config.CacheConfiguration;
 import me.bristermitten.pdmlibs.http.HTTPService;
 import me.bristermitten.pdmlibs.repository.Repository;
-import me.bristermitten.pdmlibs.util.Reflection;
-import org.apache.commons.lang.Validate;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,6 +49,18 @@ public final class PluginDependencyManager
         {
             loadDependenciesFromFile(dependenciesResource);
         }
+    }
+
+    /**
+     * Create a new empty builder for {@link PluginDependencyManager} with no
+     * configuration
+     *
+     * @return empty builder
+     */
+    @NotNull
+    public static Builder builder()
+    {
+        return new Builder();
     }
 
     public void addRequiredDependency(@NotNull final Artifact dependency)
@@ -167,140 +175,6 @@ public final class PluginDependencyManager
     }
 
     /**
-     * Create a new empty builder for {@link PluginDependencyManager} with no
-     * configuration
-     *
-     * @return empty builder
-     */
-    @NotNull
-    public static Builder builder()
-    {
-        return new Builder();
-    }
-
-    /**
-     * Create a new builder for {@link PluginDependencyManager} with configuration
-     * from the given Bukkit (Spigot) plugin instance
-     *
-     * @param plugin the plugin instance
-     * @return a builder with configuration from the plugin
-     */
-    @NotNull
-    public static Builder builder(@NotNull final Plugin plugin)
-    {
-        return new Builder()
-                .loggerFactory(clazz -> plugin.getLogger())
-                .dependenciesResource(plugin.getResource(Builder.DEPENDENCIES_RESOURCE_NAME))
-                .rootDirectory(plugin.getDataFolder().getParentFile())
-                .classLoader((URLClassLoader) plugin.getClass().getClassLoader())
-                .applicationName(plugin.getName())
-                .applicationVersion(plugin.getDescription().getVersion());
-    }
-
-    /**
-     * Create a new builder for {@link PluginDependencyManager} with configuration
-     * from the given Bukkit (Spigot) plugin class
-     *
-     * @param plugin the plugin class
-     * @return a builder with configuration from the plugin
-     */
-    @NotNull
-    public static Builder builder(@NotNull final Class<? extends Plugin> plugin)
-    {
-        Validate.isTrue(Builder.PLUGIN_CLASS_LOADER_NAME.equals(plugin.getClassLoader().getClass().getName()), "Plugin must be loaded with a PluginClassLoader");
-
-        final URLClassLoader classLoader = (URLClassLoader) plugin.getClassLoader();
-        final PluginDescriptionFile description = Reflection.getFieldValue(classLoader, "description");
-
-        return builder()
-                .classLoader((URLClassLoader) plugin.getClassLoader())
-                .dependenciesResource(classLoader.getResourceAsStream(Builder.DEPENDENCIES_RESOURCE_NAME))
-                .rootDirectory(new File("./plugins"))
-                .applicationName(description.getName())
-                .applicationVersion(description.getVersion())
-                .loggerFactory(clazz -> Logger.getLogger(description.getName()));
-    }
-
-    /**
-     * Create a new builder for {@link PluginDependencyManager} with configuration
-     * from the given BungeeCord plugin instance
-     *
-     * @param plugin the plugin instance
-     * @return a builder with configuration from the plugin
-     */
-    @NotNull
-    public static Builder builder(@NotNull final net.md_5.bungee.api.plugin.Plugin plugin)
-    {
-        return new Builder()
-                .applicationName(plugin.getDescription().getName())
-                .applicationVersion(plugin.getDescription().getVersion())
-                .classLoader((URLClassLoader) plugin.getClass().getClassLoader())
-                .rootDirectory(plugin.getDataFolder().getParentFile())
-                .dependenciesResource(plugin.getResourceAsStream(Builder.DEPENDENCIES_RESOURCE_NAME))
-                .loggerFactory(clazz -> plugin.getLogger());
-    }
-
-    /**
-     * Creates a new instance of the {@link PluginDependencyManager} from the given
-     * Bukkit (Spigot) plugin instance.
-     *
-     * Example usage:
-     * <code>
-     *     PluginDependencyManager dependencyManager = PluginDependencyManager.of(this);
-     *     dependencyManager.loadAllDependencies();
-     * </code>
-     *
-     * @param plugin the plugin instance
-     * @return instance of {@link PluginDependencyManager} from the plugin
-     */
-    @NotNull
-    public static PluginDependencyManager of(@NotNull final Plugin plugin)
-    {
-        return builder(plugin)
-                .build();
-    }
-
-    /**
-     * Creates a new instance of the {@link PluginDependencyManager} from the given
-     * Bukkit (Spigot) plugin class.
-     *
-     * Example usage:
-     * <code>
-     *     PluginDependencyManager dependencyManager = PluginDependencyManager.of(MyPluginClass.class);
-     *     dependencyManager.loadAllDependencies();
-     * </code>
-     *
-     * @param plugin the plugin class
-     * @return instance of {@link PluginDependencyManager} from the plugin class
-     */
-    @NotNull
-    public static PluginDependencyManager of(@NotNull final Class<? extends Plugin> plugin)
-    {
-        return builder(plugin)
-                .build();
-    }
-
-    /**
-     * Creates a new instance of the {@link PluginDependencyManager} from the given
-     * BungeeCord plugin class.
-     *
-     * Example usage:
-     * <code>
-     *     PluginDependencyManager dependencyManager = PluginDependencyManager.of(this);
-     *     dependencyManager.loadAllDependencies();
-     * </code>
-     *
-     * @param plugin the plugin instance
-     * @return instance of {@link PluginDependencyManager} from the plugin class
-     */
-    @NotNull
-    public static PluginDependencyManager of(@NotNull final net.md_5.bungee.api.plugin.Plugin plugin)
-    {
-        return builder(plugin)
-                .build();
-    }
-
-    /**
      * @author AlexL
      */
     @SuppressWarnings("UnusedReturnValue")
@@ -308,17 +182,21 @@ public final class PluginDependencyManager
     {
 
         public static final String DEPENDENCIES_RESOURCE_NAME = "dependencies.json";
-        public static final String PLUGIN_CLASS_LOADER_NAME = "org.bukkit.plugin.java.PluginClassLoader";
 
         private Function<String, Logger> loggerFactory = Logger::getLogger;
-        @Nullable private InputStream dependenciesResource = null;
-        @Nullable private File rootDirectory = null;
-        @Nullable private URLClassLoader classLoader = null;
-        @Nullable private String applicationName = null;
-        @Nullable private String applicationVersion = null;
+        @Nullable
+        private InputStream dependenciesResource = null;
+        @Nullable
+        private File rootDirectory = null;
+        @Nullable
+        private URLClassLoader classLoader = null;
+        @Nullable
+        private String applicationName = null;
+        @Nullable
+        private String applicationVersion = null;
         private CacheConfiguration cacheConfiguration = CacheConfiguration.builder().build();
 
-        private Builder()
+        Builder()
         {
 
         }
@@ -357,7 +235,7 @@ public final class PluginDependencyManager
             this.applicationName = applicationName;
             return this;
         }
-    
+
         @NotNull
         public Builder applicationVersion(@NotNull String applicationVersion)
         {
