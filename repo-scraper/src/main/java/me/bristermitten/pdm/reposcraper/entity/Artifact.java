@@ -5,12 +5,13 @@ import me.bristermitten.pdm.reposcraper.entity.version.Version;
 /**
  * An artifact in a Maven Repository
  */
-public class Project {
+public class Artifact {
     private final String groupId;
     private final String artifactId;
     private final Version<?> version;
 
-    public Project(String groupId, String artifactId, Version<?> version) {
+
+    public Artifact(String groupId, String artifactId, Version<?> version) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
